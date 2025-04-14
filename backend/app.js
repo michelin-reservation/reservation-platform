@@ -5,6 +5,8 @@ const dotenv = require('dotenv');
 
 // 라우트 임포트
 const userRoutes = require('./routes/users');
+const restaurantRoutes = require('./routes/restaurants');
+const authRoutes = require('./routes/auth');
 
 // 환경 변수 로드
 dotenv.config();
@@ -22,6 +24,8 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/michelin-
 
 // 라우트 설정
 app.use('/api/users', userRoutes);
+app.use('/api/restaurants', restaurantRoutes);
+app.use('/api/auth', authRoutes);
 
 // 기본 라우트
 app.get('/', (req, res) => {

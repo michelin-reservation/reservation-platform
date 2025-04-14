@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
   email: {
     type: String,
     required: true,
@@ -11,24 +16,21 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
-  },
-  userName: {
-    type: String,
-    required: true
-  },
-  userType: {
-    type: String,
-    enum: ['normal', 'vip', 'admin'],
-    default: 'normal'
+    required: true,
+    minlength: 6
   },
   phone: {
     type: String,
-    trim: true
+    required: true
   },
-  companyName: {
+  role: {
     type: String,
-    trim: true
+    enum: ['user', 'vip', 'admin'],
+    default: 'user'
+  },
+  company: {
+    name: String,
+    position: String
   },
   createdAt: {
     type: Date,
@@ -43,7 +45,7 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
-// 비밀번호 비교 메서드
+// 비밀번호 검증 메서드
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
