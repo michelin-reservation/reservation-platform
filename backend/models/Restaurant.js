@@ -1,65 +1,129 @@
 const mongoose = require('mongoose');
 
+// 메뉴 스키마
+const menuItemSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, '메뉴 이름을 입력해주세요.']
+  },
+  description: {
+    type: String,
+    required: [true, '메뉴 설명을 입력해주세요.']
+  },
+  price: {
+    type: Number,
+    required: [true, '가격을 입력해주세요.']
+  },
+  category: {
+    type: String,
+    required: [true, '카테고리를 입력해주세요.']
+  },
+  image: {
+    type: String
+  }
+});
+
+// 영업 시간 스키마
+const businessHoursSchema = new mongoose.Schema({
+  day: {
+    type: String,
+    enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+    required: true
+  },
+  open: {
+    type: String,
+    required: true
+  },
+  close: {
+    type: String,
+    required: true
+  },
+  isClosed: {
+    type: Boolean,
+    default: false
+  }
+});
+
+// 레스토랑 스키마
 const restaurantSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    required: [true, '레스토랑 이름을 입력해주세요.'],
     trim: true
   },
-  location: {
-    address: {
+  description: {
+    type: String,
+    required: [true, '레스토랑 설명을 입력해주세요.']
+  },
+  address: {
+    street: {
       type: String,
+      required: [true, '도로명 주소를 입력해주세요.']
+    },
+    city: {
+      type: String,
+      required: [true, '도시를 입력해주세요.']
+    },
+    state: {
+      type: String,
+      required: [true, '시/도를 입력해주세요.']
+    },
+    zipCode: {
+      type: String,
+      required: [true, '우편번호를 입력해주세요.']
+    }
+  },
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
       required: true
     },
     coordinates: {
-      latitude: Number,
-      longitude: Number
-    },
-    district: String // 예: 합정, 을지로 등
+      type: [Number],
+      required: true
+    }
+  },
+  phone: {
+    type: String,
+    required: [true, '전화번호를 입력해주세요.'],
+    match: [/^[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}$/, '올바른 전화번호 형식을 입력해주세요.']
   },
   cuisine: {
     type: String,
-    required: true // 예: 국수, 냉면 등
+    required: [true, '음식 종류를 입력해주세요.']
   },
-  michelinStatus: {
+  priceRange: {
     type: String,
-    enum: ['스타', '빕구르망', '플레이트'],
-    required: true
+    enum: ['₩', '₩₩', '₩₩₩', '₩₩₩₩'],
+    required: [true, '가격대를 입력해주세요.']
   },
-  operatingHours: {
-    regular: {
-      open: String,
-      close: String
-    },
-    breakTime: {
-      start: String,
-      end: String
-    },
-    lastOrder: String,
-    closedDays: [String]
-  },
-  contact: {
-    phone: String,
-    website: String
-  },
-  facilities: [{
-    type: String // 예: 대관 가능, 예약금 등
+  businessHours: [businessHoursSchema],
+  menu: [menuItemSchema],
+  images: [{
+    type: String
   }],
-  description: {
-    type: String,
-    required: true
+  rating: {
+    type: Number,
+    min: 0,
+    max: 5,
+    default: 0
   },
-  menu: [{
-    name: String,
-    price: Number,
-    description: String,
-    isSignature: Boolean
+  reviews: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Review'
   }],
-  images: [String],
-  reservationPolicy: {
-    deposit: Number,
-    maxPartySize: Number,
-    minPartySize: Number
+  reservations: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Reservation'
+  }],
+  capacity: {
+    type: Number,
+    required: [true, '수용 가능 인원을 입력해주세요.']
+  },
+  isActive: {
+    type: Boolean,
+    default: true
   },
   createdAt: {
     type: Date,
@@ -71,18 +135,13 @@ const restaurantSchema = new mongoose.Schema({
   }
 });
 
+// 위치 기반 검색을 위한 인덱스 생성
+restaurantSchema.index({ location: '2dsphere' });
+
 // 업데이트 시 updatedAt 자동 갱신
 restaurantSchema.pre('save', function(next) {
   this.updatedAt = new Date();
   next();
-});
-
-// 텍스트 검색을 위한 인덱스 생성
-restaurantSchema.index({
-  name: 'text',
-  'location.district': 'text',
-  cuisine: 'text',
-  description: 'text'
 });
 
 module.exports = mongoose.model('Restaurant', restaurantSchema); 

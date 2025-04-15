@@ -3,57 +3,46 @@ const Restaurant = require('../models/Restaurant');
 // 모든 레스토랑 조회
 exports.getAllRestaurants = async (req, res) => {
   try {
-    const restaurants = await Restaurant.find();
-    res.status(200).json(restaurants);
+    const restaurants = await Restaurant.find().select('-reviews -reservations');
+    res.json(restaurants);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: '레스토랑 목록을 불러오는데 실패했습니다.', error: error.message });
   }
 };
 
 // 레스토랑 검색
 exports.searchRestaurants = async (req, res) => {
   try {
-    const {
-      query,          // 검색어
-      district,       // 지역구
-      cuisine,        // 음식 종류
-      michelinStatus, // 미슐랭 등급
-      page = 1,
-      limit = 10
-    } = req.query;
+    const { keyword, cuisine, priceRange, location, page = 1, limit = 10 } = req.query;
+    const query = {};
 
-    const filter = {};
-
-    // 텍스트 검색 조건
-    if (query) {
-      filter.$text = { $search: query };
+    if (keyword) {
+      query.$or = [
+        { name: { $regex: keyword, $options: 'i' } },
+        { description: { $regex: keyword, $options: 'i' } }
+      ];
     }
-
-    // 지역구 필터
-    if (district) {
-      filter['location.district'] = district;
-    }
-
-    // 음식 종류 필터
-    if (cuisine) {
-      filter.cuisine = cuisine;
-    }
-
-    // 미슐랭 등급 필터
-    if (michelinStatus) {
-      filter.michelinStatus = michelinStatus;
+    if (cuisine) query.cuisine = cuisine;
+    if (priceRange) query.priceRange = priceRange;
+    if (location) {
+      query.location = {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: location.split(',').map(Number)
+          },
+          $maxDistance: 10000 // 10km 반경
+        }
+      };
     }
 
     const skip = (page - 1) * limit;
-
-    // 검색 실행
-    const restaurants = await Restaurant.find(filter)
+    const restaurants = await Restaurant.find(query)
+      .select('-reviews -reservations')
       .skip(skip)
-      .limit(parseInt(limit))
-      .sort({ 'name': 1 });
+      .limit(parseInt(limit));
 
-    // 총 결과 수 계산
-    const total = await Restaurant.countDocuments(filter);
+    const total = await Restaurant.countDocuments(query);
 
     res.json({
       restaurants,
@@ -62,7 +51,7 @@ exports.searchRestaurants = async (req, res) => {
       total
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: '레스토랑 검색에 실패했습니다.', error: error.message });
   }
 };
 
@@ -73,7 +62,7 @@ exports.createRestaurant = async (req, res) => {
     const savedRestaurant = await restaurant.save();
     res.status(201).json(savedRestaurant);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: '레스토랑 생성에 실패했습니다.', error: error.message });
   }
 };
 
@@ -82,15 +71,15 @@ exports.updateRestaurant = async (req, res) => {
   try {
     const restaurant = await Restaurant.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      { $set: req.body },
       { new: true, runValidators: true }
     );
     if (!restaurant) {
       return res.status(404).json({ message: '레스토랑을 찾을 수 없습니다.' });
     }
-    res.status(200).json(restaurant);
+    res.json(restaurant);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: '레스토랑 수정에 실패했습니다.', error: error.message });
   }
 };
 
@@ -101,21 +90,24 @@ exports.deleteRestaurant = async (req, res) => {
     if (!restaurant) {
       return res.status(404).json({ message: '레스토랑을 찾을 수 없습니다.' });
     }
-    res.status(200).json({ message: '레스토랑이 삭제되었습니다.' });
+    res.json({ message: '레스토랑이 성공적으로 삭제되었습니다.' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: '레스토랑 삭제에 실패했습니다.', error: error.message });
   }
 };
 
-// 레스토랑 상세 조회
-exports.getRestaurant = async (req, res) => {
+// 레스토랑 상세 정보 조회
+exports.getRestaurantDetails = async (req, res) => {
   try {
-    const restaurant = await Restaurant.findById(req.params.id);
+    const restaurant = await Restaurant.findById(req.params.id)
+      .populate('reviews')
+      .populate('reservations');
+    
     if (!restaurant) {
       return res.status(404).json({ message: '레스토랑을 찾을 수 없습니다.' });
     }
-    res.status(200).json(restaurant);
+    res.json(restaurant);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: '레스토랑 정보를 불러오는데 실패했습니다.', error: error.message });
   }
 }; 

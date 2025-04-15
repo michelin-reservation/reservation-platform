@@ -56,16 +56,22 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 사용자 찾기
-    const user = await User.findOne({ email });
+    // 사용자 찾기 (비밀번호 필드 포함)
+    const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      return res.status(401).json({ message: '이메일 또는 비밀번호가 올바르지 않습니다.' });
+      return res.status(401).json({
+        success: false,
+        message: '이메일 또는 비밀번호가 올바르지 않습니다.'
+      });
     }
 
     // 비밀번호 확인
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(401).json({ message: '이메일 또는 비밀번호가 올바르지 않습니다.' });
+      return res.status(401).json({
+        success: false,
+        message: '이메일 또는 비밀번호가 올바르지 않습니다.'
+      });
     }
 
     // 토큰 생성
@@ -82,7 +88,10 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      success: false,
+      message: '로그인 중 오류가 발생했습니다.'
+    });
   }
 };
 

@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const { auth } = require('../middleware/auth');
 const restaurantController = require('../controllers/restaurantController');
 
-// 레스토랑 검색
+// 공개 라우트
 router.get('/search', restaurantController.searchRestaurants);
-
-// 기본 CRUD 라우트
+router.get('/:id', restaurantController.getRestaurantDetails);
 router.get('/', restaurantController.getAllRestaurants);
-router.get('/:id', restaurantController.getRestaurant);
-router.post('/', restaurantController.createRestaurant);
-router.put('/:id', restaurantController.updateRestaurant);
-router.delete('/:id', restaurantController.deleteRestaurant);
+
+// 인증이 필요한 라우트
+router.post('/', auth, restaurantController.createRestaurant);
+router.put('/:id', auth, restaurantController.updateRestaurant);
+router.delete('/:id', auth, restaurantController.deleteRestaurant);
 
 module.exports = router; 

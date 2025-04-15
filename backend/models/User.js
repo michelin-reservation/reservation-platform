@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  userName: {
+  name: {
     type: String,
     required: [true, '이름을 입력해주세요.'],
     trim: true
@@ -26,15 +26,15 @@ const userSchema = new mongoose.Schema({
     required: [true, '전화번호를 입력해주세요.'],
     match: [/^[0-9]{10,11}$/, '올바른 전화번호 형식을 입력해주세요.']
   },
-  userType: {
+  role: {
     type: String,
     enum: ['normal', 'vip', 'admin'],
     default: 'normal'
   },
-  companyName: {
+  company: {
     type: String,
     required: function() {
-      return this.userType === 'vip';
+      return this.role === 'vip';
     }
   },
   createdAt: {
