@@ -21,9 +21,31 @@ exports.signup = async (req, res) => {
     });
 
     await newUser.save();
-    res.status(201).json({ message: '회원가입이 완료되었습니다.' });
+
+    // 토큰 생성
+    const token = jwt.sign(
+      { id: newUser._id, userType: newUser.userType },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    res.status(201).json({
+      success: true,
+      message: '회원가입이 완료되었습니다.',
+      token,
+      user: {
+        id: newUser._id,
+        email: newUser.email,
+        userName: newUser.userName,
+        userType: newUser.userType
+      }
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('회원가입 에러:', error);
+    res.status(500).json({ 
+      success: false,
+      message: error.message || '회원가입 중 오류가 발생했습니다.' 
+    });
   }
 };
 
@@ -33,7 +55,10 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ message: '이메일 또는 비밀번호가 올바르지 않습니다.' });
+      return res.status(401).json({ 
+        success: false,
+        message: '이메일 또는 비밀번호가 올바르지 않습니다.' 
+      });
     }
 
     const token = jwt.sign(
@@ -43,6 +68,7 @@ exports.login = async (req, res) => {
     );
 
     res.json({
+      success: true,
       token,
       user: {
         id: user._id,
@@ -52,7 +78,11 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('로그인 에러:', error);
+    res.status(500).json({ 
+      success: false,
+      message: error.message || '로그인 중 오류가 발생했습니다.' 
+    });
   }
 };
 

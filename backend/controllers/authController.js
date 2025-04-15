@@ -37,6 +37,7 @@ exports.signup = async (req, res) => {
     const token = generateToken(user);
     
     res.status(201).json({
+      success: true,
       token,
       user: {
         id: user._id,
@@ -71,6 +72,7 @@ exports.login = async (req, res) => {
     const token = generateToken(user);
 
     res.json({
+      success: true,
       token,
       user: {
         id: user._id,
