@@ -8,8 +8,7 @@ import {
   Typography,
   Box,
   Alert,
-  MenuItem,
-  FormHelperText
+  MenuItem
 } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 

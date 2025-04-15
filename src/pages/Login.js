@@ -8,37 +8,18 @@ import {
   Typography,
   Box,
   Alert,
-  Divider,
   Link
 } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
-import NaverLoginButton from '../components/Auth/NaverLoginButton';
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  const [errors, setErrors] = useState({});
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.email) {
-      newErrors.email = '이메일을 입력해주세요.';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = '올바른 이메일 형식을 입력해주세요.';
-    }
-
-    if (!formData.password) {
-      newErrors.password = '비밀번호를 입력해주세요.';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,36 +27,21 @@ const Login = () => {
       ...prev,
       [name]: value
     }));
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
+    setError(''); // 입력이 변경되면 에러 메시지 초기화
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) {
-      return;
-    }
-
     try {
       const result = await login(formData.email, formData.password);
       if (result.success) {
-        navigate('/');
+        navigate('/'); // 로그인 성공 시 메인 페이지로 이동
       } else {
-        setErrors(prev => ({
-          ...prev,
-          submit: result.message
-        }));
+        setError(result.message || '로그인에 실패했습니다.');
       }
     } catch (error) {
-      setErrors(prev => ({
-        ...prev,
-        submit: '로그인 중 오류가 발생했습니다.'
-      }));
+      setError('로그인 중 오류가 발생했습니다.');
     }
   };
 
@@ -87,9 +53,9 @@ const Login = () => {
             로그인
           </Typography>
           
-          {errors.submit && (
+          {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
-              {errors.submit}
+              {error}
             </Alert>
           )}
 
@@ -97,25 +63,22 @@ const Login = () => {
             <TextField
               fullWidth
               label="이메일"
-              name="email"
               type="email"
+              name="email"
               value={formData.email}
               onChange={handleChange}
               margin="normal"
-              error={!!errors.email}
-              helperText={errors.email}
               required
+              autoFocus
             />
             <TextField
               fullWidth
               label="비밀번호"
-              name="password"
               type="password"
+              name="password"
               value={formData.password}
               onChange={handleChange}
               margin="normal"
-              error={!!errors.password}
-              helperText={errors.password}
               required
             />
             <Button
@@ -126,22 +89,11 @@ const Login = () => {
             >
               로그인
             </Button>
-          </Box>
-
-          <Box sx={{ textAlign: 'center', mb: 2 }}>
-            <Link
-              component="button"
-              variant="body2"
-              onClick={() => navigate('/signup')}
-            >
-              회원가입
-            </Link>
-          </Box>
-
-          <Divider sx={{ my: 3 }}>또는</Divider>
-
-          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-            <NaverLoginButton />
+            <Box sx={{ textAlign: 'center' }}>
+              <Link href="/signup" variant="body2">
+                계정이 없으신가요? 회원가입
+              </Link>
+            </Box>
           </Box>
         </Paper>
       </Box>
