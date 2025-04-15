@@ -1,24 +1,66 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import { Container, AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
+
+const PrivateRoute = ({ children }) => {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/login" />;
+};
+
+const Navigation = () => {
+  const { user, logout } = useAuth();
+
+  return (
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          미슐랭 예약 플랫폼
+        </Typography>
+        {user ? (
+          <Box>
+            <Button color="inherit" onClick={logout}>
+              로그아웃
+            </Button>
+          </Box>
+        ) : (
+          <Box>
+            <Button color="inherit" href="/login">
+              로그인
+            </Button>
+            <Button color="inherit" href="/signup">
+              회원가입
+            </Button>
+          </Box>
+        )}
+      </Toolbar>
+    </AppBar>
+  );
+};
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <Router>
+        <Navigation />
+        <Container>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <div>메인 페이지</div>
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </Container>
+      </Router>
+    </AuthProvider>
   );
 }
 
