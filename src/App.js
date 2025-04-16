@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import RestaurantForm from './pages/RestaurantForm';
+import NaverLoginSuccess from './components/Auth/NaverLoginSuccess';
 import { Container, AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 
 const PrivateRoute = ({ children }) => {
@@ -60,6 +61,7 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route path="/auth/naver/success" element={<NaverLoginSuccess />} />
           </Routes>
         </Container>
       </Router>
