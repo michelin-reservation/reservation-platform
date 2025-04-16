@@ -28,8 +28,13 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['normal', 'vip', 'admin'],
-    default: 'normal'
+    enum: {
+      values: ['user', 'vip', 'admin'],
+      message: '유효하지 않은 회원 유형입니다. (user/vip/admin)'
+    },
+    default: 'user',
+    lowercase: true,  // 저장 시 자동으로 소문자로 변환
+    trim: true       // 공백 제거
   },
   company: {
     type: String,
