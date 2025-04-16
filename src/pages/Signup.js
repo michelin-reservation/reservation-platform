@@ -1,222 +1,142 @@
 import React, { useState } from 'react';
+import { TextField, Button, Container, Typography, Box, MenuItem, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import {
-  Container,
-  Paper,
-  TextField,
-  Button,
-  Typography,
-  Box,
-  Alert,
-  MenuItem
-} from '@mui/material';
-import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 
 const Signup = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    name: '',
-    role: 'normal',
-    phone: '',
-    company: ''
-  });
-  const [errors, setErrors] = useState({});
-  const { signup } = useAuth();
   const navigate = useNavigate();
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    // 이메일 검증
-    if (!formData.email) {
-      newErrors.email = '이메일을 입력해주세요.';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = '올바른 이메일 형식을 입력해주세요.';
-    }
-
-    // 비밀번호 검증
-    if (!formData.password) {
-      newErrors.password = '비밀번호를 입력해주세요.';
-    } else if (formData.password.length < 8) {
-      newErrors.password = '비밀번호는 최소 8자 이상이어야 합니다.';
-    }
-
-    // 비밀번호 확인
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = '비밀번호가 일치하지 않습니다.';
-    }
-
-    // 이름 검증
-    if (!formData.name) {
-      newErrors.name = '이름을 입력해주세요.';
-    }
-
-    // 전화번호 검증
-    if (!formData.phone) {
-      newErrors.phone = '전화번호를 입력해주세요.';
-    } else if (!/^[0-9]{10,11}$/.test(formData.phone)) {
-      newErrors.phone = '올바른 전화번호 형식을 입력해주세요.';
-    }
-
-    // VIP 회원인 경우 회사명 검증
-    if (formData.role === 'vip' && !formData.company) {
-      newErrors.company = '회사명을 입력해주세요.';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // 입력 필드가 변경될 때 해당 필드의 에러를 초기화
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [memberType, setMemberType] = useState('USER');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    // 비밀번호 확인
+    if (password !== confirmPassword) {
+      setError('비밀번호가 일치하지 않습니다.');
       return;
     }
 
     try {
-      const result = await signup(formData);
-      if (result.success) {
-        navigate('/login');
-      } else {
-        setErrors(prev => ({
-          ...prev,
-          submit: result.message
-        }));
+      const response = await axios.post('http://localhost:8001/auth/signup', {
+        email,
+        password,
+        name,
+        phone,
+        role: memberType.toLowerCase()
+      });
+      
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        navigate('/');
       }
     } catch (error) {
-      setErrors(prev => ({
-        ...prev,
-        submit: '회원가입 중 오류가 발생했습니다.'
-      }));
+      console.error('회원가입 실패:', error);
+      setError(error.response?.data?.message || '회원가입에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
   return (
     <Container maxWidth="sm">
-      <Box sx={{ mt: 8, mb: 4 }}>
-        <Paper elevation={3} sx={{ p: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom align="center">
+      <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography component="h1" variant="h5">
+          회원가입
+        </Typography>
+        {error && (
+          <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
+            {error}
+          </Alert>
+        )}
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3, width: '100%' }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="이메일"
+            name="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="비밀번호"
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="confirmPassword"
+            label="비밀번호 확인"
+            type="password"
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="name"
+            label="이름"
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="phone"
+            label="전화번호"
+            id="phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            select
+            name="memberType"
+            label="회원 유형"
+            id="memberType"
+            value={memberType}
+            onChange={(e) => setMemberType(e.target.value)}
+          >
+            <MenuItem value="USER">일반 회원</MenuItem>
+            <MenuItem value="VIP">기업 회원</MenuItem>
+            <MenuItem value="ADMIN">레스토랑 관리자</MenuItem>
+          </TextField>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
             회원가입
-          </Typography>
-          
-          {errors.submit && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {errors.submit}
-            </Alert>
-          )}
-
-          <Box component="form" onSubmit={handleSubmit} noValidate>
-            <TextField
-              fullWidth
-              label="이메일"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              margin="normal"
-              error={!!errors.email}
-              helperText={errors.email}
-              required
-            />
-            <TextField
-              fullWidth
-              label="비밀번호"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              margin="normal"
-              error={!!errors.password}
-              helperText={errors.password}
-              required
-            />
-            <TextField
-              fullWidth
-              label="비밀번호 확인"
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              margin="normal"
-              error={!!errors.confirmPassword}
-              helperText={errors.confirmPassword}
-              required
-            />
-            <TextField
-              fullWidth
-              label="이름"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              margin="normal"
-              error={!!errors.name}
-              helperText={errors.name}
-              required
-            />
-            <TextField
-              fullWidth
-              select
-              label="회원 유형"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              margin="normal"
-              required
-            >
-              <MenuItem value="normal">일반 회원</MenuItem>
-              <MenuItem value="vip">VIP 회원</MenuItem>
-            </TextField>
-            <TextField
-              fullWidth
-              label="전화번호"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              margin="normal"
-              error={!!errors.phone}
-              helperText={errors.phone}
-              required
-            />
-            {formData.role === 'vip' && (
-              <TextField
-                fullWidth
-                label="회사명"
-                name="company"
-                value={formData.company}
-                onChange={handleChange}
-                margin="normal"
-                error={!!errors.company}
-                helperText={errors.company}
-              />
-            )}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              회원가입
-            </Button>
-          </Box>
-        </Paper>
+          </Button>
+          <Button
+            fullWidth
+            variant="text"
+            onClick={() => navigate('/login')}
+          >
+            이미 계정이 있으신가요? 로그인
+          </Button>
+        </Box>
       </Box>
     </Container>
   );
