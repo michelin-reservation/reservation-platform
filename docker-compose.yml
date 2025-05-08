@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0
+    container_name: michelin-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpw
+      MYSQL_DATABASE: michelin
+      MYSQL_USER: michelin
+      MYSQL_PASSWORD: michelinpw
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: michelin-backend
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+      - DB_USERNAME=michelin
+      - DB_PASSWORD=michelinpw
+      - DB_NAME=michelin
+      - JWT_SECRET=your_jwt_secret
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    container_name: michelin-frontend
+    restart: always
+    environment:
+      - VITE_NAVER_MAP_CLIENT_ID=your_naver_map_client_id
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+
+volumes:
+  db_data: 
