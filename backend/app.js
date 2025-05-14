@@ -7,8 +7,16 @@ dotenv.config();
 
 const app = express();
 
+// CORS 설정
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
+
 // 미들웨어 설정
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(morgan('dev'));
 
@@ -16,6 +24,7 @@ app.use(morgan('dev'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/restaurants', require('./routes/restaurants'));
+app.use('/api/reservations', require('./routes/reservations'));
 
 // 기본 라우트
 app.get('/', (req, res) => {
@@ -33,7 +42,7 @@ app.use((err, req, res, next) => {
 });
 
 // 서버 시작
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, async () => {
   try {
     await syncDatabase();
