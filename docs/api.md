@@ -177,3 +177,60 @@
 ## 기타
 - 모든 응답은 JSON
 - 상세 파라미터/응답 예시는 Swagger 등으로 확장 가능 
+
+## 로컬 실행 및 테스트 절차
+
+1. **.env 파일 점검**
+   - DB_HOST, DB_USER, DB_PASS, DB_NAME이 모두 로컬 DB(MySQL/MariaDB)로 되어 있는지 확인
+   - 예시:
+     ```
+     DB_HOST=localhost
+     DB_PORT=3306
+     DB_USER=your_local_user
+     DB_PASS=your_local_password
+     DB_NAME=your_local_db
+     ``` 
+
+2. **로컬 DB(MySQL/MariaDB) 실행**
+   - DB가 정상적으로 실행 중인지 확인 (ex: `mysql -u root -p` 접속 테스트)
+
+3. **의존성 설치**
+   ```bash
+   cd backend && npm install
+   cd ../frontend && npm install
+   ```
+
+4. **DB 마이그레이션/시드**
+   - (필요시) `npx sequelize db:migrate`
+   - (필요시) `npx sequelize db:seed:all`
+
+5. **서버 실행**
+   ```bash
+   cd backend
+   npm run dev
+   # 또는
+   npm start
+   ```
+
+6. **프론트엔드 실행**
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+
+7. **테스트**
+   - Postman, 브라우저 등으로 API, 프론트엔드 정상 동작 확인
+
+---
+
+## 🚩 만약 에러가 발생한다면?
+- DB 연결 에러: .env의 DB 정보, DB 실행 상태, 포트 충돌 등 점검
+- 의존성 에러: `npm install` 재실행
+- 마이그레이션 에러: 모델/마이그레이션 파일 점검
+
+---
+
+**로컬에서 실행 중 문제가 발생하면,  
+에러 메시지나 로그를 공유해주시면 바로 원인 분석 및 해결 도와드릴 수 있습니다!**
+
+바로 실행해보시고, 궁금한 점이나 에러가 있으면 말씀해 주세요! 
