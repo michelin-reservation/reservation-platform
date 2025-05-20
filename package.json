@@ -1,6 +1,8 @@
 {
   "name": "michelin-reservation-platform-2025-Q2",
   "dependencies": {
-    "lucide-react": "^0.507.0"
+    "@radix-ui/react-tabs": "^1.1.11",
+    "lucide-react": "^0.507.0",
+    "react-calendar": "^5.1.0"
   }
 }
