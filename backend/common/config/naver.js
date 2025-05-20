@@ -2,8 +2,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default {
-  clientID: 'F3AOhe_B_3L2444DR6Vt',
-  clientSecret: 'IEmSj6D_QQ',
-  callbackURL: 'http://localhost:8000/auth/naver/callback',
+  clientID: process.env.NAVER_CLIENT_ID,
+  clientSecret: process.env.NAVER_CLIENT_SECRET,
+  callbackURL: process.env.NAVER_CALLBACK_URL,
   state: process.env.NAVER_STATE || 'RANDOM_STATE',
 }; 

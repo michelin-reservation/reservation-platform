@@ -24,3 +24,11 @@
 ---
 
 > ERD 이미지와 상세 구조는 docs/flowchart1.png, docs/flowchart2.png, docs/flowchart3.png 등 참고 
+
+PORT=8001
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=michelin_db
+DB_USER=michelin_user
+DB_PASS=yourpassword
+JWT_SECRET=your_super_secret 
