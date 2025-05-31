@@ -1,36 +1,43 @@
-const { Sequelize } = require('sequelize');
-const config = require('../config/database');
+const sequelize = require('./sequelize');
 
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
-  {
-    host: config.host,
-    dialect: 'mysql',
-    logging: false,
-    define: {
-      charset: 'utf8mb4',
-      collate: 'utf8mb4_unicode_ci'
-    }
-  }
-);
+// 모델 불러오기
+const User = require('./User');
+const Restaurant = require('./Restaurant');
+const Reservation = require('./Reservation');
+const Review = require('./Review');
+const VipRequest = require('./VipRequest');
+const Payment = require('./Payment');
 
-// 모델 정의
-const User = require('./User')(sequelize);
-const { Restaurant, MenuItem, BusinessHours } = require('./Restaurant')(sequelize);
+// 관계 설정 (ERD 참고)
+// User - Reservation (1:N)
+User.hasMany(Reservation, { foreignKey: 'user_id' });
+Reservation.belongsTo(User, { foreignKey: 'user_id' });
 
-// 관계 설정
-Restaurant.belongsTo(User, { as: 'owner' });
-User.hasMany(Restaurant, { as: 'restaurants' });
+// Restaurant - Reservation (1:N)
+Restaurant.hasMany(Reservation, { foreignKey: 'restaurant_id' });
+Reservation.belongsTo(Restaurant, { foreignKey: 'restaurant_id' });
 
-// 데이터베이스 연결 및 동기화
+// User - Review (1:N)
+User.hasMany(Review, { foreignKey: 'user_id' });
+Review.belongsTo(User, { foreignKey: 'user_id' });
+
+// Restaurant - Review (1:N)
+Restaurant.hasMany(Review, { foreignKey: 'restaurant_id' });
+Review.belongsTo(Restaurant, { foreignKey: 'restaurant_id' });
+
+// User - VipRequest (1:N)
+User.hasMany(VipRequest, { foreignKey: 'user_id' });
+VipRequest.belongsTo(User, { foreignKey: 'user_id' });
+
+// Reservation - Payment (1:1)
+Reservation.hasOne(Payment, { foreignKey: 'reservation_id' });
+Payment.belongsTo(Reservation, { foreignKey: 'reservation_id' });
+
+// DB 동기화 함수
 const syncDatabase = async () => {
   try {
     await sequelize.authenticate();
     console.log('데이터베이스 연결 성공');
-    
-    // 개발 환경에서만 테이블 자동 생성
     if (process.env.NODE_ENV === 'development') {
       await sequelize.sync({ alter: true });
       console.log('데이터베이스 동기화 완료');
@@ -45,6 +52,8 @@ module.exports = {
   syncDatabase,
   User,
   Restaurant,
-  MenuItem,
-  BusinessHours
+  Reservation,
+  Review,
+  VipRequest,
+  Payment,
 }; 
