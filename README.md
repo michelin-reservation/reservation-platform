@@ -49,50 +49,110 @@ npm run dev
 
 #### backend/.env 예시
 ```
-PORT=8001
+# Local Development
+NODE_ENV=development
+PORT=3000
+
+# Local Database
 DB_HOST=localhost
 DB_PORT=3306
-DB_NAME=michelin_db
-DB_USER=michelin_user
-DB_PASS=yourpassword
-JWT_SECRET=your_super_secret
+DB_NAME=michelin
+DB_USER=root
+DB_PASSWORD=
+
+# NAS Database (for production)
+# DB_HOST=192.168.1.39
+# DB_PORT=30262
+# DB_NAME=michelin
+# DB_USER=root
+# DB_PASSWORD=your_password_here
+
+# JWT
+JWT_SECRET=your_jwt_secret_here
+JWT_EXPIRES_IN=24h
 ```
 
 #### frontend/.env 예시
 ```
-VITE_API_URL=http://localhost:8001
 ```
 
----
+### 4. 로컬 DB 설정
+```bash
+# MariaDB 접속
+mysql -u root
 
-## 개발/운영 전략
-- **로컬 개발 → NAS(MariaDB) → NCP 서버(Docker)로 배포**
-- GitHub Actions 기반 CI/CD 자동화
-- .env 등 민감정보는 git에 포함하지 않음
-- ERD, API 명세, 전략 문서 등 docs 폴더에 최신화
+# DB 생성
+CREATE DATABASE michelin;
+```
 
----
+### 5. .env 파일 수동 생성
+backend 폴더에 `.env` 파일을 생성하고 다음 내용을 입력:
+```env
+# Local Development
+NODE_ENV=development
+PORT=3000
 
-## 병합/마이그레이션 내역
-- reservation-platform-bbk의 프론트엔드 전체 코드(components, pages, data, types) 완전 이식
-- 코드/폴더/내용 100% 일치 확인
-- main 브랜치 기준으로 병합 및 푸시 완료
+# Local Database
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=michelin
+DB_USER=root
+DB_PASSWORD=
 
----
+# NAS Database (for production)
+# DB_HOST=192.168.1.39
+# DB_PORT=30262
+# DB_NAME=michelin
+# DB_USER=root
+# DB_PASSWORD=your_password_here
 
-## 주요 기술 스택
-- **Frontend:** React, Vite, TypeScript, TailwindCSS
-- **Backend:** Node.js, Express, TypeScript, MariaDB
-- **Infra:** Docker, NCP, Synology NAS, GitHub Actions
+# JWT
+JWT_SECRET=your_jwt_secret_here
+JWT_EXPIRES_IN=24h
+```
 
----
+### 6. config/config.json 수정
+```json
+{
+  "development": {
+    "username": "root",
+    "password": null,
+    "database": "michelin",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "michelin_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "your_password_here",
+    "database": "michelin",
+    "host": "192.168.1.39",
+    "port": 30262,
+    "dialect": "mysql"
+  }
+}
+```
 
-## 기여/협업 가이드
-- main 브랜치 기준으로 개발/배포
-- PR, 이슈, 커밋 메시지 규칙 등은 docs/CONTRIBUTING.md 참고(추가 예정)
+### 7. 모델 생성
+```bash
+# User 모델 예시
+npx sequelize-cli model:generate --name User --attributes email:string,password:string,name:string,role:string
 
----
+# Restaurant 모델 예시
+npx sequelize-cli model:generate --name Restaurant --attributes name:string,address:string,phone:string,description:text
 
-## 문의
-- 담당자: [junexi0828](mailto:junexi0828@gmail.com)
-- 기타 문의는 GitHub Issues 활용 
+# Reservation 모델 예시
+npx sequelize-cli model:generate --name Reservation --attributes userId:integer,restaurantId:integer,date:date,time:string,partySize:integer,status:string
+```
+
+### 8. 마이그레이션 실행
+```bash
+# 로컬 DB에 마이그레이션
+npx sequelize db:migrate
+```
