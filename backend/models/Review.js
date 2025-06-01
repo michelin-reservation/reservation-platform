@@ -1,35 +1,45 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('./sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
+const db = require('./sequelize');
 
-const Review = sequelize.define('Review', {
-  review_id: {
+const Review = db.define('Review', {
+  id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true,
+    autoIncrement: true
   },
-  user_id: {
+  userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'Users',
+      key: 'id'
+    }
   },
-  restaurant_id: {
+  restaurantId: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'Restaurants',
+      key: 'id'
+    }
   },
   rating: {
     type: DataTypes.INTEGER,
-    allowNull: false, // 실제 운영 시 1~5 등 범위 제한 가능
+    allowNull: false,
+    validate: {
+      min: 1,
+      max: 5
+    }
   },
-  content: {
+  comment: {
     type: DataTypes.TEXT,
-    allowNull: true,
+    allowNull: false
   },
-  created_at: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
+  images: {
+    type: DataTypes.JSON
+  }
 }, {
-  tableName: 'reviews',
-  timestamps: false,
+  timestamps: true
 });
 
 module.exports = Review; 
