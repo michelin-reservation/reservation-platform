@@ -1,158 +1,118 @@
-# Michelin Reservation Platform 2025 Q2
+# 미쉐린 예약 플랫폼 2025 Q2 (B2C+B2B)
 
 ## 프로젝트 개요
+- 미쉐린 가이드 레스토랑을 위한 예약 플랫폼
+- 네이버 소셜 로그인, JWT 인증, MySQL, 네이버 지도, 예약/리뷰 등 B2C+B2B 예약 플랫폼
+- 프론트엔드(Vite+React+TS), 백엔드(Node.js+Express+Sequelize+MySQL) 분리 구조
 
-미쉐린 레스토랑 예약, VIP/비즈니스 컨시어지, 리뷰, 관리자 기능 등을 제공하는 통합 예약 플랫폼입니다. 프론트엔드와 백엔드가 분리되어 있으며, 실전 운영을 위한 NAS DB, NCP 서버, CI/CD, Docker 등 현대적 인프라 전략을 적용합니다.
-
----
-
-## 주요 폴더 구조
-
+## 폴더 구조
 ```
-project-root/
-├── frontend/        # React (Vite, TypeScript, TailwindCSS)
+시스템 아키텍처 다이어그램
+
+사용자 (일반 / 기업 VIP)
+        │
+ ┌──────┴──────┐
+ │  웹/앱 프론트엔드  │   ← React (Vite, TypeScript)
+ └──────┬──────┘
+        │ REST API (JWT 인증)
+ ┌──────┴──────┐
+ │   백엔드 서버 (API) │   ← Node.js + Express + Sequelize
+ │   (Docker 컨테이너) │
+ └──────┬──────┘
+        │ DB 쿼리 / 인증 / 비즈니스 로직
+ ┌──────┴───────────────┬───────────────┐
+ │      데이터베이스         │      외부 연동 API      │
+ │ (MariaDB, NAS/로컬) │ ┌───────────────┐
+ │   (Docker or NAS)   │ │  네이버 지도 API      │
+ └──────────────┬──────┘ │  네이버 소셜 로그인   │
+                │        │  미슐랭 DB 크롤링/수기 │
+                │        │  (확장) 예약 플랫폼 연동│
+                │        └───────────────┘
+                │
+        ┌───────┴────────┐
+        │  CI/CD & 배포 자동화 │
+        │ (GitHub Actions)   │
+        └───────┬────────┘
+                │
+        ┌───────┴────────┐
+        │  NCP Ubuntu VM │
+        │ (Docker, Nginx)│
+        └───────────────┘
+
+디렉토리 구조
+
+michelin-reservation-platform-2025-Q2/
+├── frontend/           # React (Vite, TypeScript, TailwindCSS)
 │   └── src/
 │       ├── components/
 │       ├── pages/
 │       ├── data/
 │       ├── types/
 │       └── ...
-├── backend/         # Express API 서버 (Node.js, TypeScript)
-├── docs/            # ERD, API 명세, 전략, 회의록 등
-├── .github/         # CI/CD 워크플로우
-├── docker-compose.yml
-└── README.md
+├── backend/            # Express API 서버 (Node.js, Sequelize)
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── config/
+│   ├── scripts/
+│   ├── common/
+│   ├── app.js
+│   ├── Dockerfile
+│   └── .env
+├── docs/               # ERD, API 명세, 전략, 회의록 등
+│   ├── ERD.md
+│   ├── API.md
+│   └── 배포.md
+├── .github/            # CI/CD 워크플로우 (GitHub Actions)
+│   └── workflows/
+│       └── ci.yml
+├── docker-compose.yml  # 전체 서비스 통합 관리
+├── README.md           # 프로젝트 설명 및 실행 가이드
+└── 기타 설정 파일들 ...
 ```
-
----
 
 ## 실행 방법
+### 1. 환경변수 설정
+- `.env` 파일을 backend, frontend 각각에 생성 (예시는 docs/env.example 참고)
 
-### 1. 프론트엔드 (React)
+### 2. 의존성 설치
 ```bash
-cd frontend
-npm install
-npm run dev
+cd backend && npm install
+cd ../frontend && npm install
 ```
-- 개발 서버: http://localhost:5173
 
-### 2. 백엔드 (Express)
+### 3. 서버 실행
 ```bash
-cd backend
-npm install
-npm run dev
-```
-- API 서버: http://localhost:8001 (또는 .env의 PORT)
-
-### 3. 환경 변수 예시 (.env)
-- frontend/.env, backend/.env 별도 관리
-
-#### backend/.env 예시
-```
-# Local Development
-NODE_ENV=development
-PORT=3000
-
-# Local Database
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=michelin
-DB_USER=root
-DB_PASSWORD=
-
-# NAS Database (for production)
-# DB_HOST=192.168.1.39
-# DB_PORT=30262
-# DB_NAME=michelin
-# DB_USER=root
-# DB_PASSWORD=your_password_here
-
-# JWT
-JWT_SECRET=your_jwt_secret_here
-JWT_EXPIRES_IN=24h
+# 백엔드
+cd backend && npm run dev
+# 프론트엔드
+cd ../frontend && npm run dev
 ```
 
-#### frontend/.env 예시
-```
-```
+### 4. 접속
+- 프론트: http://localhost:5173
+- 백엔드: http://localhost:8000
 
-### 4. 로컬 DB 설정
-```bash
-# MariaDB 접속
-mysql -u root
+## 기술스택
+- 프론트: Vite, React, TypeScript, Tailwind CSS, Naver Map API
+- 백엔드: Node.js, Express, Sequelize, MySQL, JWT, dotenv
+- 기타: Docker, CI/CD, Github Actions(예정)
 
-# DB 생성
-CREATE DATABASE michelin;
-```
+## 배포
+- Docker, CI/CD, 클라우드 환경 지원 예정
 
-### 5. .env 파일 수동 생성
-backend 폴더에 `.env` 파일을 생성하고 다음 내용을 입력:
-```env
-# Local Development
-NODE_ENV=development
-PORT=3000
+## 기여 방법
+1. 이슈/PR 등록 후 브랜치 생성
+2. 커밋 메시지: feat/fix/docs/chore 등 prefix 사용
+3. 코드 리뷰 및 병합
 
-# Local Database
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=michelin
-DB_USER=root
-DB_PASSWORD=
+## 문의
+- 담당자: ...
+- 이메일: ... 
 
-# NAS Database (for production)
-# DB_HOST=192.168.1.39
-# DB_PORT=30262
-# DB_NAME=michelin
-# DB_USER=root
-# DB_PASSWORD=your_password_here
-
-# JWT
-JWT_SECRET=your_jwt_secret_here
-JWT_EXPIRES_IN=24h
-```
-
-### 6. config/config.json 수정
-```json
-{
-  "development": {
-    "username": "root",
-    "password": null,
-    "database": "michelin",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  },
-  "test": {
-    "username": "root",
-    "password": null,
-    "database": "michelin_test",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  },
-  "production": {
-    "username": "root",
-    "password": "your_password_here",
-    "database": "michelin",
-    "host": "192.168.1.39",
-    "port": 30262,
-    "dialect": "mysql"
-  }
-}
-```
-
-### 7. 모델 생성
-```bash
-# User 모델 예시
-npx sequelize-cli model:generate --name User --attributes email:string,password:string,name:string,role:string
-
-# Restaurant 모델 예시
-npx sequelize-cli model:generate --name Restaurant --attributes name:string,address:string,phone:string,description:text
-
-# Reservation 모델 예시
-npx sequelize-cli model:generate --name Reservation --attributes userId:integer,restaurantId:integer,date:date,time:string,partySize:integer,status:string
-```
-
-### 8. 마이그레이션 실행
-```bash
-# 로컬 DB에 마이그레이션
-npx sequelize db:migrate
-```
+## 문서/명세
+- [ERD/DB 구조](./docs/erd.md)
+- [API 명세서](./docs/api.md)
+- [플로우차트](./docs/flowchart1.png)
+- [환경변수 예시](./docs/env.example) 
