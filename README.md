@@ -7,20 +7,69 @@
 
 ## 폴더 구조
 ```
-├── backend
-│   ├── apps/           # 도메인별 서비스(예: auth, users, reservations)
-│   ├── common/         # 공통 모듈/유틸
-│   ├── config/         # 환경설정
-│   ├── controllers/    # 컨트롤러
-│   ├── middleware/     # 미들웨어
-│   ├── models/         # DB 모델(Sequelize)
-│   ├── routes/         # 라우터
-│   ├── scripts/        # 배포/시드 스크립트
-│   └── ...
-├── frontend           # Vite+React+TS 프론트엔드
-├── docs               # API 명세, ERD, 환경변수 예시 등
-├── infra              # 배포, Docker, CI/CD 등
-└── ...
+시스템 아키텍처 다이어그램
+
+사용자 (일반 / 기업 VIP)
+        │
+ ┌──────┴──────┐
+ │  웹/앱 프론트엔드  │   ← React (Vite, TypeScript)
+ └──────┬──────┘
+        │ REST API (JWT 인증)
+ ┌──────┴──────┐
+ │   백엔드 서버 (API) │   ← Node.js + Express + Sequelize
+ │   (Docker 컨테이너) │
+ └──────┬──────┘
+        │ DB 쿼리 / 인증 / 비즈니스 로직
+ ┌──────┴───────────────┬───────────────┐
+ │      데이터베이스         │      외부 연동 API      │
+ │ (MariaDB, NAS/로컬) │ ┌───────────────┐
+ │   (Docker or NAS)   │ │  네이버 지도 API      │
+ └──────────────┬──────┘ │  네이버 소셜 로그인   │
+                │        │  미슐랭 DB 크롤링/수기 │
+                │        │  (확장) 예약 플랫폼 연동│
+                │        └───────────────┘
+                │
+        ┌───────┴────────┐
+        │  CI/CD & 배포 자동화 │
+        │ (GitHub Actions)   │
+        └───────┬────────┘
+                │
+        ┌───────┴────────┐
+        │  NCP Ubuntu VM │
+        │ (Docker, Nginx)│
+        └───────────────┘
+
+디렉토리 구조
+
+michelin-reservation-platform-2025-Q2/
+├── frontend/           # React (Vite, TypeScript, TailwindCSS)
+│   └── src/
+│       ├── components/
+│       ├── pages/
+│       ├── data/
+│       ├── types/
+│       └── ...
+├── backend/            # Express API 서버 (Node.js, Sequelize)
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── config/
+│   ├── scripts/
+│   ├── common/
+│   ├── app.js
+│   ├── Dockerfile
+│   └── .env
+├── docs/               # ERD, API 명세, 전략, 회의록 등
+│   ├── ERD.md
+│   ├── API.md
+│   └── 배포.md
+├── .github/            # CI/CD 워크플로우 (GitHub Actions)
+│   └── workflows/
+│       └── ci.yml
+├── docker-compose.yml  # 전체 서비스 통합 관리
+├── README.md           # 프로젝트 설명 및 실행 가이드
+└── 기타 설정 파일들 ...
 ```
 
 ## 실행 방법
