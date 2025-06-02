@@ -1,52 +1,44 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const db = require('./sequelize');
+const { DataTypes } = require('sequelize');
 
-const Reservation = db.define('Reservation', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  userId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'Users',
-      key: 'id'
-    }
-  },
-  restaurantId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'Restaurants',
-      key: 'id'
-    }
-  },
-  date: {
-    type: DataTypes.DATEONLY,
-    allowNull: false
-  },
-  time: {
-    type: DataTypes.TIME,
-    allowNull: false
-  },
-  numberOfPeople: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    validate: {
-      min: 1
-    }
-  },
-  specialRequests: {
-    type: DataTypes.TEXT
-  },
-  status: {
-    type: DataTypes.ENUM('pending', 'confirmed', 'cancelled', 'completed'),
-    defaultValue: 'pending'
-  }
-}, {
-  timestamps: true
-});
+module.exports = (sequelize) => {
+  const Reservation = sequelize.define('Reservation', {
+    reservation_id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    restaurant_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    reservation_time: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    guest_count: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    special_request: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    status: {
+      type: DataTypes.ENUM('대기', '확정', '취소'),
+      defaultValue: '대기',
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  }, {
+    tableName: 'reservations',
+    timestamps: false,
+  });
 
-module.exports = Reservation; 
+  return Reservation;
+}; 
