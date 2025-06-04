@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import * as Tabs from '@radix-ui/react-tabs';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -9,8 +11,33 @@ interface LoginModalProps {
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('regular');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   if (!isOpen) return null;
+
+  const handleRegister = () => {
+    onClose();
+    navigate('/register');
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      await login(email, password);
+      onClose();
+    } catch (err) {
+      setError('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -56,46 +83,24 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             </Tabs.Trigger>
           </Tabs.List>
 
-          <Tabs.Content value="regular">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  아이디 또는 전화번호
-                </label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-md p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  비밀번호
-                </label>
-                <input
-                  type="password"
-                  className="w-full border border-gray-300 rounded-md p-2"
-                />
-              </div>
-              <button className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors">
-                로그인
-              </button>
-              <div className="flex justify-between text-sm text-gray-600">
-                <button className="hover:text-red-600">비밀번호 찾기</button>
-                <button className="hover:text-red-600">아이디 찾기</button>
-                <button className="hover:text-red-600">회원가입</button>
-              </div>
+          {error && (
+            <div className="mb-4 p-2 bg-red-100 text-red-600 rounded text-sm">
+              {error}
             </div>
-          </Tabs.Content>
+          )}
 
-          <Tabs.Content value="vip">
+          <form onSubmit={handleLogin}>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  아이디 또는 전화번호
+                  이메일
                 </label>
                 <input
-                  type="text"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full border border-gray-300 rounded-md p-2"
+                  required
                 />
               </div>
               <div>
@@ -104,59 +109,42 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                 </label>
                 <input
                   type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full border border-gray-300 rounded-md p-2"
+                  required
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  VISA 카드 인증
-                </label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-md p-2"
-                  placeholder="카드 번호"
-                />
-              </div>
-              <button className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors">
-                로그인
+              <button
+                type="submit"
+                className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors"
+                disabled={loading}
+              >
+                {loading ? '로그인 중...' : '로그인'}
+              </button>
+              <button
+                type="button"
+                className="w-full bg-[#2DB400] text-white py-2 rounded-md hover:opacity-90 transition-colors"
+              >
+                네이버로 로그인
               </button>
               <div className="flex justify-between text-sm text-gray-600">
-                <button className="hover:text-red-600">비밀번호 찾기</button>
-                <button className="hover:text-red-600">아이디 찾기</button>
-                <button className="hover:text-red-600">회원가입</button>
+                <button type="button" className="hover:text-red-600">
+                  비밀번호 찾기
+                </button>
+                <button type="button" className="hover:text-red-600">
+                  아이디 찾기
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRegister}
+                  className="hover:text-red-600"
+                >
+                  회원가입
+                </button>
               </div>
             </div>
-          </Tabs.Content>
-
-          <Tabs.Content value="business">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  사업자 등록번호
-                </label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-md p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  비밀번호
-                </label>
-                <input
-                  type="password"
-                  className="w-full border border-gray-300 rounded-md p-2"
-                />
-              </div>
-              <button className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors">
-                로그인
-              </button>
-              <div className="flex justify-between text-sm text-gray-600">
-                <button className="hover:text-red-600">비밀번호 찾기</button>
-                <button className="hover:text-red-600">사업자 등록</button>
-              </div>
-            </div>
-          </Tabs.Content>
+          </form>
         </Tabs.Root>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { reservationApi } from '../api/reservationApi';
 
 interface ReservationModalProps {
   isOpen: boolean;
@@ -20,14 +21,23 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
     specialRequest: '',
     acceptTerms: false,
   });
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState('');
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle reservation submission
-    console.log('Reservation submitted:', formData);
-    onClose();
+    setApiError('');
+    setLoading(true);
+    try {
+      await reservationApi.create(formData);
+      onClose();
+    } catch (err: any) {
+      setApiError(err.message || '예약에 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -128,9 +138,13 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
             <button
               type="submit"
               className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors"
+              disabled={loading}
             >
-              예약하기
+              {loading ? '예약 중...' : '예약하기'}
             </button>
+            {apiError && (
+              <p className="text-red-600 text-sm mt-2">{apiError}</p>
+            )}
           </div>
         </form>
       </div>
