@@ -1,11 +1,27 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { MenuIcon } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { MenuIcon, User } from 'lucide-react';
 import LoginModal from './LoginModal';
+import { useAuth } from '../contexts/AuthContext';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = React.useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  const handleMyPage = () => {
+    if (user?.type === 'business') {
+      navigate('/business');
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -45,15 +61,37 @@ const Header: React.FC = () => {
                 FAQ
               </Link>
             </li>
+            <li>
+            </li>
           </ul>
         </nav>
         
-        <button 
-          onClick={() => setIsLoginModalOpen(true)}
-          className="hidden md:block bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-        >
-          Log In
-        </button>
+        <div className="hidden md:flex items-center space-x-4">
+          {user ? (
+            <>
+              <button
+                onClick={handleMyPage}
+                className="flex items-center text-gray-700 hover:text-red-700 transition-colors"
+              >
+                <User size={20} className="mr-1" />
+                마이페이지
+              </button>
+              <button
+                onClick={handleLogout}
+                className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+              >
+                Log Out
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsLoginModalOpen(true)}
+              className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+            >
+              Log In
+            </button>
+          )}
+        </div>
       </div>
 
       <LoginModal 
