@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar } from 'react-calendar';
+import { BarChart, Users, Clock, Menu, MessageSquare, Bell, Settings, HelpCircle } from 'lucide-react';
 import Header from '../components/Header';
 import 'react-calendar/dist/Calendar.css';
 
@@ -12,6 +13,21 @@ const BusinessDashboard: React.FC = () => {
     guests: Math.floor(Math.random() * 4) + 1,
   }));
 
+  const stats = {
+    daily: {
+      reservations: 15,
+      revenue: 750000,
+      occupancy: 85,
+      reviews: 4
+    },
+    monthly: {
+      reservations: 450,
+      revenue: 22500000,
+      occupancy: 78,
+      reviews: 120
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -22,7 +38,47 @@ const BusinessDashboard: React.FC = () => {
           <p className="text-red-600 mt-1">예약 및 정보 관리</p>
         </div>
 
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-medium">오늘의 예약</h3>
+              <Users className="text-red-600" size={20} />
+            </div>
+            <p className="text-2xl font-bold">{stats.daily.reservations}건</p>
+            <p className="text-sm text-gray-500 mt-1">전일 대비 +2건</p>
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-medium">금일 매출</h3>
+              <BarChart className="text-red-600" size={20} />
+            </div>
+            <p className="text-2xl font-bold">{stats.daily.revenue.toLocaleString()}원</p>
+            <p className="text-sm text-gray-500 mt-1">목표 달성률 85%</p>
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-medium">좌석 점유율</h3>
+              <Clock className="text-red-600" size={20} />
+            </div>
+            <p className="text-2xl font-bold">{stats.daily.occupancy}%</p>
+            <p className="text-sm text-gray-500 mt-1">전주 대비 +5%</p>
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-medium">신규 리뷰</h3>
+              <MessageSquare className="text-red-600" size={20} />
+            </div>
+            <p className="text-2xl font-bold">{stats.daily.reviews}개</p>
+            <p className="text-sm text-gray-500 mt-1">평균 평점 4.5</p>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Reservation Timeline */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold mb-4">금일 예약 현황</h2>
             <div className="space-y-3">
@@ -50,6 +106,7 @@ const BusinessDashboard: React.FC = () => {
             </div>
           </div>
 
+          {/* Calendar View */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold mb-4">날짜별 예약 확인</h2>
             <Calendar
@@ -79,36 +136,69 @@ const BusinessDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-6 bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold mb-4">레스토랑 정보 관리</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-medium mb-3">기본 정보</h3>
-              <div className="space-y-3">
-                <button className="w-full text-left px-4 py-2 border border-gray-300 rounded-md hover:border-red-500">
-                  영업 시간 수정
-                </button>
-                <button className="w-full text-left px-4 py-2 border border-gray-300 rounded-md hover:border-red-500">
-                  메뉴 관리
-                </button>
-                <button className="w-full text-left px-4 py-2 border border-gray-300 rounded-md hover:border-red-500">
-                  사진 갤러리 관리
-                </button>
-              </div>
+        {/* Management Sections */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center mb-4">
+              <Menu className="text-red-600 mr-2" size={20} />
+              <h2 className="text-lg font-bold">메뉴 관리</h2>
             </div>
-            <div>
-              <h3 className="font-medium mb-3">예약 설정</h3>
-              <div className="space-y-3">
-                <button className="w-full text-left px-4 py-2 border border-gray-300 rounded-md hover:border-red-500">
-                  예약 가능 시간 설정
-                </button>
-                <button className="w-full text-left px-4 py-2 border border-gray-300 rounded-md hover:border-red-500">
-                  테이블 관리
-                </button>
-                <button className="w-full text-left px-4 py-2 border border-gray-300 rounded-md hover:border-red-500">
-                  특별 이벤트 설정
-                </button>
-              </div>
+            <ul className="space-y-2">
+              <li className="text-gray-600 hover:text-red-600 cursor-pointer">메뉴 등록/수정</li>
+              <li className="text-gray-600 hover:text-red-600 cursor-pointer">가격 설정</li>
+              <li className="text-gray-600 hover:text-red-600 cursor-pointer">품절 관리</li>
+            </ul>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center mb-4">
+              <Bell className="text-red-600 mr-2" size={20} />
+              <h2 className="text-lg font-bold">공지/이벤트</h2>
+            </div>
+            <ul className="space-y-2">
+              <li className="text-gray-600 hover:text-red-600 cursor-pointer">공지사항 등록</li>
+              <li className="text-gray-600 hover:text-red-600 cursor-pointer">이벤트 관리</li>
+              <li className="text-gray-600 hover:text-red-600 cursor-pointer">프로모션 설정</li>
+            </ul>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center mb-4">
+              <Settings className="text-red-600 mr-2" size={20} />
+              <h2 className="text-lg font-bold">설정</h2>
+            </div>
+            <ul className="space-y-2">
+              <li className="text-gray-600 hover:text-red-600 cursor-pointer">영업시간 설정</li>
+              <li className="text-gray-600 hover:text-red-600 cursor-pointer">좌석 관리</li>
+              <li className="text-gray-600 hover:text-red-600 cursor-pointer">알림 설정</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Help Section */}
+        <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center mb-4">
+            <HelpCircle className="text-red-600 mr-2" size={20} />
+            <h2 className="text-lg font-bold">도움말 및 지원</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="font-medium mb-2">고객 지원 센터</h3>
+              <p className="text-sm text-gray-600">
+                문의사항이나 기술적인 지원이 필요하신가요?
+              </p>
+              <button className="mt-3 text-red-600 hover:text-red-700">
+                문의하기 →
+              </button>
+            </div>
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="font-medium mb-2">사용 가이드</h3>
+              <p className="text-sm text-gray-600">
+                관리자 페이지 사용방법을 확인하세요.
+              </p>
+              <button className="mt-3 text-red-600 hover:text-red-700">
+                가이드 보기 →
+              </button>
             </div>
           </div>
         </div>
