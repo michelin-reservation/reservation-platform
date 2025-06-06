@@ -27,10 +27,11 @@ app.use(express.json());
 app.use(loggingMiddleware);
 
 // 라우트 설정
-app.use('/api/users', require('./routes/users'));
+app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/restaurants', require('./routes/restaurants'));
 app.use('/api/reservations', require('./routes/reservations'));
-app.use('/api/reviews', require('./routes/reviews'));
+app.use('/api/reviews', require('./routes/reviewRoutes'));
+app.use('/api/favorites', require('./routes/favoriteRoutes'));
 app.use('/api/vip-requests', require('./routes/vipRequests'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/admin', require('./routes/admin'));
