@@ -35,6 +35,10 @@ module.exports = (sequelize) => {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   }, {
     tableName: 'reservations',
     timestamps: false,

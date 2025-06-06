@@ -6,9 +6,9 @@ const auth = require('../middleware/auth');
 // 예약 생성
 router.post('/', auth, async (req, res) => {
   try {
-    const { restaurant_id, reservation_time, guest_count, special_request } = req.body;
+    const { restaurant_id, reservation_time, guest_count, special_request, name } = req.body;
     const user_id = req.user.user_id; // JWT에서 추출
-    const reservation = await Reservation.create({ user_id, restaurant_id, reservation_time, guest_count, special_request });
+    const reservation = await Reservation.create({ user_id, restaurant_id, reservation_time, guest_count, special_request, name });
     res.status(201).json({ success: true, reservation });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
@@ -41,7 +41,7 @@ router.get('/:id', auth, async (req, res) => {
 
 // 예약 수정
 router.put('/:id', auth, async (req, res) => {
-  const { restaurant_id, reservation_time, guest_count, special_request } = req.body;
+  const { restaurant_id, reservation_time, guest_count, special_request, name } = req.body;
   const reservation = await Reservation.findByPk(req.params.id);
   if (reservation) {
     if (reservation.user_id !== req.user.user_id) {
@@ -51,6 +51,7 @@ router.put('/:id', auth, async (req, res) => {
     reservation.reservation_time = reservation_time;
     reservation.guest_count = guest_count;
     reservation.special_request = special_request;
+    reservation.name = name;
     await reservation.save();
     res.json(reservation);
   } else {
