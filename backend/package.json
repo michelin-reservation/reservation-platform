@@ -13,11 +13,13 @@
     "db:seed": "sequelize-cli db:seed:all",
     "validate:env": "node scripts/validate-env.js",
     "security:check": "npm audit",
-    "postinstall": "npm audit fix || true"
+    "postinstall": "npm audit fix || true && npm install pm2 -g"
   },
   "dependencies": {
     "@sentry/integrations": "^7.101.1",
     "@sentry/node": "^7.120.3",
+    "@sentry/tracing": "^7.101.1",
+    "axios": "^1.6.7",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -32,6 +34,7 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "mysql2": "^3.14.1",
+    "pm2": "^5.3.1",
     "prom-client": "^15.1.0",
     "redis": "^5.1.1",
     "sequelize": "^6.37.7",

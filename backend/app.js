@@ -69,8 +69,11 @@ setupSwagger(app);
 syncDatabase();
 
 // Sentry 연동 (에러 추적)
+let sentryDsn = process.env.SENTRY_DSN_DEV;
+if (process.env.NODE_ENV === 'production') sentryDsn = process.env.SENTRY_DSN_PROD;
+
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
+  dsn: sentryDsn,
   integrations: [
     new Sentry.Integrations.Http({ tracing: true }),
     new Tracing.Integrations.Express({ app })

@@ -52,7 +52,7 @@ const RegisterPage: React.FC = () => {
         });
         // 자동 로그인
         await login(formData.email, formData.password);
-        navigate('/');
+      navigate('/');
       } catch (err: any) {
         setApiError(err.message || '회원가입에 실패했습니다.');
       } finally {
