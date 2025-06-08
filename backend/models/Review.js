@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
   const Review = sequelize.define('Review', {
-    review_id: {
+    id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -31,6 +31,11 @@ module.exports = (sequelize) => {
     tableName: 'reviews',
     timestamps: false,
   });
+
+  Review.associate = (models) => {
+    Review.belongsTo(models.User, { as: 'user', foreignKey: 'user_id' });
+    Review.belongsTo(models.Restaurant, { as: 'restaurant', foreignKey: 'restaurant_id' });
+  };
 
   return Review;
 }; 

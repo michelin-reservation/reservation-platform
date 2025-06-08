@@ -3,6 +3,7 @@ const { sequelize, syncDatabase, User, Restaurant, Reservation, Review } = requi
 // 추가 모델 불러오기
 const VipRequest = require('./VipRequest')(sequelize);
 const Payment = require('./Payment')(sequelize);
+const Favorite = require('./Favorite')(sequelize, require('sequelize').DataTypes);
 
 // User - VipRequest 관계
 User.hasMany(VipRequest, { foreignKey: 'user_id' });
@@ -20,5 +21,6 @@ module.exports = {
   Reservation,
   Review,
   VipRequest,
-  Payment
+  Payment,
+  Favorite
 }; 

@@ -21,30 +21,18 @@ const sequelize = new Sequelize(
 );
 
 // 모델 정의
-const User = require('./User')(sequelize);
-const Restaurant = require('./Restaurant')(sequelize);
-const Reservation = require('./Reservation')(sequelize);
-const Review = require('./Review')(sequelize);
+const User = require('./User')(sequelize, Sequelize.DataTypes);
+const Restaurant = require('./Restaurant')(sequelize, Sequelize.DataTypes);
+const Reservation = require('./Reservation')(sequelize, Sequelize.DataTypes);
+const Review = require('./Review')(sequelize, Sequelize.DataTypes);
+const Favorite = require('./Favorite')(sequelize, Sequelize.DataTypes);
 
-// User - Restaurant 관계
-User.hasMany(Restaurant, { foreignKey: 'owner_id', as: 'restaurants' });
-Restaurant.belongsTo(User, { foreignKey: 'owner_id', as: 'owner' });
-
-// User - Reservation 관계
-User.hasMany(Reservation, { foreignKey: 'user_id', as: 'reservations' });
-Reservation.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
-
-// Restaurant - Reservation 관계
-Restaurant.hasMany(Reservation, { foreignKey: 'restaurant_id', as: 'reservations' });
-Reservation.belongsTo(Restaurant, { foreignKey: 'restaurant_id', as: 'restaurant' });
-
-// User - Review 관계
-User.hasMany(Review, { foreignKey: 'user_id', as: 'reviews' });
-Review.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
-
-// Restaurant - Review 관계
-Restaurant.hasMany(Review, { foreignKey: 'restaurant_id', as: 'reviews' });
-Review.belongsTo(Restaurant, { foreignKey: 'restaurant_id', as: 'restaurant' });
+// 관계 선언은 각 모델의 associate에서만 선언
+if (User.associate) User.associate(sequelize.models);
+if (Restaurant.associate) Restaurant.associate(sequelize.models);
+if (Reservation.associate) Reservation.associate(sequelize.models);
+if (Review.associate) Review.associate(sequelize.models);
+if (Favorite.associate) Favorite.associate(sequelize.models);
 
 // 데이터베이스 동기화 함수
 const syncDatabase = async () => {
@@ -69,5 +57,6 @@ module.exports = {
   User,
   Restaurant,
   Reservation,
-  Review
+  Review,
+  Favorite
 }; 

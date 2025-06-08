@@ -199,4 +199,25 @@ exports.cancelReservation = async (req, res) => {
       message: '예약 취소 중 오류가 발생했습니다.'
     });
   }
+};
+
+// 특정 유저의 예약 목록 조회 (RESTful)
+exports.getUserReservations = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    const reservations = await Reservation.findAll({
+      where: { userId: user_id },
+      include: [
+        {
+          model: Restaurant,
+          attributes: ['name', 'address', 'phone']
+        }
+      ],
+      order: [['date', 'DESC'], ['time', 'DESC']]
+    });
+    res.json({ success: true, data: reservations });
+  } catch (error) {
+    console.error('특정 유저 예약 목록 조회 실패:', error);
+    res.status(500).json({ success: false, message: '특정 유저 예약 목록 조회 중 오류가 발생했습니다.' });
+  }
 }; 
