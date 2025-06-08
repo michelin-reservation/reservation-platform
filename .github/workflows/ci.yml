@@ -1,61 +1,71 @@
-name: CI/CD
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
-  build-and-deploy:
+  test-and-build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [backend, frontend]
+
     steps:
-      - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 18
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: ${{ matrix.project }}/package-lock.json
 
-      - name: Install backend dependencies
-        run: |
-          cd backend
-          npm ci
+    - name: Install dependencies
+      run: |
+        cd ${{ matrix.project }}
+        npm ci
 
-      - name: Install frontend dependencies
-        run: |
-          cd frontend
-          npm ci
+    - name: Run linting
+      run: |
+        cd ${{ matrix.project }}
+        npm run lint
 
-      - name: Build frontend
-        run: |
-          cd frontend
-          npm run build
+    - name: Run tests
+      if: matrix.project == 'backend'
+      run: |
+        cd ${{ matrix.project }}
+        npm test
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+    - name: Build
+      if: matrix.project == 'frontend'
+      run: |
+        cd ${{ matrix.project }}
+        npm run build
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Upload build artifacts
+      if: matrix.project == 'frontend'
+      uses: actions/upload-artifact@v3
+      with:
+        name: frontend-build
+        path: frontend/dist
 
-      - name: Build and push images
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/michelin-backend:latest,${{ secrets.DOCKERHUB_USERNAME }}/michelin-frontend:latest
+  deploy:
+    needs: test-and-build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Download frontend build
+      uses: actions/download-artifact@v3
+      with:
+        name: frontend-build
+        path: frontend/dist
 
-      - name: Deploy to NCP
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.NCP_HOST }}
-          username: ${{ secrets.NCP_USERNAME }}
-          key: ${{ secrets.NCP_SSH_KEY }}
-          script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/michelin-backend:latest
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/michelin-frontend:latest
-            docker-compose down || true
-            docker-compose up -d 
+    - name: Deploy to production
+      run: |
+        echo "🚀 배포 시작"
+        # 여기에 실제 배포 스크립트 추가
+        # 예: SSH를 통한 서버 배포, 클라우드 서비스 배포 등 

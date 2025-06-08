@@ -32,7 +32,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
     setLoading(true);
     try {
       await reservationApi.create(formData);
-      onClose();
+    onClose();
     } catch (err: any) {
       setApiError(err.message || '예약에 실패했습니다.');
     } finally {

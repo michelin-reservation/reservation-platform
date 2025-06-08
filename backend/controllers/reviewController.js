@@ -44,4 +44,21 @@ exports.deleteReview = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+exports.getUserReviews = async (req, res, next) => {
+  try {
+    const { user_id } = req.params;
+    const reviews = await Review.findAll({
+      where: { user_id },
+      include: [
+        { model: User, as: 'user', attributes: ['id', 'name'] },
+        { model: Restaurant, as: 'restaurant', attributes: ['id', 'name_korean'] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+    res.json({ success: true, data: reviews });
+  } catch (err) {
+    next(err);
+  }
 }; 

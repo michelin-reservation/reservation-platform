@@ -8,6 +8,10 @@ import BusinessDashboard from './pages/BusinessDashboard';
 import UserDashboard from './pages/UserDashboard';
 import RegisterPage from './pages/RegisterPage';
 import RestaurantsPage from './pages/RestaurantsPage';
+import ReviewPage from './pages/ReviewPage';
+import FavoritesPage from './pages/FavoritesPage';
+import NotificationSettingsPage from './pages/NotificationSettingsPage';
+import EditProfilePage from './pages/EditProfilePage';
 
 function App() {
   return (
@@ -21,6 +25,10 @@ function App() {
           <Route path="/business" element={<BusinessDashboard />} />
           <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/review/:restaurantId" element={<ReviewPage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/notifications" element={<NotificationSettingsPage />} />
+          <Route path="/profile" element={<EditProfilePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
@@ -7,25 +7,23 @@ import { Settings, Star, Calendar, Heart, User } from 'lucide-react';
 const UserDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
+  const [reservations, setReservations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const mockReservations = [
-    {
-      id: '1',
-      restaurant: '서교난면방',
-      date: '2025-04-15',
-      time: '18:30',
-      status: '확정',
-      guests: 2
-    },
-    {
-      id: '2',
-      restaurant: '우에록',
-      date: '2025-04-20',
-      time: '19:00',
-      status: '대기',
-      guests: 4
+  useEffect(() => {
+    if (user?.id) {
+      setLoading(true);
+      setError('');
+      fetch(`/api/reservations/user/${user.id}`)
+        .then(res => res.json())
+        .then(data => {
+          setReservations(data);
+        })
+        .catch(() => setError('예약 내역을 불러오지 못했습니다.'))
+        .finally(() => setLoading(false));
     }
-  ];
+  }, [user?.id]);
 
   const mockReviews = [
     {
@@ -136,30 +134,36 @@ const UserDashboard: React.FC = () => {
                 </TabsList>
 
                 <TabsContent value="reservations" className="p-6">
-                  <div className="space-y-4">
-                    {mockReservations.map((reservation) => (
-                      <div key={reservation.id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-medium">{reservation.restaurant}</h3>
-                            <p className="text-sm text-gray-600">
-                              {reservation.date} {reservation.time}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {reservation.guests}명
-                            </p>
+                  {loading ? (
+                    <div>로딩 중...</div>
+                  ) : error ? (
+                    <div className="text-red-600">{error}</div>
+                  ) : (
+                    <div className="space-y-4">
+                      {reservations.map((reservation) => (
+                        <div key={reservation.reservation_id} className="border rounded-lg p-4">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium">{reservation.restaurant_id}</h3>
+                              <p className="text-sm text-gray-600">
+                                {reservation.reservation_time}
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {reservation.guest_count}명
+                              </p>
+                            </div>
+                            <span className={`px-2 py-1 rounded-full text-sm ${
+                              reservation.status === '확정'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {reservation.status}
+                            </span>
                           </div>
-                          <span className={`px-2 py-1 rounded-full text-sm ${
-                            reservation.status === '확정'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {reservation.status}
-                          </span>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </TabsContent>
 
                 <TabsContent value="reviews" className="p-6">
@@ -209,54 +213,39 @@ const UserDashboard: React.FC = () => {
 
                 <TabsContent value="settings" className="p-6">
                   <div className="space-y-6">
-                    <div>
+                    <div className="border rounded-lg p-4">
                       <h3 className="text-lg font-medium mb-4">계정 설정</h3>
                       <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            현재 비밀번호
-                          </label>
-                          <input
-                            type="password"
-                            className="w-full border rounded-md p-2"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            새 비밀번호
-                          </label>
-                          <input
-                            type="password"
-                            className="w-full border rounded-md p-2"
-                          />
-                        </div>
+                        <button
+                          onClick={() => window.location.href = '/profile'}
+                          className="flex items-center justify-between w-full p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
+                        >
+                          <div className="flex items-center">
+                            <User size={20} className="text-gray-600 mr-3" />
+                            <span>회원 정보 수정</span>
+                          </div>
+                          <span className="text-gray-400">→</span>
+                        </button>
+                        <button
+                          onClick={() => window.location.href = '/notifications'}
+                          className="flex items-center justify-between w-full p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
+                        >
+                          <div className="flex items-center">
+                            <Settings size={20} className="text-gray-600 mr-3" />
+                            <span>알림 설정</span>
+                          </div>
+                          <span className="text-gray-400">→</span>
+                        </button>
                       </div>
                     </div>
 
-                    <div>
-                      <h3 className="text-lg font-medium mb-4">알림 설정</h3>
-                      <div className="space-y-2">
-                        <label className="flex items-center">
-                          <input type="checkbox" className="mr-2" />
-                          예약 확정 알림
-                        </label>
-                        <label className="flex items-center">
-                          <input type="checkbox" className="mr-2" />
-                          리뷰 답변 알림
-                        </label>
-                      </div>
-                    </div>
-
-                    <div>
+                    <div className="border rounded-lg p-4">
                       <h3 className="text-lg font-medium mb-4">계정 관리</h3>
                       <button
                         onClick={logout}
-                        className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200"
+                        className="w-full p-3 text-red-600 border border-red-600 rounded-lg hover:bg-red-50"
                       >
                         로그아웃
-                      </button>
-                      <button className="ml-4 text-red-600 hover:underline">
-                        회원 탈퇴
                       </button>
                     </div>
                   </div>
