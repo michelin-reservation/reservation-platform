@@ -5,7 +5,7 @@
 
 ## 폴더 구조
 ```
-시스템 아키텍처 다이어그램
+시스템 아키텍처 다이어그램
 
 사용자 (일반 / 기업 VIP)
         │
@@ -37,7 +37,7 @@
         │ (Docker, Nginx)│
         └───────────────┘
 
-디렉토리 구조
+디렉토리 구조
 
 michelin-reservation-platform-2025-Q2/
 ├── frontend/           # React (Vite, TypeScript, TailwindCSS)
@@ -70,9 +70,28 @@ michelin-reservation-platform-2025-Q2/
 └── 기타 설정 파일들 ...
 ```
 
+## 실무 환경 즉시 구축 가이드 (운영자용)
+- `npm install`만 하면 모든 의존성 자동 설치
+- `.env` 파일(backend, frontend 각각) docs/env.example 참고해 복사/수정
+- `pm2 start ecosystem.config.js`로 서버 무중단 자동 실행
+- `pm2 logs/monit/list`로 실시간 모니터링 및 관리
+- 운영/개발 환경, Sentry, Prometheus, Grafana, Slack 등 모두 README/docs에 가이드 반영
+- 운영자는 위 사용법만 따르면 실무 환경을 바로 구축 가능
+
+## 실무 표준 8단계 업그레이드 로드맵
+1. 관리자 인증 미들웨어 도입 (isAdmin, /api/admin 보호)
+2. 에러 핸들러 및 에러 표준화 (errorHandler, 일관된 에러 응답)
+3. Swagger 문서 자동화 (swagger.yaml, Swagger UI 연동)
+4. Controller-Service 분리 (user, 알림, 예약, 리뷰 등)
+5. 테스트 커버리지 확장 (user/notification/reservation/review 등, 정상/실패 케이스)
+6. 보안 미들웨어 추가 (helmet, express-rate-limit)
+7. RESTful 라우팅 개선 (상세/수정/삭제까지 반영)
+8. 운영/모니터링 도구 연동 (winston, morgan, Sentry, Prometheus, pm2, README 가이드)
+
 ## 실행 방법
 ### 1. 환경변수 설정
 - `.env` 파일을 backend, frontend 각각에 생성 (예시는 docs/env.example 참고)
+- 운영환경은 `.env.production` 등 별도 파일로 분리, 민감정보는 Git에 커밋 금지
 
 ### 2. 의존성 설치
 ```bash
@@ -80,12 +99,16 @@ cd backend && npm install
 cd ../frontend && npm install
 ```
 
-### 3. 서버 실행
+### 3. 서버 실행 (개발/운영)
 ```bash
-# 백엔드
+# 개발
 cd backend && npm run dev
-# 프론트엔드
 cd ../frontend && npm run dev
+
+# 운영 (pm2)
+pm2 start ecosystem.config.js
+pm2 logs
+pm2 monit
 ```
 
 ### 4. 접속
@@ -109,8 +132,90 @@ cd ../frontend && npm run dev
 - 담당자: juns
 - 이메일: junexi0828@gmail.com
 
+### 개발자 참고사항.
 ## 문서/명세
 - [ERD/DB 구조](./docs/erd.md)
 - [API 명세서](./docs/api.md)
 - [플로우차트](./docs/flowchart1.png)
-- [환경변수 예시](./docs/env.example) 
+- [환경변수 예시](./docs/env.example)
+
+## 운영/모니터링 자동화 가이드 (실무 표준)
+
+### 1. Prometheus (서버/지표 모니터링)
+- Prometheus 서버 설치(운영팀/인프라팀)
+- `scrape_configs`에 `/metrics` 엔드포인트 등록
+  예시:
+  ```yaml
+  scrape_configs:
+    - job_name: 'michelin-api'
+      static_configs:
+        - targets: ['your-api-server:3000']
+  ```
+- `/metrics` 엔드포인트는 코드에 이미 구현되어 있음
+
+### 2. pm2 (Node.js 프로세스 관리/모니터링)
+- 운영 서버에서 pm2 설치: `npm install pm2 -g`
+- 앱 실행: `pm2 start backend/app.js --name michelin-api`
+- (권장) `ecosystem.config.js`로 자동화:
+  ```js
+  module.exports = {
+    apps: [{
+      name: 'michelin-api',
+      script: './backend/app.js',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '1G',
+      env: { NODE_ENV: 'production' }
+    }]
+  }
+  ```
+  실행: `pm2 start ecosystem.config.js`
+- 실시간 모니터링: `pm2 monit`
+- 로그 확인: `pm2 logs`
+
+### 3. Sentry (에러 추적/알림)
+- [Sentry 가입 및 프로젝트 생성](https://sentry.io/)
+- 운영/개발 환경별로 Sentry 프로젝트를 분리하여 DSN을 각각 발급받아 .env에 등록
+  - 예시:
+    - SENTRY_DSN_PROD=운영용_DSN
+    - SENTRY_DSN_DEV=개발용_DSN
+- 코드에서 NODE_ENV 값에 따라 자동으로 DSN이 분기 적용됨
+- 에러 발생 시 환경별 Sentry 대시보드에 각각 저장
+- Sentry 대시보드에서 Slack 워크스페이스/채널 연동 가능
+- Sentry에서 에러 발생 시 Slack 채널로 실시간 알림 전송
+- 운영/개발 환경 모두 실시간 장애 감지 및 대응 가능
+
+### 4. 로그 (winston + morgan)
+- 모든 로그는 `logs/error.log`, `logs/combined.log`에 저장
+- 운영환경에서는 파일, 개발환경에서는 콘솔 컬러 출력
+- 로그 파일은 주기적으로 확인/백업/모니터링
+
+### 5. Prometheus & Grafana 설치/실행 자동화 가이드
+- macOS/Homebrew 기준:
+```bash
+brew install prometheus
+grafana
+```
+- prometheus.yml 예시:
+```yaml
+global:
+  scrape_interval: 15s
+scrape_configs:
+  - job_name: 'michelin-backend'
+    static_configs:
+      - targets: ['localhost:8000']
+```
+- Prometheus 실행: `prometheus --config.file=./prometheus.yml`
+- Grafana 실행: `brew services start grafana`
+- Grafana에서 Prometheus 데이터소스 등록, 대시보드 생성
+
+---
+## 실무 운영 배포 체크리스트
+- 운영/개발 환경변수 분리: `.env`, `.env.production`
+- CORS: 운영 프론트 도메인만 허용
+- HTTPS: 운영 서버는 반드시 HTTPS 적용
+- 보안: .env, .env.production 등은 Git에 커밋하지 않기
+- 빌드/배포: 프론트는 정적 파일, 백엔드는 pm2/Docker로 배포
+- 자동화: GitHub Actions 등으로 CI/CD 구축
+- 모니터링/로깅: winston, Sentry, Prometheus 등으로 관리
