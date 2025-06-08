@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { Review } = require('../models');
-const auth = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // 리뷰 등록
-router.post('/', auth, async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const { restaurant_id, rating, content } = req.body;
     const user_id = req.user.user_id;
@@ -22,7 +22,7 @@ router.get('/restaurant/:restaurant_id', async (req, res) => {
 });
 
 // 본인 리뷰 삭제
-router.delete('/:review_id', auth, async (req, res) => {
+router.delete('/:review_id', authenticateToken, async (req, res) => {
   const review = await Review.findByPk(req.params.review_id);
   if (!review) return res.status(404).json({ message: '리뷰를 찾을 수 없습니다.' });
   if (review.user_id !== req.user.user_id) {

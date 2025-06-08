@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { User } = require('../models');
 const jwt = require('jsonwebtoken');
-const auth = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 /**
  * @swagger
@@ -111,7 +111,7 @@ router.post('/login', async (req, res) => {
  *       403:
  *         description: 권한 없음
  */
-router.get('/me', auth, async (req, res) => {
+router.get('/me', authenticateToken, async (req, res) => {
   const user = await User.findByPk(req.user.user_id);
   if (!user) return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
   if (user.user_id !== req.user.user_id) {
