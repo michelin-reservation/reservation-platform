@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { VipRequest } = require('../models');
-const auth = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // VIP 요청 등록
-router.post('/', auth, async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const { company_name, itinerary } = req.body;
     const user_id = req.user.user_id;
@@ -16,7 +16,7 @@ router.post('/', auth, async (req, res) => {
 });
 
 // 내 VIP 요청 목록 (본인만 조회 가능)
-router.get('/user/:user_id', auth, async (req, res) => {
+router.get('/user/:user_id', authenticateToken, async (req, res) => {
   if (parseInt(req.user.user_id) !== parseInt(req.params.user_id)) {
     return res.status(403).json({ message: '본인만 VIP 요청 목록을 조회할 수 있습니다.' });
   }

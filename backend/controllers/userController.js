@@ -1,6 +1,7 @@
 const { User } = require('../models');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const userService = require('../services/userService');
 
 exports.signup = async (req, res) => {
   try {
@@ -88,13 +89,39 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.getProfile = async (req, res) => {
+exports.getProfile = async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.user.id, {
-      attributes: { exclude: ['password'] }
-    });
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    const user = await userService.getUserById(req.user.user_id);
+    if (!user) return res.status(404).json({ code: 'NOT_FOUND', message: '사용자를 찾을 수 없습니다.' });
+    res.json({ code: 'SUCCESS', data: user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const user = await userService.updateUserProfile(req.user.user_id, req.body);
+    res.json({ code: 'SUCCESS', data: user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getNotificationSettings = async (req, res, next) => {
+  try {
+    const settings = await userService.getNotificationSettings(req.user.user_id);
+    res.json(settings);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateNotificationSettings = async (req, res, next) => {
+  try {
+    const settings = await userService.updateNotificationSettings(req.user.user_id, req.body);
+    res.json({ message: '알림 설정이 업데이트되었습니다.', settings });
+  } catch (err) {
+    next(err);
   }
 }; 

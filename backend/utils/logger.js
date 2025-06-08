@@ -14,20 +14,14 @@ const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: logFormat,
   transports: [
-    // 콘솔 출력
-    new winston.transports.Console({
-      format: format.combine(
-        format.colorize(),
-        format.simple()
-      )
-    }),
-    // 파일 출력
+    // 파일 출력 (에러)
     new winston.transports.File({ 
       filename: 'logs/error.log', 
       level: 'error',
       maxsize: 5242880, // 5MB
       maxFiles: 5
     }),
+    // 파일 출력 (전체)
     new winston.transports.File({ 
       filename: 'logs/combined.log',
       maxsize: 5242880,
@@ -36,10 +30,19 @@ const logger = winston.createLogger({
   ]
 });
 
-// 로깅 미들웨어
+// 개발환경에서는 컬러 콘솔 출력도 추가
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: format.combine(
+      format.colorize(),
+      format.simple()
+    )
+  }));
+}
+
+// 로깅 미들웨어 (morgan 대체/보완용, 필요시 사용)
 const loggingMiddleware = (req, res, next) => {
   const start = Date.now();
-  
   res.on('finish', () => {
     const duration = Date.now() - start;
     logger.info({
@@ -51,7 +54,6 @@ const loggingMiddleware = (req, res, next) => {
       userAgent: req.get('user-agent')
     });
   });
-
   next();
 };
 

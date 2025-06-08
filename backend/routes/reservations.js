@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { Reservation } = require('../models');
-const auth = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // 예약 생성
-router.post('/', auth, async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const { restaurant_id, reservation_time, guest_count, special_request, name } = req.body;
     const user_id = req.user.user_id; // JWT에서 추출
@@ -16,7 +16,7 @@ router.post('/', auth, async (req, res) => {
 });
 
 // 내 예약 목록 조회
-router.get('/user/:user_id', auth, async (req, res) => {
+router.get('/user/:user_id', authenticateToken, async (req, res) => {
   // 본인만 자신의 예약 목록을 볼 수 있도록 체크
   if (parseInt(req.user.user_id) !== parseInt(req.params.user_id)) {
     return res.status(403).json({ message: '본인만 예약 목록을 조회할 수 있습니다.' });
@@ -26,7 +26,7 @@ router.get('/user/:user_id', auth, async (req, res) => {
 });
 
 // 특정 예약 상세 조회
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
   const reservation = await Reservation.findByPk(req.params.id);
   if (reservation) {
     // 본인 예약만 조회 가능
@@ -40,7 +40,7 @@ router.get('/:id', auth, async (req, res) => {
 });
 
 // 예약 수정
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
   const { restaurant_id, reservation_time, guest_count, special_request, name } = req.body;
   const reservation = await Reservation.findByPk(req.params.id);
   if (reservation) {
@@ -60,7 +60,7 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 // 예약 취소
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   const reservation = await Reservation.findByPk(req.params.id);
   if (reservation) {
     if (reservation.user_id !== req.user.user_id) {

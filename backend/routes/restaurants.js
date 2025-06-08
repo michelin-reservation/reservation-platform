@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 const restaurantController = require('../controllers/restaurantController');
 const { Restaurant } = require('../models');
 
@@ -17,8 +17,8 @@ router.get('/', async (req, res) => {
 });
 
 // 인증이 필요한 라우트
-router.post('/', auth, restaurantController.createRestaurant);
-router.put('/:id', auth, restaurantController.updateRestaurant);
-router.delete('/:id', auth, restaurantController.deleteRestaurant);
+router.post('/', authenticateToken, restaurantController.createRestaurant);
+router.put('/:id', authenticateToken, restaurantController.updateRestaurant);
+router.delete('/:id', authenticateToken, restaurantController.deleteRestaurant);
 
 module.exports = router; 

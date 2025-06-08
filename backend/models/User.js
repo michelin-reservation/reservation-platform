@@ -58,5 +58,13 @@ module.exports = (sequelize) => {
     return await bcrypt.compare(candidatePassword, this.password);
   };
 
+  // 관계 선언 (실무 표준)
+  User.associate = (models) => {
+    User.hasMany(models.Restaurant, { foreignKey: 'owner_id', as: 'restaurants' });
+    User.hasMany(models.Reservation, { foreignKey: 'user_id', as: 'reservations' });
+    User.hasMany(models.Review, { foreignKey: 'user_id', as: 'reviews' });
+    User.hasMany(models.Favorite, { foreignKey: 'user_id', as: 'favorites' });
+  };
+
   return User;
 }; 

@@ -64,5 +64,13 @@ module.exports = (sequelize) => {
     timestamps: false,
   });
 
+  // 관계 선언 (실무 표준)
+  Restaurant.associate = (models) => {
+    Restaurant.belongsTo(models.User, { foreignKey: 'owner_id', as: 'owner' });
+    Restaurant.hasMany(models.Reservation, { foreignKey: 'restaurant_id', as: 'reservations' });
+    Restaurant.hasMany(models.Review, { foreignKey: 'restaurant_id', as: 'reviews' });
+    Restaurant.hasMany(models.Favorite, { foreignKey: 'restaurant_id', as: 'favorites' });
+  };
+
   return Restaurant;
 }; 
