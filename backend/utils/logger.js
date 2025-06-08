@@ -1,5 +1,6 @@
 const winston = require('winston');
 const { format } = winston;
+const DailyRotateFile = require('winston-daily-rotate-file');
 
 // 로그 포맷 설정
 const logFormat = format.combine(
@@ -9,24 +10,31 @@ const logFormat = format.combine(
   format.json()
 );
 
+// 로그 파일 롤링 설정
+const errorTransport = new DailyRotateFile({
+  filename: 'logs/error-%DATE%.log',
+  datePattern: 'YYYY-MM-DD',
+  level: 'error',
+  zippedArchive: true,
+  maxSize: '20m',
+  maxFiles: '14d' // 14일 보관
+});
+
+const combinedTransport = new DailyRotateFile({
+  filename: 'logs/combined-%DATE%.log',
+  datePattern: 'YYYY-MM-DD',
+  zippedArchive: true,
+  maxSize: '20m',
+  maxFiles: '14d'
+});
+
 // 로거 생성
 const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: logFormat,
   transports: [
-    // 파일 출력 (에러)
-    new winston.transports.File({ 
-      filename: 'logs/error.log', 
-      level: 'error',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5
-    }),
-    // 파일 출력 (전체)
-    new winston.transports.File({ 
-      filename: 'logs/combined.log',
-      maxsize: 5242880,
-      maxFiles: 5
-    })
+    errorTransport,
+    combinedTransport
   ]
 });
 

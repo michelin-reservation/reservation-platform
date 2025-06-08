@@ -16,14 +16,17 @@ const RestaurantPage: React.FC = () => {
   
   useEffect(() => {
     if (id) {
-      const foundRestaurant = restaurants.find(r => r.id === id);
-      setRestaurant(foundRestaurant || null);
-      
-      if (foundRestaurant) {
-        document.title = `${foundRestaurant.nameKorean} | EIE`;
-      }
+      setRestaurant(null);
+      fetch(`/api/restaurants/${id}`)
+        .then(res => res.json())
+        .then(data => {
+          setRestaurant(data);
+          if (data && data.nameKorean) {
+            document.title = `${data.nameKorean} | EIE`;
+          }
+        })
+        .catch(() => setRestaurant(null));
     }
-    
     return () => {
       document.title = 'EIE';
     };

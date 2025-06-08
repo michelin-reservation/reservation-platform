@@ -1,0 +1,63 @@
+name: Security Audit & Fix
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 0 * * 0'  # 매주 일요일 자정에 실행
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [backend, frontend]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: ${{ matrix.project }}/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd ${{ matrix.project }}
+        npm ci
+
+    - name: Run security audit
+      id: audit
+      run: |
+        cd ${{ matrix.project }}
+        npm audit
+      continue-on-error: true
+
+    - name: Fix security vulnerabilities
+      if: steps.audit.outcome == 'failure'
+      run: |
+        cd ${{ matrix.project }}
+        npm audit fix || true
+
+    - name: Create Pull Request for fixes
+      if: steps.audit.outcome == 'failure'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'fix: security vulnerabilities'
+        title: '🔒 Security Fixes'
+        body: |
+          자동 보안 취약점 수정 PR입니다.
+          
+          다음 작업이 수행되었습니다:
+          - npm audit 실행
+          - 취약점 자동 수정
+          
+          변경사항을 검토하고 승인해주세요.
+        branch: security-fixes
+        base: ${{ github.ref }}
+        labels: security, automated-pr 

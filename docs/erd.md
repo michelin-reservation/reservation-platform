@@ -1,90 +1,101 @@
-# ERD (Entity Relationship Diagram) - Michelin Reservation Platform
+# Michelin Reservation Platform ERD
 
----
+## 테이블 구조
 
-## 1. Table 및 Entity 정의
+### users
+- `user_id` (PK): INTEGER, AUTO_INCREMENT
+- `email`: VARCHAR(255), NOT NULL, UNIQUE
+- `password`: VARCHAR(255), NOT NULL
+- `name`: VARCHAR(255), NOT NULL
+- `phone`: VARCHAR(255)
+- `user_type`: ENUM('일반', 'VIP', '관리자'), DEFAULT '일반'
+- `company_name`: VARCHAR(255)
+- `vip_card_number`: VARCHAR(255)
+- `created_at`: DATETIME, DEFAULT CURRENT_TIMESTAMP
 
-### Users
-- UserID (PK)
-- UserName
-- Password
-- Email
-- UserType (일반, VIP, 사업자)
-- CreatedAt
-- Phone
-- VipCardRegistered
-- VipCardNumber
+### restaurants
+- `restaurant_id` (PK): INTEGER, AUTO_INCREMENT
+- `owner_id` (FK): INTEGER, REFERENCES users(user_id)
+- `name`: VARCHAR(255), NOT NULL
+- `location`: VARCHAR(255), NOT NULL
+- `latitude`: FLOAT
+- `longitude`: FLOAT
+- `stars`: INTEGER
+- `menu`: JSON
+- `tags`: VARCHAR(255)
+- `corkage`: BOOLEAN
+- `parking`: BOOLEAN
+- `number_of_seats`: INTEGER
+- `registration_date`: DATETIME, DEFAULT CURRENT_TIMESTAMP
+- `commission_fee`: INTEGER
 
-### Restaurants
-- RestaurantID (PK)
-- RestaurantName
-- Location
-- Latitude / Longitude
-- Stars
-- Menu
-- Corkage
-- Parking
-- NumberOfSeats
-- RegistrationDate
-- CommissionFee
+### reservations
+- `reservation_id` (PK): INTEGER, AUTO_INCREMENT
+- `user_id` (FK): INTEGER, NOT NULL, REFERENCES users(user_id)
+- `restaurant_id` (FK): INTEGER, NOT NULL, REFERENCES restaurants(restaurant_id)
+- `reservation_time`: DATETIME, NOT NULL
+- `guest_count`: INTEGER, NOT NULL
+- `special_request`: VARCHAR(255)
+- `status`: ENUM('대기', '확정', '취소'), DEFAULT '대기'
+- `created_at`: DATETIME, DEFAULT CURRENT_TIMESTAMP
+- `name`: VARCHAR(255), NOT NULL
 
-### Reservations
-- ReservationID (PK)
-- UserID (FK)
-- RestaurantID (FK)
-- ReservationTime
-- GuestCount
-- SpecialRequest
-- Status
+### reviews
+- `id` (PK): INTEGER, AUTO_INCREMENT
+- `user_id` (FK): INTEGER, NOT NULL, REFERENCES users(user_id)
+- `restaurant_id` (FK): INTEGER, NOT NULL, REFERENCES restaurants(restaurant_id)
+- `rating`: INTEGER, NOT NULL
+- `content`: TEXT, NOT NULL
+- `created_at`: DATETIME, DEFAULT CURRENT_TIMESTAMP
 
-### VipRequests
-- RequestID (PK)
-- UserID (FK)
-- CompanyName
-- Itinerary
-- Status
-- AssignedStaff
+### favorites
+- `id` (PK): INTEGER, AUTO_INCREMENT
+- `user_id` (FK): INTEGER, NOT NULL, REFERENCES users(user_id)
+- `restaurant_id` (FK): INTEGER, NOT NULL, REFERENCES restaurants(restaurant_id)
+- `created_at`: DATETIME, DEFAULT CURRENT_TIMESTAMP
 
-### Reviews
-- ReviewID (PK)
-- UserID (FK)
-- RestaurantID (FK)
-- Rating
-- Content
-- CreatedAt
+## 관계도
 
-### Payments
-- PaymentID (PK)
-- ReservationID (FK)
-- ServicePackage
-- AdditionalServices
-- ReservationFee
-- PaymentStatus
-- PaymentMethod
+```mermaid
+erDiagram
+    users ||--o{ restaurants : owns
+    users ||--o{ reservations : makes
+    users ||--o{ reviews : writes
+    users ||--o{ favorites : has
+    restaurants ||--o{ reservations : receives
+    restaurants ||--o{ reviews : has
+    restaurants ||--o{ favorites : is_favorited
+```
 
-### Services
-- ServiceID (PK)
-- ServiceName
-- Contractor
-- Price
-- ReservationFee
+## 관계 설명
 
----
+1. **users - restaurants**
+   - 한 사용자는 여러 레스토랑을 소유할 수 있음 (1:N)
+   - 레스토랑은 한 명의 소유자를 가짐 (N:1)
 
-## 2. ERD 다이어그램
+2. **users - reservations**
+   - 한 사용자는 여러 예약을 할 수 있음 (1:N)
+   - 예약은 한 명의 사용자에 속함 (N:1)
 
-![ERD 다이어그램](./erd-entity.png)
-![ERD 관계도](./erd-relationship.png)
+3. **users - reviews**
+   - 한 사용자는 여러 리뷰를 작성할 수 있음 (1:N)
+   - 리뷰는 한 명의 사용자에 속함 (N:1)
 
----
+4. **users - favorites**
+   - 한 사용자는 여러 레스토랑을 관심목록에 추가할 수 있음 (1:N)
+   - 관심목록은 한 명의 사용자에 속함 (N:1)
 
-## 3. 주요 관계 설명
+5. **restaurants - reservations**
+   - 한 레스토랑은 여러 예약을 받을 수 있음 (1:N)
+   - 예약은 한 레스토랑에 속함 (N:1)
 
-- Users 1:N Reservations, Reviews, VipRequests
-- Restaurants 1:N Reservations, Reviews
-- Reservations 1:1 Payments
-- Reservations N:M Services (중간테이블 ReservationServices로 확장 가능)
-- 각 테이블의 상세 컬럼/관계는 위 표와 이미지 참고
+6. **restaurants - reviews**
+   - 한 레스토랑은 여러 리뷰를 가질 수 있음 (1:N)
+   - 리뷰는 한 레스토랑에 속함 (N:1)
+
+7. **restaurants - favorites**
+   - 한 레스토랑은 여러 사용자의 관심목록에 추가될 수 있음 (1:N)
+   - 관심목록은 한 레스토랑에 속함 (N:1)
 
 ---
 
