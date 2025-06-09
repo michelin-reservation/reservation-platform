@@ -12,6 +12,10 @@ import ReviewPage from './pages/ReviewPage';
 import FavoritesPage from './pages/FavoritesPage';
 import NotificationSettingsPage from './pages/NotificationSettingsPage';
 import EditProfilePage from './pages/EditProfilePage';
+import MenuManagement from './pages/business/MenuManagement';
+import NoticeManagement from './pages/business/NoticeManagement';
+import RestaurantSettings from './pages/business/RestaurantSettings';
+import HelpSupport from './pages/business/HelpSupport';
 
 function App() {
   return (
@@ -29,6 +33,10 @@ function App() {
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/notifications" element={<NotificationSettingsPage />} />
           <Route path="/profile" element={<EditProfilePage />} />
+          <Route path="/business/menu" element={<MenuManagement />} />
+          <Route path="/business/notices" element={<NoticeManagement />} />
+          <Route path="/business/settings" element={<RestaurantSettings />} />
+          <Route path="/business/help" element={<HelpSupport />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
