@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
-import { Search, Calendar, MapPin, Phone, Clock, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import ReservationModal from '../components/ReservationModal';
 
 const categories = [
@@ -72,6 +72,7 @@ const ConciergeServices: React.FC = () => {
   const [selectedPromotion, setSelectedPromotion] = useState<any>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
+  const [restaurantName, setRestaurantName] = useState('');
   const navigate = useNavigate();
 
   const toggleCategory = (category: string) => {
@@ -87,6 +88,12 @@ const ConciergeServices: React.FC = () => {
     setIsDetailModalOpen(true);
   };
 
+  const handleReservationClick = (promotion: any) => {
+    setSelectedPromotion(promotion);
+    setIsReservationModalOpen(true);
+    setRestaurantName(promotion.title || '');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -99,7 +106,6 @@ const ConciergeServices: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <div className="flex items-center mb-6">
-            <Search className="text-gray-400 mr-2" size={20} />
             <input
               type="text"
               placeholder="검색어를 입력하세요"
@@ -235,10 +241,7 @@ const ConciergeServices: React.FC = () => {
               )}
 
               <button
-                onClick={() => {
-                  setIsDetailModalOpen(false);
-                  setIsReservationModalOpen(true);
-                }}
+                onClick={() => handleReservationClick(selectedPromotion)}
                 className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors mt-6"
               >
                 예약하기
@@ -252,7 +255,7 @@ const ConciergeServices: React.FC = () => {
         <ReservationModal
           isOpen={isReservationModalOpen}
           onClose={() => setIsReservationModalOpen(false)}
-          restaurantName={selectedPromotion.title}
+          restaurantName={restaurantName}
         />
       )}
     </div>

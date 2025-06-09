@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Calendar } from 'react-calendar';
 import { BarChart, Users, Clock, Menu, MessageSquare, Bell, Settings, HelpCircle } from 'lucide-react';
 import Header from '../components/Header';
 import 'react-calendar/dist/Calendar.css';
 
 const BusinessDashboard: React.FC = () => {
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState<Date | Date[] | null>(new Date());
+  const navigate = useNavigate();
   
+  // 실제 서비스 연동 전까지는 mock 데이터 사용
   const timeSlots = Array.from({ length: 12 }, (_, i) => ({
     time: `${i + 11}:00`,
     reserved: Math.random() > 0.5,
@@ -116,7 +119,7 @@ const BusinessDashboard: React.FC = () => {
             />
             <div className="mt-4">
               <h3 className="font-medium mb-2">
-                {date.toLocaleDateString()} 예약 현황
+                {date instanceof Date ? date.toLocaleDateString() : ''} 예약 현황
               </h3>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
@@ -144,9 +147,30 @@ const BusinessDashboard: React.FC = () => {
               <h2 className="text-lg font-bold">메뉴 관리</h2>
             </div>
             <ul className="space-y-2">
-              <li className="text-gray-600 hover:text-red-600 cursor-pointer">메뉴 등록/수정</li>
-              <li className="text-gray-600 hover:text-red-600 cursor-pointer">가격 설정</li>
-              <li className="text-gray-600 hover:text-red-600 cursor-pointer">품절 관리</li>
+              <li>
+                <button 
+                  onClick={() => navigate('/business/menu')}
+                  className="text-gray-600 hover:text-red-600 cursor-pointer w-full text-left"
+                >
+                  메뉴 등록/수정
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate('/business/menu')}
+                  className="text-gray-600 hover:text-red-600 cursor-pointer w-full text-left"
+                >
+                  가격 설정
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate('/business/menu')}
+                  className="text-gray-600 hover:text-red-600 cursor-pointer w-full text-left"
+                >
+                  품절 관리
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -156,9 +180,30 @@ const BusinessDashboard: React.FC = () => {
               <h2 className="text-lg font-bold">공지/이벤트</h2>
             </div>
             <ul className="space-y-2">
-              <li className="text-gray-600 hover:text-red-600 cursor-pointer">공지사항 등록</li>
-              <li className="text-gray-600 hover:text-red-600 cursor-pointer">이벤트 관리</li>
-              <li className="text-gray-600 hover:text-red-600 cursor-pointer">프로모션 설정</li>
+              <li>
+                <button 
+                  onClick={() => navigate('/business/notices')}
+                  className="text-gray-600 hover:text-red-600 cursor-pointer w-full text-left"
+                >
+                  공지사항 등록
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate('/business/notices')}
+                  className="text-gray-600 hover:text-red-600 cursor-pointer w-full text-left"
+                >
+                  이벤트 관리
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate('/business/notices')}
+                  className="text-gray-600 hover:text-red-600 cursor-pointer w-full text-left"
+                >
+                  프로모션 설정
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -168,9 +213,30 @@ const BusinessDashboard: React.FC = () => {
               <h2 className="text-lg font-bold">설정</h2>
             </div>
             <ul className="space-y-2">
-              <li className="text-gray-600 hover:text-red-600 cursor-pointer">영업시간 설정</li>
-              <li className="text-gray-600 hover:text-red-600 cursor-pointer">좌석 관리</li>
-              <li className="text-gray-600 hover:text-red-600 cursor-pointer">알림 설정</li>
+              <li>
+                <button 
+                  onClick={() => navigate('/business/settings')}
+                  className="text-gray-600 hover:text-red-600 cursor-pointer w-full text-left"
+                >
+                  영업시간 설정
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate('/business/settings')}
+                  className="text-gray-600 hover:text-red-600 cursor-pointer w-full text-left"
+                >
+                  좌석 관리
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate('/business/settings')}
+                  className="text-gray-600 hover:text-red-600 cursor-pointer w-full text-left"
+                >
+                  알림 설정
+                </button>
+              </li>
             </ul>
           </div>
         </div>
@@ -187,7 +253,7 @@ const BusinessDashboard: React.FC = () => {
               <p className="text-sm text-gray-600">
                 문의사항이나 기술적인 지원이 필요하신가요?
               </p>
-              <button className="mt-3 text-red-600 hover:text-red-700">
+              <button onClick={() => navigate('/business/help')} className="mt-3 text-red-600 hover:text-red-700">
                 문의하기 →
               </button>
             </div>
@@ -196,7 +262,7 @@ const BusinessDashboard: React.FC = () => {
               <p className="text-sm text-gray-600">
                 관리자 페이지 사용방법을 확인하세요.
               </p>
-              <button className="mt-3 text-red-600 hover:text-red-700">
+              <button onClick={() => navigate('/business/help')} className="mt-3 text-red-600 hover:text-red-700">
                 가이드 보기 →
               </button>
             </div>
