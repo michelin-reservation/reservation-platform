@@ -130,10 +130,14 @@ const MapComponent: React.FC<MapComponentProps> = ({
   };
 
   useEffect(() => {
-    // In a real implementation, you would initialize a map library here
+    const naverMapClientId = import.meta.env.VITE_NAVER_MAP_CLIENT_ID;
+    if (!naverMapClientId) {
+      console.warn('VITE_NAVER_MAP_CLIENT_ID 환경변수가 설정되어 있지 않습니다.');
+      return;
+    }
     const script = document.createElement("script");
     script.src =
-      "https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=6r4adrcct5";
+      `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${naverMapClientId}`;
     script.async = true;
     script.onload = () => {
       initMap();
