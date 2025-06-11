@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { User, Mail, Lock, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { authApi } from '../api/authApi';
 
 const EditProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -41,7 +42,6 @@ const EditProfilePage: React.FC = () => {
     setError('');
     setSuccess('');
 
-    // 비밀번호 변경 시 유효성 검사
     if (formData.newPassword) {
       if (formData.newPassword.length < 8) {
         setError('새 비밀번호는 8자 이상이어야 합니다.');
@@ -57,31 +57,17 @@ const EditProfilePage: React.FC = () => {
       }
     }
 
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await fetch('/api/users/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          currentPassword: formData.currentPassword,
-          newPassword: formData.newPassword
-        })
+      const updatedUser: any = await authApi.updateProfile({
+        name: formData.name,
+        email: formData.email,
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword
       });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || '프로필 업데이트에 실패했습니다.');
-      }
-
-      const updatedUser = await response.json();
-      updateUser(updatedUser);
+      updateUser(updatedUser.user || updatedUser);
       setSuccess('프로필이 성공적으로 업데이트되었습니다.');
-      
-      // 비밀번호 필드 초기화
+
       setFormData(prev => ({
         ...prev,
         currentPassword: '',
@@ -90,8 +76,8 @@ const EditProfilePage: React.FC = () => {
       }));
 
       setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '프로필 업데이트 중 오류가 발생했습니다.');
+    } catch (err: any) {
+      setError(err.message || '프로필 업데이트 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }

@@ -113,8 +113,8 @@ const BusinessDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold mb-4">날짜별 예약 확인</h2>
             <Calendar
-              onChange={setDate}
-              value={date}
+              onChange={(value) => setDate(value as Date)}
+              value={date as Date}
               className="w-full border-0"
             />
             <div className="mt-4">
