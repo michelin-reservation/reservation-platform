@@ -10,12 +10,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String?
+  password     String
+  reviews      Review[]
+  reservations Reservation[]
+  favorites    Favorite[]
+  payments     Payment[]
+  vipRequests  VipRequest[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
 model Restaurant {
   id            String        @id @default(uuid())
   name          String
   nameKorean    String
   category      String
-  tags          String[]
+  tags          Json?
   address       String
   lat           Float
   lng           Float
@@ -23,12 +37,13 @@ model Restaurant {
   michelinGuide String?
   description   String?       @db.Text
   phone         String?
-  services      String[]
+  services      Json?
   social        Json?
   openingHours  Json?
   menuItems     MenuItem[]
   reviews       Review[]
   reservations  Reservation[]
+  favorites     Favorite[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -71,13 +86,28 @@ model Reservation {
   updatedAt    DateTime   @updatedAt
 }
 
-model User {
-  id           String        @id @default(uuid())
-  email        String        @unique
-  name         String?
-  password     String
-  reviews      Review[]
-  reservations Reservation[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-} 
+model Favorite {
+  id           String     @id @default(uuid())
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId String
+  createdAt    DateTime   @default(now())
+}
+
+model Payment {
+  id           String     @id @default(uuid())
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  amount       Float
+  status       String
+  createdAt    DateTime   @default(now())
+}
+
+model VipRequest {
+  id           String     @id @default(uuid())
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  requestDate  DateTime   @default(now())
+  status       String
+}
