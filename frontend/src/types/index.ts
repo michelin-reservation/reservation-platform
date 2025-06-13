@@ -1,5 +1,6 @@
 export interface Restaurant {
   id: string;
+  tags: string[];
   name: string;
   nameKorean: string;
   category: string;
@@ -7,13 +8,13 @@ export interface Restaurant {
   image: string;
   lat: number;
   lng: number;
-  michelin?: boolean;
+  michelinGuide?: string;
   description?: string;
   menuItems?: MenuItem[];
   openingHours?: OpeningHours;
   services?: string[];
   phone?: string;
-  social?: { instagram?: string };
+  social?: { webpage?: string, instagram?: string };
   ranking?: number;
   galleryImages?: string[];
   reviews?: number;
@@ -22,12 +23,13 @@ export interface Restaurant {
 export interface MenuItem {
   name: string;
   nameKorean?: string;
-  price: number;
+  price: string;
   description?: string;
 }
 
 export interface OpeningHours {
   regular: string;
+  dayOff?: string;
   breakTime?: string;
   lastOrder?: string;
 }

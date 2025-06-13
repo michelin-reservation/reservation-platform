@@ -57,6 +57,7 @@ app.use('/api/favorites', require('./routes/favoriteRoutes'));
 app.use('/api/vip-requests', require('./routes/vipRequests'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/admin', isAdmin, require('./routes/admin'));
+app.use('/api/business', require('./routes/businessRoutes'));
 
 // 캐시 적용 예시
 app.get('/api/restaurants', cache(300), require('./routes/restaurants')); // 5분 캐시

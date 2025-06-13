@@ -13,9 +13,11 @@
     "db:seed": "sequelize-cli db:seed:all",
     "validate:env": "node scripts/validate-env.js",
     "security:check": "npm audit",
-    "postinstall": "npm audit fix || true && npm install pm2 -g"
+    "postinstall": "npm audit fix || true && npm install pm2 -g",
+    "seed": "node seeders/restaurantSeeder.js"
   },
   "dependencies": {
+    "@babel/parser": "^7.27.5",
     "@sentry/integrations": "^7.101.1",
     "@sentry/node": "^7.120.3",
     "@sentry/tracing": "^7.101.1",

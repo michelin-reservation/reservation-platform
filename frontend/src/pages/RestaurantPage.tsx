@@ -5,7 +5,6 @@ import Header from '../components/Header';
 import MapComponent from '../components/MapComponent';
 import Gallery from '../components/Gallery';
 import ReservationModal from '../components/ReservationModal';
-import { restaurants } from '../data/restaurants';
 import { Restaurant } from '../types';
 
 const RestaurantPage: React.FC = () => {
@@ -58,7 +57,7 @@ const RestaurantPage: React.FC = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
         <div className="absolute bottom-0 left-0 p-6 text-white">
-          {restaurant.michelin && (
+          {restaurant.category === '미쉐린 빕구르망' && (
             <div className="bg-red-600 text-white text-xs px-2 py-1 rounded-full inline-block mb-3">
               미쉐린 빌구르망
             </div>
