@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
+import { businessApi } from '../api/businessApi';
 import {
   BarChart,
   Bar,
@@ -48,27 +49,31 @@ const StatisticsPage: React.FC = () => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
   useEffect(() => {
+    const fetchStatistics = async () => {
+      try {
+        setLoading(true);
+        const data = await businessApi.getStatistics() as {
+          dailyStats: DailyStats[];
+          menuStats: MenuStats[];
+          timeSlotStats: TimeSlotStats[];
+          totalRevenue: number;
+          totalReservations: number;
+          averageRating: number;
+        };
+        setDailyStats(data.dailyStats || []);
+        setMenuStats(data.menuStats || []);
+        setTimeSlotStats(data.timeSlotStats || []);
+        setTotalRevenue(data.totalRevenue || 0);
+        setTotalReservations(data.totalReservations || 0);
+        setAverageRating(data.averageRating || 0);
+      } catch {
+        setError('통계를 불러오는 중 오류가 발생했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchStatistics();
   }, []);
-
-  const fetchStatistics = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/business/statistics');
-      if (!response.ok) throw new Error('통계를 불러오지 못했습니다.');
-      const data = await response.json();
-      setDailyStats(data.dailyStats);
-      setMenuStats(data.menuStats);
-      setTimeSlotStats(data.timeSlotStats);
-      setTotalRevenue(data.totalRevenue);
-      setTotalReservations(data.totalReservations);
-      setAverageRating(data.averageRating);
-    } catch (err) {
-      setError('통계를 불러오는 중 오류가 발생했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) return <div>로딩 중...</div>;
 

@@ -219,3 +219,62 @@ scrape_configs:
 - 빌드/배포: 프론트는 정적 파일, 백엔드는 pm2/Docker로 배포
 - 자동화: GitHub Actions 등으로 CI/CD 구축
 - 모니터링/로깅: winston, Sentry, Prometheus 등으로 관리
+
+---
+
+## 데이터 변환 및 시드 실행 
+
+### 1. 프론트엔드 TS → 백엔드 JSON 변환
+
+운영 데이터(레스토랑 전체 정보)는 `frontend/src/data/restaurants.ts`에 TypeScript 배열로 관리됩니다. 이 데이터를 백엔드에서 사용할 수 있도록 JSON으로 변환하는 실무 표준 스크립트가 제공됩니다.
+
+#### Babel 파서 기반 변환 스크립트
+- TypeScript/JS 문법을 안전하게 파싱하여, export/주석/타입 등 불필요 요소를 자동 제거
+- Babel 공식 파서(@babel/parser) 사용
+- 내부 데이터 변환용으로 안전하게 설계
+
+**의존성 설치(최초 1회):**
+```bash
+cd backend
+npm install @babel/parser
+```
+
+**변환 실행:**
+```bash
+cd backend
+node scripts/convertRestaurants.js
+```
+- 변환 성공 시 `backend/data/restaurants.json` 파일이 생성됩니다.
+- 변환 스크립트는 TypeScript 파일 내 export/주석/트레일링 콤마 등도 자동 처리합니다.
+
+### 2. 시드 스크립트 실행 (환경별 데이터 파일 지정 가능)
+
+```bash
+# 개발 환경 예시
+DATA_FILE=../data/restaurants.json node seeders/restaurantSeeder.js
+
+# 운영 환경 예시 (예: prod 데이터 파일이 따로 있을 경우)
+DATA_FILE=../data/restaurants.prod.json node seeders/restaurantSeeder.js
+```
+- Prisma upsert로 중복 없이 안전하게 데이터 삽입/갱신
+- 메뉴도 자동 upsert 처리
+
+### 3. 전체 실무 표준 흐름
+1. 프론트엔드 데이터 최신화 → 변환 스크립트 실행
+2. 시드 스크립트로 DB 최신화
+3. API/프론트엔드 연동
+
+> 데이터 구조/스키마가 변경될 경우, 변환 스크립트와 시드 스크립트도 함께 점검/수정 필요
+
+## 프론트엔드 필수 의존성 설치 안내
+
+### recharts (통계/비즈니스 대시보드 시각화)
+
+통계 및 비즈니스 대시보드 페이지에서 recharts가 필수로 사용됩니다. 아래 명령어로 반드시 설치해 주세요.
+
+```bash
+cd frontend
+npm install recharts
+```
+
+(recharts는 타입스크립트 내장 타입을 제공합니다. 별도 @types 패키지 필요 없음)
