@@ -2,10 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { Settings, Clock, Users, Bell } from 'lucide-react';
+import { businessApi } from '../api/businessApi';
+
+interface BusinessSettings {
+  businessHours: { [key: string]: { open: string; close: string } };
+  seats: { total: number; tables: { id: number; name: string; capacity: number }[] };
+  notifications: { reservationConfirm: boolean; reservationReminder: boolean; reviewResponse: boolean; marketing: boolean };
+}
 
 const BusinessSettingsPage: React.FC = () => {
   const navigate = useNavigate();
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<BusinessSettings>({
     businessHours: {
       monday: { open: '09:00', close: '22:00' },
       tuesday: { open: '09:00', close: '22:00' },
@@ -15,61 +22,36 @@ const BusinessSettingsPage: React.FC = () => {
       saturday: { open: '10:00', close: '22:00' },
       sunday: { open: '10:00', close: '21:00' }
     },
-    seats: {
-      total: 50,
-      tables: [
-        { id: 1, name: '테이블 1', capacity: 4 },
-        { id: 2, name: '테이블 2', capacity: 4 },
-        { id: 3, name: '테이블 3', capacity: 2 }
-      ]
-    },
-    notifications: {
-      reservationConfirm: true,
-      reservationReminder: true,
-      reviewResponse: true,
-      marketing: false
-    }
+    seats: { total: 50, tables: [] },
+    notifications: { reservationConfirm: true, reservationReminder: true, reviewResponse: true, marketing: false }
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        setLoading(true);
+        const data = await businessApi.getSettings() as BusinessSettings;
+        setSettings(data);
+      } catch {
+        setError('설정을 불러오는 중 오류가 발생했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchSettings();
   }, []);
 
-  const fetchSettings = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/business/settings');
-      if (!response.ok) throw new Error('설정을 불러오지 못했습니다.');
-      const data = await response.json();
-      setSettings(data);
-    } catch (err) {
-      setError('설정을 불러오는 중 오류가 발생했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await fetch('/api/business/settings', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(settings)
-      });
-
-      if (!response.ok) throw new Error('설정을 저장하지 못했습니다.');
-
+      await businessApi.updateSettings(settings);
       setSuccess('설정이 저장되었습니다.');
       setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
+    } catch {
       setError('설정을 저장하는 중 오류가 발생했습니다.');
       setTimeout(() => setError(''), 3000);
     } finally {
@@ -86,7 +68,7 @@ const BusinessSettingsPage: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold mb-8">비즈니스 설정</h1>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSave} className="space-y-8">
             {/* 영업시간 설정 */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center mb-4">
@@ -101,13 +83,13 @@ const BusinessSettingsPage: React.FC = () => {
                       type="time"
                       value={hours.open}
                       onChange={(e) =>
-                        setSettings({
-                          ...settings,
+                        setSettings((prev) => ({
+                          ...prev,
                           businessHours: {
-                            ...settings.businessHours,
+                            ...prev.businessHours,
                             [day]: { ...hours, open: e.target.value }
                           }
-                        })
+                        }))
                       }
                       className="border rounded p-2"
                     />
@@ -116,13 +98,13 @@ const BusinessSettingsPage: React.FC = () => {
                       type="time"
                       value={hours.close}
                       onChange={(e) =>
-                        setSettings({
-                          ...settings,
+                        setSettings((prev) => ({
+                          ...prev,
                           businessHours: {
-                            ...settings.businessHours,
+                            ...prev.businessHours,
                             [day]: { ...hours, close: e.target.value }
                           }
-                        })
+                        }))
                       }
                       className="border rounded p-2"
                     />
@@ -146,10 +128,10 @@ const BusinessSettingsPage: React.FC = () => {
                     type="number"
                     value={settings.seats.total}
                     onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        seats: { ...settings.seats, total: parseInt(e.target.value) }
-                      })
+                      setSettings((prev) => ({
+                        ...prev,
+                        seats: { ...prev.seats, total: parseInt(e.target.value) }
+                      }))
                     }
                     className="border rounded p-2 w-full"
                   />
@@ -164,15 +146,15 @@ const BusinessSettingsPage: React.FC = () => {
                         type="text"
                         value={table.name}
                         onChange={(e) =>
-                          setSettings({
-                            ...settings,
+                          setSettings((prev) => ({
+                            ...prev,
                             seats: {
-                              ...settings.seats,
-                              tables: settings.seats.tables.map((t) =>
+                              ...prev.seats,
+                              tables: prev.seats.tables.map((t) =>
                                 t.id === table.id ? { ...t, name: e.target.value } : t
                               )
                             }
-                          })
+                          }))
                         }
                         className="border rounded p-2"
                         placeholder="테이블 이름"
@@ -181,17 +163,17 @@ const BusinessSettingsPage: React.FC = () => {
                         type="number"
                         value={table.capacity}
                         onChange={(e) =>
-                          setSettings({
-                            ...settings,
+                          setSettings((prev) => ({
+                            ...prev,
                             seats: {
-                              ...settings.seats,
-                              tables: settings.seats.tables.map((t) =>
+                              ...prev.seats,
+                              tables: prev.seats.tables.map((t) =>
                                 t.id === table.id
                                   ? { ...t, capacity: parseInt(e.target.value) }
                                   : t
                               )
                             }
-                          })
+                          }))
                         }
                         className="border rounded p-2"
                         placeholder="수용 인원"
@@ -216,13 +198,13 @@ const BusinessSettingsPage: React.FC = () => {
                       type="checkbox"
                       checked={settings.notifications.reservationConfirm}
                       onChange={(e) =>
-                        setSettings({
-                          ...settings,
+                        setSettings((prev) => ({
+                          ...prev,
                           notifications: {
-                            ...settings.notifications,
+                            ...prev.notifications,
                             reservationConfirm: e.target.checked
                           }
-                        })
+                        }))
                       }
                       className="sr-only peer"
                     />
@@ -236,13 +218,13 @@ const BusinessSettingsPage: React.FC = () => {
                       type="checkbox"
                       checked={settings.notifications.reservationReminder}
                       onChange={(e) =>
-                        setSettings({
-                          ...settings,
+                        setSettings((prev) => ({
+                          ...prev,
                           notifications: {
-                            ...settings.notifications,
+                            ...prev.notifications,
                             reservationReminder: e.target.checked
                           }
-                        })
+                        }))
                       }
                       className="sr-only peer"
                     />
