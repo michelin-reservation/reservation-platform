@@ -22,6 +22,8 @@ const logger = require('./utils/logger');
 const Sentry = require('@sentry/node');
 const Tracing = require('@sentry/tracing');
 const promClient = require('prom-client');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 // const users = require('./routes/users'); // 불필요, 주석 처리
 
 const app = express();

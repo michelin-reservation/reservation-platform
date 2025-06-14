@@ -1,0 +1,4 @@
+scrape_configs:
+  - job_name: 'michelin-saas'
+    static_configs:
+      - targets: ['localhost:3000']  # API 포트 기준 
