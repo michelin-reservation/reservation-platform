@@ -78,6 +78,31 @@ michelin-reservation-platform-2025-Q2/
 - 운영/개발 환경, Sentry, Prometheus, Grafana, Slack 등 모두 README/docs에 가이드 반영
 - 운영자는 위 사용법만 따르면 실무 환경을 바로 구축 가능
 
+## 주요 운영/개발 스크립트 매핑 표 (실무 표준)
+
+| 명령어                       | 실제 동작/설명                                                                                 | 용도/비고                       |
+|------------------------------|-----------------------------------------------------------------------------------------------|---------------------------------|
+| **npm start**                | `NODE_ENV=production node app.js`                                                             | 운영 환경 서버 실행(기본)        |
+| **npm run start:pm2**        | `NODE_ENV=production pm2 start app.js --name michelin-backend`                                | 운영 환경 무중단(PM2) 실행       |
+| **npm run dev**              | `NODE_ENV=development nodemon app.js`                                                         | 개발 환경 서버 실행(핫리로드)    |
+| **npm test**                 | `NODE_ENV=test jest --detectOpenHandles`                                                      | 테스트 코드 실행                |
+| **npm run test:watch**       | `jest --watch`                                                                                | 테스트 코드 변경 감지 자동 실행  |
+| **npm run lint**             | `eslint .`                                                                                    | 코드 린트(문법/스타일 검사)      |
+| **npm run lint:fix**         | `eslint . --fix`                                                                              | 코드 린트 자동 수정             |
+| **npm run prettier**         | `prettier --check .`                                                                          | 코드 포맷 검사                  |
+| **npm run prettier:fix**     | `prettier --write .`                                                                          | 코드 포맷 자동 정리             |
+| **npm run db:migrate**       | `sequelize-cli db:migrate`                                                                    | DB 마이그레이션(스키마 적용)     |
+| **npm run db:seed**          | `sequelize-cli db:seed:all`                                                                   | DB 시드 데이터 삽입             |
+| **npm run db:reset**         | `sequelize-cli db:migrate:undo:all && sequelize-cli db:migrate && sequelize-cli db:seed:all`  | DB 전체 리셋 및 시드            |
+| **npm run db:status**        | `sequelize-cli db:migrate:status`                                                             | DB 마이그레이션 상태 확인        |
+| **npm run validate:env**     | `node scripts/validate-env.js`                                                                | 필수 환경변수 체크              |
+| **npm run security:check**   | `npm audit`                                                                                   | 보안 취약점 검사                |
+| **npm run security:fix**     | `npm audit fix`                                                                               | 보안 취약점 자동 수정           |
+| **npm run seed**             | `node seeders/restaurantSeeder.js`                                                            | 레스토랑 시드 데이터 삽입        |
+
+> 위 명령어들은 운영/개발/테스트/품질/DB/보안 등 실무에 필요한 모든 작업을 명확하게 분리하여 관리할 수 있도록 설계되어 있습니다.
+> 운영자는 이 표를 참고하여 환경에 맞는 명령어만 실행하면 됩니다.
+
 ## 실무 표준 8단계 업그레이드 로드맵
 1. 관리자 인증 미들웨어 도입 (isAdmin, /api/admin 보호)
 2. 에러 핸들러 및 에러 표준화 (errorHandler, 일관된 에러 응답)
@@ -222,7 +247,7 @@ scrape_configs:
 
 ---
 
-## 데이터 변환 및 시드 실행 
+## 데이터 변환 및 시드 실행
 
 ### 1. 프론트엔드 TS → 백엔드 JSON 변환
 
