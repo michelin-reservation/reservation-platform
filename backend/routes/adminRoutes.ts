@@ -10,4 +10,4 @@ router.get('/users', adminController.getAllUsers);
 router.get('/reservations', adminController.getAllReservations);
 router.get('/vip-requests', adminController.getAllVipRequests);
 
-export default router; 
+export default router;

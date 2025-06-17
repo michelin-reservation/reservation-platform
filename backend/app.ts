@@ -44,4 +44,4 @@ app.use('/metrics', metricsRoutes);
 app.use(Sentry.Handlers.errorHandler());
 app.use(errorHandler);
 
-export default app; 
+export default app;
