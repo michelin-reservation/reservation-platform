@@ -1,0 +1,99 @@
+{{- if .Values.initContainer.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "db.fullname" . }}-init
+  labels:
+    {{- include "db.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "db.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: {{ include "db.serviceAccountName" . }}
+      containers:
+        - name: db-init
+          image: "{{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag }}"
+          imagePullPolicy: {{ .Values.initContainer.image.pullPolicy }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              echo "=== DB 초기화 Job 시작 ==="
+
+              # MySQL 서버가 준비될 때까지 대기
+              echo "MySQL 서버 준비 대기 중..."
+              until mysql -h "{{ include "db.fullname" . }}" -P 3306 -u root -p"$MYSQL_ROOT_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; do
+                echo "MySQL 서버 대기 중... (호스트: {{ include "db.fullname" . }})"
+                sleep 5
+              done
+              echo "MySQL 서버 준비 완료!"
+
+              # 초기화 완료 여부 확인
+              echo "초기화 상태 확인 중..."
+              INIT_CHECK=$(mysql -h "{{ include "db.fullname" . }}" -P 3306 -u root -p"$MYSQL_ROOT_PASSWORD" -s -N -e "
+                SELECT COUNT(*) FROM information_schema.tables
+                WHERE table_schema = '{{ .Values.env.MYSQL_DATABASE }}'
+                AND table_name = 'db_initialization'
+              " 2>/dev/null || echo "0")
+
+              if [ "$INIT_CHECK" -eq "0" ]; then
+                echo "초기화가 필요합니다. DB 초기화를 시작합니다..."
+
+                # 1. 데이터베이스 초기화
+                echo "1. 데이터베이스 초기화..."
+                mysql -h "{{ include "db.fullname" . }}" -P 3306 -u root -p"$MYSQL_ROOT_PASSWORD" < /scripts/01-init-database.sql
+
+                # 2. 테이블 생성
+                echo "2. 테이블 생성..."
+                mysql -h "{{ include "db.fullname" . }}" -P 3306 -u root -p"$MYSQL_ROOT_PASSWORD" < /scripts/02-create-tables.sql
+
+                # 3. 기본 데이터 삽입
+                echo "3. 기본 데이터 삽입..."
+                mysql -h "{{ include "db.fullname" . }}" -P 3306 -u root -p"$MYSQL_ROOT_PASSWORD" < /scripts/03-seed-data.sql
+
+                # 4. 식당 데이터 삽입
+                echo "4. 식당 데이터 삽입..."
+                mysql -h "{{ include "db.fullname" . }}" -P 3306 -u root -p"$MYSQL_ROOT_PASSWORD" < /scripts/04-seed-restaurants.sql
+
+                # 5. 초기화 완료 표시
+                echo "5. 초기화 완료 표시..."
+                mysql -h "{{ include "db.fullname" . }}" -P 3306 -u root -p"$MYSQL_ROOT_PASSWORD" < /scripts/05-mark-initialized.sql
+
+                echo "=== DB 초기화 완료 ==="
+              else
+                echo "이미 초기화가 완료되었습니다."
+
+                # 초기화 버전 확인
+                VERSION=$(mysql -h "{{ include "db.fullname" . }}" -P 3306 -u root -p"$MYSQL_ROOT_PASSWORD" -s -N -e "
+                  SELECT version FROM {{ .Values.env.MYSQL_DATABASE }}.db_initialization WHERE id = 1
+                " 2>/dev/null || echo "unknown")
+                echo "현재 DB 버전: $VERSION"
+              fi
+
+              echo "=== 초기화 Job 종료 ==="
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "db.fullname" . }}-secret
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_DATABASE
+              value: {{ .Values.env.MYSQL_DATABASE | quote }}
+            - name: MYSQL_USER
+              value: {{ .Values.env.MYSQL_USER | quote }}
+          volumeMounts:
+            - name: init-scripts
+              mountPath: /scripts
+          resources:
+            {{- toYaml .Values.initContainer.resources | nindent 12 }}
+      volumes:
+        - name: init-scripts
+          configMap:
+            name: {{ include "db.fullname" . }}-init-scripts
+{{- end }}

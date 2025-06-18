@@ -303,3 +303,103 @@ npm install recharts
 ```
 
 (recharts는 타입스크립트 내장 타입을 제공합니다. 별도 @types 패키지 필요 없음)
+
+## scripts/ 자동화 스크립트 구조 및 사용법
+
+### 📁 scripts/ 하위 구조
+```
+backend/scripts/
+├── dev.sh                # 개발 환경 자동화
+├── deploy.sh             # 운영 배포 자동화
+├── test.sh               # 테스트 환경 자동화
+├── env.sh                # 공통 환경 변수/유틸리티
+├── validate-env.js       # 환경변수 검증
+├── convertRestaurants.js # 데이터 변환 (TS→JSON)
+├── importData.js         # 데이터 이관
+├── seedRestaurants.js    # 샘플 데이터 시드
+├── monitoring/
+│   └── monitor.sh        # 시스템/서비스 모니터링
+├── scenario/
+│   └── reservation.sh    # 예약 플로우 E2E 테스트
+└── utils/
+    └── env.sh            # Bash 공통 함수
+```
+
+### 🛠️ 주요 스크립트별 간단 설명 및 사용 예시
+
+| 스크립트                      | 설명                                 | 사용 예시 명령어                       |
+|-------------------------------|--------------------------------------|----------------------------------------|
+| dev.sh                        | 개발 환경 자동 세팅/서버 실행         | `bash scripts/dev.sh`                  |
+| deploy.sh                     | 운영 배포 자동화                     | `bash scripts/deploy.sh`               |
+| test.sh                       | 테스트 환경 자동화                   | `bash scripts/test.sh`                 |
+| validate-env.js               | .env 환경변수 필수값 검증             | `node scripts/validate-env.js`         |
+| convertRestaurants.js         | TS 데이터 → JSON 변환                | `node scripts/convertRestaurants.js`   |
+| importData.js                 | 프론트 데이터 → 백엔드 이관           | `node scripts/importData.js`           |
+| seedRestaurants.js            | 샘플 레스토랑 데이터 시드             | `node scripts/seedRestaurants.js`      |
+| monitoring/monitor.sh         | 시스템/서비스 상태 모니터링           | `bash scripts/monitoring/monitor.sh`   |
+| scenario/reservation.sh       | 예약 플로우 E2E API 테스트            | `bash scripts/scenario/reservation.sh` |
+| utils/env.sh                  | Bash 공통 함수 (source로만 사용)      | (다른 .sh에서 source로 불러옴)         |
+
+### 💡 참고
+- 각 스크립트는 실행 전 `.env` 등 환경변수, DB, 의존성 등이 올바르게 세팅되어 있어야 합니다.
+- 상세 옵션/에러 발생 시 각 스크립트 내 주석 및 로그를 참고하세요.
+- scripts/ 구조는 실무 SaaS/DevOps 자동화 표준에 맞춰 설계되어 있습니다.
+
+## 환경 변수 및 설정 관리 정책
+
+### 1. 기본: .env 기반 단일화 (실무 표준)
+- 모든 환경 변수는 `.env` 파일(및 `.env.development`, `.env.production` 등)로 관리합니다.
+- 배포/운영/테스트 환경별로 별도의 .env 파일을 사용하세요.
+- secrets, DB 정보, API 키 등은 반드시 .env에만 작성하고, git에는 올리지 않습니다.
+
+#### 실행 예시
+```bash
+bash scripts/dev.sh
+# 또는
+NODE_ENV=production bash scripts/dev.sh
+```
+
+### 2. 혼합 구조(확장): config.json 병행 (대규모/특수 정책)
+- 대규모/복잡한 정책이 필요할 때만 사용합니다.
+- `config/config.$NODE_ENV.json` 파일을 추가하고, 아래처럼 실행합니다.
+
+#### 실행 예시
+```bash
+ENABLE_CONFIG_JSON=1 bash scripts/dev.sh
+```
+- 이 경우 .env와 config.json이 모두 로드됩니다.
+- config 파일이 없으면 경고만 출력되고 .env만 사용됩니다.
+
+### 3. .env.example 관리
+- `.env.example` 파일을 참고하여 실제 `.env` 파일을 생성하세요.
+- secrets, 민감정보는 반드시 실제 .env에만 작성하세요.
+
+### 4. .gitignore 정책
+- `.env`, `.env.*` 파일은 반드시 gitignore에 포함되어야 합니다.
+- `.env.example`만 git에 포함하여 템플릿으로 사용하세요.
+
+### 5. 실무 권장 구조
+```
+project-root/
+├── .env                # 실제 환경 변수 (gitignore)
+├── .env.development    # 개발용 (gitignore)
+├── .env.production     # 운영용 (gitignore)
+├── backend/
+│   ├── config/
+│   │   └── config.production.json (선택, 혼합 구조 시)
+│   └── scripts/
+│       └── dev.sh
+└── frontend/
+```
+
+### 6. 주요 환경 변수 예시
+- DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
+- JWT_SECRET, REDIS_URL, SENTRY_DSN_*, NAVER_CLIENT_ID 등
+- 자세한 항목은 `.env.example` 참고
+
+---
+
+> **TIP:**
+> - 기본은 .env 기반 단일화로 운영하세요.
+> - 대규모/특수 정책 필요시 ENABLE_CONFIG_JSON=1로 혼합 구조 확장 가능합니다.
+> - 모든 팀원은 .env.example을 참고해 .env를 직접 생성해야 합니다.
