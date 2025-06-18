@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Review } = require('../models');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken } = require('../middlewares/auth');
 
 // 리뷰 등록
 router.post('/', authenticateToken, async (req, res) => {
@@ -32,4 +32,4 @@ router.delete('/:review_id', authenticateToken, async (req, res) => {
   res.json({ message: '리뷰가 성공적으로 삭제되었습니다.' });
 });
 
-module.exports = router; 
+module.exports = router;

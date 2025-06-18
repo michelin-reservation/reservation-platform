@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Reservation } = require('../models');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken } = require('../middlewares/auth');
 
 // 예약 생성
 router.post('/', authenticateToken, async (req, res) => {
@@ -73,4 +73,4 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;

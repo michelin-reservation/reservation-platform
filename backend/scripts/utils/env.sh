@@ -19,6 +19,34 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# 프로젝트 루트 경로 설정
+export PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+echo "✅ PROJECT_ROOT 설정됨: $PROJECT_ROOT"
+
+# 기존 환경 변수 로드
+if [ -f "$PROJECT_ROOT/.env" ]; then
+  set -a
+  source "$PROJECT_ROOT/.env"
+  set +a
+  echo "✅ .env 파일 로드됨"
+fi
+
+# 필수 환경 변수 확인
+required_vars=(
+  "NODE_ENV"
+  "PROJECT_ROOT"
+  "DATABASE_URL"
+)
+
+for var in "${required_vars[@]}"; do
+  if [ -z "${!var}" ]; then
+    echo "❌ 오류: $var 환경 변수가 설정되지 않았습니다."
+    exit 1
+  fi
+done
+
+echo "✅ 모든 필수 환경 변수가 설정되었습니다."
+
 # 환경 변수 검증
 validate_env() {
     local required_vars=("NODE_ENV" "DB_HOST" "DB_PORT" "DB_NAME" "DB_USER")
