@@ -1,0 +1,74 @@
+{{- if .Values.loki.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "monitoring.fullname" . }}-loki
+  labels:
+    {{- include "monitoring.labels" . | nindent 4 }}
+    component: loki
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "monitoring.selectorLabels" . | nindent 6 }}
+      component: loki
+  template:
+    metadata:
+      labels:
+        {{- include "monitoring.selectorLabels" . | nindent 8 }}
+        component: loki
+    spec:
+      serviceAccountName: {{ include "monitoring.serviceAccountName" . }}
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
+      initContainers:
+        - name: init-loki-permissions
+          image: busybox:1.35
+          command: ['sh', '-c', 'chown -R 1000:1000 /loki && chmod -R 755 /loki']
+          volumeMounts:
+            - name: loki-storage
+              mountPath: /loki
+      containers:
+        - name: loki
+          image: "{{ .Values.loki.image.repository }}:{{ .Values.loki.image.tag }}"
+          imagePullPolicy: {{ .Values.loki.image.pullPolicy }}
+          args:
+            - "-config.file=/etc/loki/loki-config.yaml"
+          ports:
+            - name: http
+              containerPort: 3100
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.loki.resources | nindent 12 }}
+          volumeMounts:
+            - name: loki-config
+              mountPath: /etc/loki
+            - name: loki-storage
+              mountPath: /loki
+      volumes:
+        - name: loki-config
+          configMap:
+            name: {{ include "monitoring.fullname" . }}-loki-config
+        {{- if .Values.loki.persistence.enabled }}
+        - name: loki-storage
+          persistentVolumeClaim:
+            claimName: {{ include "monitoring.fullname" . }}-loki
+        {{- else }}
+        - name: loki-storage
+          emptyDir: {}
+        {{- end }}
+{{- end }}

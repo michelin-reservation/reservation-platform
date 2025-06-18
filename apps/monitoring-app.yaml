@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/your-org/michelin-reservation-platform-2025-Q2.git'
+    targetRevision: main
+    path: helm/monitoring
+    helm:
+      valueFiles:
+        - values-prod.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

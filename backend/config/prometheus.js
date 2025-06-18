@@ -24,14 +24,41 @@ const totalReservations = new client.Counter({
   help: 'Total number of reservations made'
 });
 
+const restaurantStatusTotal = new client.Gauge({
+  name: 'restaurant_status_total',
+  help: 'Number of restaurants by status',
+  labelNames: ['status'],
+});
+
+const reservationSuccessTotal = new client.Counter({
+  name: 'reservation_success_total',
+  help: 'Total number of successful reservations',
+});
+
 // 메트릭 레지스트리에 등록
 register.registerMetric(httpRequestDurationMicroseconds);
 register.registerMetric(activeUsers);
 register.registerMetric(totalReservations);
+register.registerMetric(restaurantStatusTotal);
+register.registerMetric(reservationSuccessTotal);
+
+async function updateRestaurantStatusMetrics(Restaurant, sequelize) {
+  const statusCounts = await Restaurant.findAll({
+    attributes: ['status', [sequelize.fn('COUNT', sequelize.col('status')), 'count']],
+    group: ['status'],
+    raw: true,
+  });
+  statusCounts.forEach(row => {
+    restaurantStatusTotal.set({ status: row.status }, row.count);
+  });
+}
 
 module.exports = {
   register,
   httpRequestDurationMicroseconds,
   activeUsers,
-  totalReservations
-}; 
+  totalReservations,
+  restaurantStatusTotal,
+  reservationSuccessTotal,
+  updateRestaurantStatusMetrics
+};

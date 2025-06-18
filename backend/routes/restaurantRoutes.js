@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const prometheus = require('../config/prometheus');
 
 // 레스토랑 상세 조회
 router.get('/:id', async (req, res) => {
@@ -23,11 +24,11 @@ router.get('/:id', async (req, res) => {
         }
       }
     });
-    
+
     if (!restaurant) {
       return res.status(404).json({ message: '레스토랑을 찾을 수 없습니다.' });
     }
-    
+
     res.json(restaurant);
   } catch (error) {
     res.status(500).json({ message: '서버 에러가 발생했습니다.' });
@@ -78,7 +79,7 @@ router.get('/:id/reservations/availability', async (req, res) => {
         status: 'CONFIRMED'
       }
     });
-    
+
     // 예약 가능 시간 계산 로직
     const availableTimes = calculateAvailableTimes(reservations);
     res.json(availableTimes);
@@ -105,4 +106,10 @@ router.post('/:id/review', async (req, res) => {
   }
 });
 
-module.exports = router; 
+// Prometheus metrics endpoint
+router.get('/metrics', async (req, res) => {
+  res.set('Content-Type', prometheus.register.contentType);
+  res.end(await prometheus.register.metrics());
+});
+
+module.exports = router;
