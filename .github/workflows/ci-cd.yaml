@@ -1,47 +1,119 @@
-name: CI/CD Pipeline
+name: 🚀 Michelin Reservation Platform CI/CD Pipeline
 
 on:
   push:
     branches:
       - main
+      - develop
       - prod
+  pull_request:
+    branches:
+      - main
+      - develop
+
+env:
+  REGISTRY: ghcr.io
+  DOCKER_USER: ${{ secrets.DOCKER_USER }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  KUBECONFIG_DATA: ${{ secrets.KUBECONFIG_DATA }}
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
 jobs:
-  build-and-deploy:
+  # 🔍 코드 품질 검사
+  code-quality:
     runs-on: ubuntu-latest
-    env:
-      REGISTRY: ghcr.io
-      DOCKER_USER: ${{ secrets.DOCKER_USER }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      KUBECONFIG_DATA: ${{ secrets.KUBECONFIG_DATA }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          cd backend && npm ci
+          cd ../frontend && npm ci
+
+      - name: Run linting
+        run: |
+          cd backend && npm run lint
+          cd ../frontend && npm run lint
+
+      - name: Run tests
+        run: |
+          cd backend && npm test
+          cd ../frontend && npm test
+
+  # 🐳 Docker 이미지 빌드 및 푸시
+  build-and-push:
+    needs: code-quality
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker registry
+      # GitHub Container Registry 로그인
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
+          registry: ghcr.io
           username: ${{ env.DOCKER_USER }}
           password: ${{ env.DOCKER_PASSWORD }}
 
+      # Docker Hub 로그인
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      # Backend 이미지 빌드 및 푸시
       - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           file: ./docker/Dockerfile.backend
           push: true
-          tags: ${{ env.DOCKER_USER }}/michelin-backend:latest
+          tags: |
+            ghcr.io/${{ env.DOCKER_USER }}/michelin-backend:latest
+            ghcr.io/${{ env.DOCKER_USER }}/michelin-backend:${{ github.sha }}
+            ${{ env.DOCKERHUB_USERNAME }}/michelin-backend:latest
+            ${{ env.DOCKERHUB_USERNAME }}/michelin-backend:${{ github.sha }}
+          cache-from: type=registry,ref=${{ env.DOCKERHUB_USERNAME }}/michelin-backend:buildcache
+          cache-to: type=registry,ref=${{ env.DOCKERHUB_USERNAME }}/michelin-backend:buildcache,mode=max
 
+      # Frontend 이미지 빌드 및 푸시
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           file: ./docker/Dockerfile.frontend
           push: true
-          tags: ${{ env.DOCKER_USER }}/michelin-frontend:latest
+          tags: |
+            ghcr.io/${{ env.DOCKER_USER }}/michelin-frontend:latest
+            ghcr.io/${{ env.DOCKER_USER }}/michelin-frontend:${{ github.sha }}
+            ${{ env.DOCKERHUB_USERNAME }}/michelin-frontend:latest
+            ${{ env.DOCKERHUB_USERNAME }}/michelin-frontend:${{ github.sha }}
+          cache-from: type=registry,ref=${{ env.DOCKERHUB_USERNAME }}/michelin-frontend:buildcache
+          cache-to: type=registry,ref=${{ env.DOCKERHUB_USERNAME }}/michelin-frontend:buildcache,mode=max
+
+  # 🚀 Kubernetes 배포
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
@@ -56,17 +128,84 @@ jobs:
       - name: Configure kubeconfig
         run: |
           echo "$KUBECONFIG_DATA" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
 
-      - name: Helm upgrade backend
+      # 데이터베이스 배포
+      - name: Deploy database
+        run: |
+          helm upgrade --install db ./helm/db \
+            --namespace default \
+            --create-namespace \
+            --wait \
+            --timeout=10m
+
+      # Redis 배포
+      - name: Deploy Redis
+        run: |
+          helm upgrade --install redis ./helm/redis \
+            --namespace default \
+            --create-namespace \
+            --wait \
+            --timeout=5m
+
+      # Backend 배포
+      - name: Deploy backend
         run: |
           helm upgrade --install backend ./helm/backend \
-            --set image.repository=${{ env.DOCKER_USER }}/michelin-backend \
-            --set image.tag=latest \
-            --namespace ${{ github.ref == 'refs/heads/prod' && 'prod' || 'dev' }} --create-namespace
+            --set image.repository=${{ env.DOCKERHUB_USERNAME }}/michelin-backend \
+            --set image.tag=${{ github.sha }} \
+            --namespace default \
+            --create-namespace \
+            --wait \
+            --timeout=10m
 
-      - name: Helm upgrade frontend
+      # Frontend 배포
+      - name: Deploy frontend
         run: |
           helm upgrade --install frontend ./helm/frontend \
-            --set image.repository=${{ env.DOCKER_USER }}/michelin-frontend \
-            --set image.tag=latest \
-            --namespace ${{ github.ref == 'refs/heads/prod' && 'prod' || 'dev' }} --create-namespace
+            --set image.repository=${{ env.DOCKERHUB_USERNAME }}/michelin-frontend \
+            --set image.tag=${{ github.sha }} \
+            --namespace default \
+            --create-namespace \
+            --wait \
+            --timeout=10m
+
+      # 모니터링 스택 배포
+      - name: Deploy monitoring stack
+        run: |
+          helm upgrade --install monitoring ./helm/monitoring \
+            --namespace default \
+            --create-namespace \
+            --wait \
+            --timeout=10m
+
+      # Nginx 배포
+      - name: Deploy nginx
+        run: |
+          helm upgrade --install nginx ./helm/nginx \
+            --namespace default \
+            --create-namespace \
+            --wait \
+            --timeout=5m
+
+      # 배포 상태 확인
+      - name: Verify deployment
+        run: |
+          kubectl get pods -A
+          kubectl get services
+          kubectl get ingress
+
+  # 📊 배포 알림
+  notify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Notify deployment status
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ needs.deploy.result }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        continue-on-error: true
