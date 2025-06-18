@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "db.fullname" . }}
+  labels:
+    {{- include "db.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "db.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "db.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "db.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: mysql
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              name: mysql
+          env:
+            - name: MYSQL_DATABASE
+              value: {{ .Values.env.MYSQL_DATABASE | quote }}
+            - name: MYSQL_USER
+              value: {{ .Values.env.MYSQL_USER | quote }}
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "db.fullname" . }}-secret
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "db.fullname" . }}-secret
+                  key: MYSQL_PASSWORD
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+            {{- if .Values.initContainer.enabled }}
+            - name: init-scripts
+              mountPath: /docker-entrypoint-initdb.d
+            {{- end }}
+          {{- if .Values.initContainer.enabled }}
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/bash
+                  - -c
+                  - |
+                    # 초기화 완료 여부 확인
+                    sleep 10
+                    until mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; do
+                      echo "MySQL 서버 대기 중..."
+                      sleep 2
+                    done
+
+                    # 초기화 테이블 확인
+                    INIT_CHECK=$(mysql -u root -p"$MYSQL_ROOT_PASSWORD" -s -N -e "
+                      SELECT COUNT(*) FROM information_schema.tables
+                      WHERE table_schema = '$MYSQL_DATABASE'
+                      AND table_name = 'db_initialization'
+                    " 2>/dev/null || echo "0")
+
+                    if [ "$INIT_CHECK" -eq "0" ]; then
+                      echo "DB 초기화 시작..."
+                      # MySQL의 docker-entrypoint-initdb.d 디렉토리에 있는 스크립트들이 자동으로 실행됨
+                      echo "초기화 완료!"
+                    else
+                      echo "이미 초기화가 완료되었습니다."
+                    fi
+          {{- end }}
+      {{- if .Values.initContainer.enabled }}
+      volumes:
+        - name: init-scripts
+          configMap:
+            name: {{ include "db.fullname" . }}-init-scripts
+      {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -16,9 +16,7 @@ main() {
     log_info "Starting development environment setup..."
 
     # 초기화
-    initialize || exit 1
-
-    # 시스템 리소스 체크
+    validate_env || exit 1
     check_system_resources || {
         log_warn "System resources check failed but continuing..."
     }

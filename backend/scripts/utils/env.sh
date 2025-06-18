@@ -23,12 +23,28 @@ log_error() {
 export PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 echo "✅ PROJECT_ROOT 설정됨: $PROJECT_ROOT"
 
-# 기존 환경 변수 로드
+# .env 파일만 로드 (실무 표준)
 if [ -f "$PROJECT_ROOT/.env" ]; then
   set -a
   source "$PROJECT_ROOT/.env"
   set +a
   echo "✅ .env 파일 로드됨"
+fi
+
+# ENABLE_CONFIG_JSON=1 환경변수로 활성화 가능
+# ---[ 혼합 구조 확장: config.json 기반 로딩 (feature flag) ]---
+if [ "$ENABLE_CONFIG_JSON" = "1" ]; then
+  env=${NODE_ENV:-development}
+  config_file="$PROJECT_ROOT/config/config.$env.json"
+  if [ -f "$config_file" ]; then
+    # shellcheck disable=SC1090
+    source "$config_file"
+    echo "✅ config.$env.json 파일 로드됨 (혼합 구조 활성화)"
+  else
+    echo "⚠️  config.$env.json 파일이 없습니다. 기본 .env만 사용합니다."
+  fi
+else
+  echo "[INFO] Using .env only (config.json not required)"
 fi
 
 # 필수 환경 변수 확인
@@ -46,6 +62,10 @@ for var in "${required_vars[@]}"; do
 done
 
 echo "✅ 모든 필수 환경 변수가 설정되었습니다."
+
+# ---[ 안내 ]---
+# 기본은 .env 기반 단일화(실무 표준)
+# 대규모/복잡한 정책 필요시 ENABLE_CONFIG_JSON=1로 혼합 구조 확장 가능
 
 # 환경 변수 검증
 validate_env() {
