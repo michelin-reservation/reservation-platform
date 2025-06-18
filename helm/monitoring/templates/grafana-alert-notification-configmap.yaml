@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "monitoring.fullname" . }}-grafana-alert-notification
+  labels:
+    {{- include "monitoring.labels" . | nindent 4 }}
+data:
+  notification-channels.yaml: |
+    apiVersion: 1
+    notifiers:
+      - name: "Slack"
+        type: "slack"
+        uid: "slack-main"
+        isDefault: true
+        settings:
+          url: {{ .Values.grafana.alerting.slackWebhookUrl | quote }}
+          recipient: {{ .Values.grafana.alerting.slackChannel | quote }}
+        secureSettings: {}
+        disableResolveMessage: false
+        sendReminder: true
+        frequency: 1m

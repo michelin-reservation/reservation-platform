@@ -1,0 +1,18 @@
+{{- if and .Values.loki.enabled .Values.loki.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "monitoring.fullname" . }}-loki
+  labels:
+    {{- include "monitoring.labels" . | nindent 4 }}
+    component: loki
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.loki.persistence.storageClass }}
+  storageClassName: {{ .Values.loki.persistence.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.loki.persistence.size }}
+{{- end }}

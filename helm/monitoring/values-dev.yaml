@@ -1,0 +1,61 @@
+# 개발 환경용 모니터링 설정
+
+replicaCount: 1
+
+# Prometheus 설정
+prometheus:
+  enabled: true
+  persistence:
+    enabled: false  # 개발 환경에서는 PVC 대신 emptyDir 사용
+    size: 1Gi
+  resources:
+    limits:
+      cpu: 200m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+# Grafana 설정
+grafana:
+  enabled: true
+  adminPassword: "dev2025"
+  persistence:
+    enabled: false  # 개발 환경에서는 PVC 대신 emptyDir 사용
+    size: 1Gi
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+# Loki 설정
+loki:
+  enabled: true
+  persistence:
+    enabled: false  # 개발 환경에서는 PVC 대신 emptyDir 사용
+    size: 1Gi
+  resources:
+    limits:
+      cpu: 200m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+# Promtail 설정
+promtail:
+  enabled: true
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+# Ingress 설정 (개발 환경에서는 비활성화)
+ingress:
+  enabled: false
