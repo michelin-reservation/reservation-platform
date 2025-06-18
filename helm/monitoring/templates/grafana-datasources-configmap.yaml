@@ -1,0 +1,26 @@
+{{- if .Values.grafana.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "monitoring.fullname" . }}-grafana-datasources
+  labels:
+    {{- include "monitoring.labels" . | nindent 4 }}
+    component: grafana
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://{{ include "monitoring.fullname" . }}-prometheus:{{ .Values.prometheus.service.port }}
+        access: proxy
+        isDefault: true
+        editable: true
+      {{- if .Values.loki.enabled }}
+      - name: Loki
+        type: loki
+        url: http://{{ include "monitoring.fullname" . }}-loki:{{ .Values.loki.service.port }}
+        access: proxy
+        editable: true
+      {{- end }}
+{{- end }}
