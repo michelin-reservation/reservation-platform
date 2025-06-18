@@ -1,9 +1,13 @@
-const fs = require('fs');
 const path = require('path');
+const fs = require('fs');
+const paths = require('../config/paths.config');
 const babelParser = require('@babel/parser');
 
+// TypeScript 파일 경로
+const tsFilePath = path.join(paths.FRONTEND_DATA, 'restaurants.ts');
+const jsonFilePath = path.join(paths.DATA_DIR, 'restaurants.json');
+
 // 1️⃣ TypeScript 파일 읽기
-const tsFilePath = path.join(__dirname, '../../frontend/src/data/restaurants.ts');
 const tsData = fs.readFileSync(tsFilePath, 'utf-8');
 
 // 2️⃣ Babel 파서로 AST 파싱
@@ -46,6 +50,12 @@ try {
 }
 
 // 5️⃣ JSON 파일로 저장
-const jsonFilePath = path.join(__dirname, '../data/restaurants.json');
 fs.writeFileSync(jsonFilePath, JSON.stringify({ restaurants: arr }, null, 2), 'utf-8');
-console.log(` 변환 성공 → ${jsonFilePath} (${arr.length}개)`);
+console.log(`✅ 데이터 변환 완료: ${jsonFilePath} (${arr.length}개)`);
+
+// 메인 실행
+if (require.main === module) {
+  paths.ensureDirExists(paths.DATA_DIR);
+  convertTsToJson();
+  console.log(`✅ 데이터 변환 완료: ${jsonFilePath}`);
+}

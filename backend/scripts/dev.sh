@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 공통 유틸리티 로드
-source ./utils/env.sh
+source "$(dirname "$0")/utils/env.sh"
 
 # 개발 환경 변수 설정
 export NODE_ENV=development

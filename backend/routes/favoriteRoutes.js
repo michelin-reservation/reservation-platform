@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Favorite, Restaurant } = require('../models');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken } = require('../middlewares/auth');
 
 // 관심 목록 조회
 router.get('/', authenticateToken, async (req, res) => {
@@ -76,4 +76,4 @@ router.delete('/:restaurant_id', authenticateToken, async (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Payment, Reservation } = require('../models');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken } = require('../middlewares/auth');
 
 // 결제 등록
 router.post('/', authenticateToken, async (req, res) => {
@@ -29,4 +29,4 @@ router.get('/reservation/:reservation_id', authenticateToken, async (req, res) =
   res.json(payments);
 });
 
-module.exports = router; 
+module.exports = router;

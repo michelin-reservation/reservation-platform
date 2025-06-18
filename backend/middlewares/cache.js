@@ -1,4 +1,4 @@
-const redis = require('../../../reservation-platform-main/backend/config/redis');
+const redis = require('../../config/redis');
 
 // 캐시 미들웨어
 const cache = (duration) => {

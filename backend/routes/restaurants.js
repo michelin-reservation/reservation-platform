@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken } = require('../middlewares/auth');
 const restaurantController = require('../controllers/restaurantController');
 const { Restaurant } = require('../models');
 
@@ -21,4 +21,4 @@ router.post('/', authenticateToken, restaurantController.createRestaurant);
 router.put('/:id', authenticateToken, restaurantController.updateRestaurant);
 router.delete('/:id', authenticateToken, restaurantController.deleteRestaurant);
 
-module.exports = router; 
+module.exports = router;

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Business, Restaurant, Reservation, Review } = require('../models');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken } = require('../middlewares/auth');
 
 // 사업자 설정 조회
 router.get('/settings', authenticateToken, async (req, res) => {
@@ -40,4 +40,4 @@ router.get('/statistics', authenticateToken, async (req, res) => {
   });
 });
 
-module.exports = router; 
+module.exports = router;

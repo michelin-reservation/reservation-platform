@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Review, User, Restaurant } = require('../models');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken } = require('../middlewares/auth');
 const reviewController = require('../controllers/reviewController');
 
 // 리뷰 목록 조회
@@ -132,4 +132,4 @@ router.put('/restaurants/:restaurant_id/reviews/:review_id', authenticateToken, 
 // 특정 식당의 리뷰 삭제
 router.delete('/restaurants/:restaurant_id/reviews/:review_id', authenticateToken, reviewController.deleteReview);
 
-module.exports = router; 
+module.exports = router;
