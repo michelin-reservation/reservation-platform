@@ -10,11 +10,11 @@ const { syncDatabase } = require('./models');
 const setupSwagger = require('./swagger');
 const NotificationServer = require('./websocket/notificationServer');
 const { loggingMiddleware } = require('./utils/logger');
-const { cache } = require('./middleware/cache');
+const { cache } = require('./middlewares/cache');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const isAdmin = require('./middleware/isAdmin');
-const errorHandler = require('./middleware/errorHandler');
+const isAdmin = require('./middlewares/isAdmin');
+const errorHandler = require('./middlewares/errorHandler');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
@@ -104,7 +104,7 @@ app.get('/debug-sentry', function mainHandler(req, res) {
 // 서버 시작
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
+  console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
 });
 
 // WebSocket 서버를 전역적으로 사용할 수 있도록 설정
@@ -113,4 +113,4 @@ app.set('notificationServer', notificationServer);
 app.use(errorHandler);
 app.use(Sentry.Handlers.errorHandler());
 
-module.exports = { app, server }; 
+module.exports = { app, server };

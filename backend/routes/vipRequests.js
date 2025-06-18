@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { VipRequest } = require('../models');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken } = require('../middlewares/auth');
 
 // VIP 요청 등록
 router.post('/', authenticateToken, async (req, res) => {
@@ -24,4 +24,4 @@ router.get('/user/:user_id', authenticateToken, async (req, res) => {
   res.json(vipRequests);
 });
 
-module.exports = router; 
+module.exports = router;

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken } = require('../middlewares/auth');
 const userController = require('../controllers/userController');
 const reservationController = require('../controllers/reservationController');
 const reviewController = require('../controllers/reviewController');
@@ -17,4 +17,4 @@ router.put('/notifications', authenticateToken, userController.updateNotificatio
 router.get('/:user_id/reservations', authenticateToken, reservationController.getUserReservations);
 router.get('/:user_id/reviews', authenticateToken, reviewController.getUserReviews);
 
-module.exports = router; 
+module.exports = router;

@@ -7,4 +7,4 @@ const prisma = new PrismaClient();
 prisma.$use(softDeleteMiddleware());
 prisma.$use(auditLogMiddleware(prisma));
 
-export default prisma; 
+export default prisma;

@@ -1,27 +1,34 @@
-const fs = require('fs').promises;
+const fs = require('fs');
 const path = require('path');
+const paths = require('../config/paths.config');
 
+// 데이터 파일 경로
+const sourcePath = path.join(paths.FRONTEND_DATA, 'restaurants.ts');
+const targetPath = path.join(paths.DATA_DIR, 'restaurants.json');
+
+// 데이터 임포트 함수
 async function importData() {
   try {
-    // 실제 데이터 파일 경로
-    const sourcePath = path.join(__dirname, '../../frontend/src/data/restaurants.ts');
-    const targetPath = path.join(__dirname, '../data/restaurants.json');
+    paths.ensureDirExists(paths.DATA_DIR);
 
     // TypeScript 파일 읽기
-    const data = await fs.readFile(sourcePath, 'utf8');
+    const tsContent = fs.readFileSync(sourcePath, 'utf-8');
 
     // TypeScript 데이터를 JSON으로 변환
     const jsonData = {
-      restaurants: eval(`(${data.replace('export const restaurants = ', '')})`)
+      restaurants: eval(`(${tsContent.replace('export const restaurants = ', '')})`)
     };
 
     // JSON 파일로 저장
-    await fs.writeFile(targetPath, JSON.stringify(jsonData, null, 2));
-    console.log('데이터 변환 완료!');
+    fs.writeFileSync(targetPath, JSON.stringify(jsonData, null, 2));
+    console.log(`✅ 데이터 임포트 완료: ${targetPath}`);
   } catch (error) {
-    console.error('데이터 변환 중 오류 발생:', error);
+    console.error('❌ 데이터 임포트 실패:', error);
     process.exit(1);
   }
 }
 
-importData(); 
+// 메인 실행
+if (require.main === module) {
+  importData();
+}
