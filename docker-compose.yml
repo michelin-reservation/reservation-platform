@@ -41,9 +41,30 @@ services:
     networks:
       - michelin-network
 
+  mysql:
+    image: mysql:8.0
+    container_name: michelin-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 0426
+      MYSQL_DATABASE: michelin_dev
+      MYSQL_USER: michelin_user
+      MYSQL_PASSWORD: 0426
+      TZ: Asia/Seoul
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 networks:
   michelin-network:
     driver: bridge
 
 volumes:
-  redis-data: 
+  redis-data:
+  mysql-data:
