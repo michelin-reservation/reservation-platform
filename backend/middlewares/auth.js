@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { User } = require('../../../reservation-platform-main/backend/models');
+const { User } = require('../../models');
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];

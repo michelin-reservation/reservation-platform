@@ -1,15 +1,19 @@
 const { PrismaClient } = require('@prisma/client');
-const fs = require('fs').promises;
+const fs = require('fs');
 const path = require('path');
+const paths = require('../config/paths.config');
 
 const prisma = new PrismaClient();
 
 async function loadRestaurantData() {
   try {
     const dataFile = process.env.DATA_FILE || '../data/restaurants.json';
-    const dataPath = path.isAbsolute(dataFile) ? dataFile : path.join(__dirname, dataFile);
-    const data = await fs.readFile(dataPath, 'utf8');
-    return JSON.parse(data).restaurants;
+    const dataPath = path.join(paths.DATA_DIR, dataFile);
+    if (!fs.existsSync(dataPath)) {
+      throw new Error(`데이터 파일을 찾을 수 없습니다: ${dataPath}`);
+    }
+    const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    return data.restaurants;
   } catch (error) {
     console.error('데이터 파일을 읽는 중 오류 발생:', error);
     throw error;
@@ -55,4 +59,12 @@ async function main() {
   }
 }
 
-main(); 
+// 메인 실행
+if (require.main === module) {
+  main()
+    .then(() => process.exit(0))
+    .catch(error => {
+      console.error(error);
+      process.exit(1);
+    });
+}
