@@ -48,7 +48,7 @@ kubectl port-forward svc/monitoring-loki 3100:3100
 
 - **Grafana**:
   - 사용자명: `admin`
-  - 비밀번호: `michelin2025` (개발) / Secret에서 주입 (프로덕션)
+  - 비밀번호: `shitshit123@` (개발) / Secret에서 주입 (프로덕션)
 
 ## 모니터링 대상
 

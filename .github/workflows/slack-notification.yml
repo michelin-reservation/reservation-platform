@@ -1,0 +1,46 @@
+name: 📢 Slack Notification
+
+on:
+  workflow_run:
+    workflows:
+      - "🚀 Michelin Reservation Platform CI/CD Pipeline"
+      - "Deploy to NCP"
+    types:
+      - completed
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Set notification status
+        id: set-status
+        run: |
+          if [ "${{ github.event.workflow_run.conclusion }}" = "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "emoji=✅" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.workflow_run.conclusion }}" = "failure" ]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "emoji=❌" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.workflow_run.conclusion }}" = "cancelled" ]; then
+            echo "status=cancelled" >> $GITHUB_OUTPUT
+            echo "emoji=⏹️" >> $GITHUB_OUTPUT
+          else
+            echo "status=custom" >> $GITHUB_OUTPUT
+            echo "emoji=⚠️" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Notify to Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ steps.set-status.outputs.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+          text: |
+            ${{ steps.set-status.outputs.emoji }} **워크플로우 완료 알림**
+            • 워크플로우: ${{ github.event.workflow_run.name }}
+            • 브랜치: ${{ github.event.workflow_run.head_branch }}
+            • 커밋: ${{ github.event.workflow_run.head_sha }}
+            • 상태: ${{ github.event.workflow_run.conclusion }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        continue-on-error: true
