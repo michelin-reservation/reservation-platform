@@ -47,7 +47,7 @@ jobs:
 
     - name: Upload build artifacts
       if: matrix.project == 'frontend'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: frontend-build
         path: frontend/dist
@@ -56,10 +56,10 @@ jobs:
     needs: test-and-build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Download frontend build
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: frontend-build
         path: frontend/dist
@@ -68,4 +68,4 @@ jobs:
       run: |
         echo "🚀 배포 시작"
         # 여기에 실제 배포 스크립트 추가
-        # 예: SSH를 통한 서버 배포, 클라우드 서비스 배포 등 
+        # 예: SSH를 통한 서버 배포, 클라우드 서비스 배포 등

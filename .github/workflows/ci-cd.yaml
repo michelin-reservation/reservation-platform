@@ -110,8 +110,9 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    environment: production
+    # environment: production  # GitHub에서 환경을 먼저 설정해야 합니다
     steps:
+
       - name: Checkout source
         uses: actions/checkout@v4
 
@@ -204,8 +205,14 @@ jobs:
       - name: Notify deployment status
         uses: 8398a7/action-slack@v3
         with:
-          status: ${{ needs.deploy.result }}
+          status: ${{ needs.deploy.result == 'success' && 'success' || 'failure' }}
           fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+          text: |
+            🚀 **배포 알림**
+            • 워크플로우: ${{ github.workflow }}
+            • 브랜치: ${{ github.ref_name }}
+            • 커밋: ${{ github.sha }}
+            • 상태: ${{ needs.deploy.result }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         continue-on-error: true
