@@ -11,10 +11,10 @@ jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Download frontend build
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: frontend-build
         path: frontend/dist
@@ -55,21 +55,21 @@ jobs:
         script: |
           # 환경변수 파일 백업
           cp .env .env.backup
-          
+
           # 최신 이미지 가져오기
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/michelin-backend:latest
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/michelin-frontend:latest
-          
+
           # 기존 컨테이너 중지 및 제거
           docker-compose down || true
-          
+
           # 새 컨테이너 시작
           docker-compose up -d
-          
+
           # 헬스 체크
           echo "Waiting for services to be healthy..."
           sleep 30
-          
+
           # 헬스 체크 실패 시 롤백
           if ! curl -f http://localhost:8000/health; then
             echo "Health check failed, rolling back..."
@@ -78,16 +78,22 @@ jobs:
             docker-compose up -d
             exit 1
           fi
-          
+
           # 성공 시 백업 파일 삭제
           rm .env.backup
-          
+
     - name: Notify deployment status
       if: always()
       uses: 8398a7/action-slack@v3
       with:
         status: ${{ job.status }}
         fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+        text: |
+          🚀 **NCP 배포 알림**
+          • 워크플로우: ${{ github.workflow }}
+          • 브랜치: ${{ github.ref_name }}
+          • 커밋: ${{ github.sha }}
+          • 상태: ${{ job.status }}
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      continue-on-error: true 
+      continue-on-error: true
