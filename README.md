@@ -402,4 +402,4 @@ project-root/
 > **TIP:**
 > - 기본은 .env 기반 단일화로 운영하세요.
 > - 대규모/특수 정책 필요시 ENABLE_CONFIG_JSON=1로 혼합 구조 확장 가능합니다.
-> - 모든 팀원은 .env.example을 참고해 .env를 직접 생성해야 합니다.
+> - 모든 팀원은 .env.example을 참고해 .env를 직접 생성해야 합니다.# Test CI/CD
