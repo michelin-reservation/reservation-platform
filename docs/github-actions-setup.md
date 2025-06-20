@@ -175,6 +175,12 @@ kubectl get ingress
 3. **권한 확인**: 토큰에 필요한 권한이 부여되었는지
 4. **네트워크 연결**: Kubernetes 클러스터 연결 상태
 
+## 🛡️ 워크플로우 보호 규칙
+
+- main 브랜치에 직접 push 금지, PR만 허용
+- PR merge 전 워크플로우(lint/test/build/deploy) 모두 통과 필수
+- Settings > Branches > Add rule에서 보호 규칙 설정
+
 ---
 
 **마지막 업데이트**: 2025-06-19
