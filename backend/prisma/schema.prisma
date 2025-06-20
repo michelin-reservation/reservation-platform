@@ -56,7 +56,7 @@ model Tenant {
   status       TenantStatus @default(활성)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  deletedAt    DateTime? @default(null)
+  deletedAt    DateTime?
 
   // 관계
   restaurants  Restaurant[]
@@ -79,7 +79,8 @@ model User {
   vipCardNumber  String?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
-  deletedAt      DateTime?     @default(null)
+  deletedAt      DateTime?
+  notificationSetting NotificationSetting?
 
   reviews        Review[]
   reservations   Reservation[]
@@ -118,7 +119,7 @@ model Restaurant {
   openingHours    Json?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  deletedAt       DateTime?     @default(null)
+  deletedAt       DateTime?
 
   reviews         Review[]
   reservations    Reservation[]
@@ -140,7 +141,7 @@ model MenuItem {
   restaurantId String
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-  deletedAt    DateTime?   @default(null)
+  deletedAt    DateTime?
 
   @@index([restaurantId])
 }
@@ -155,7 +156,7 @@ model Review {
   restaurantId String
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-  deletedAt    DateTime?   @default(null)
+  deletedAt    DateTime?
 
   @@index([restaurantId])
   @@index([userId])
@@ -175,7 +176,7 @@ model Reservation {
   restaurantId String
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-  deletedAt    DateTime?   @default(null)
+  deletedAt    DateTime?
 
   payment      Payment?
 
@@ -190,7 +191,7 @@ model Favorite {
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
   restaurantId String
   createdAt    DateTime   @default(now())
-  deletedAt    DateTime?   @default(null)
+  deletedAt    DateTime?
 
   @@index([userId])
   @@index([restaurantId])
@@ -206,7 +207,7 @@ model Payment {
   amount         Int
   status         PaymentStatus @default(대기)
   createdAt      DateTime   @default(now())
-  deletedAt      DateTime?   @default(null)
+  deletedAt      DateTime?
 
   @@index([reservationId])
   @@index([userId])
@@ -221,7 +222,21 @@ model VipRequest {
   status       VipRequestStatus @default(대기)
   requestDate  DateTime   @default(now())
   createdAt    DateTime   @default(now())
-  deletedAt    DateTime?   @default(null)
+  deletedAt    DateTime?
+
+  @@index([userId])
+}
+
+model NotificationSetting {
+  id                      String    @id @default(uuid())
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                  String    @unique
+  reservationConfirmation Boolean   @default(true)
+  reservationReminder     Boolean   @default(true)
+  reviewResponse          Boolean   @default(true)
+  marketingInfo           Boolean   @default(false)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
 
   @@index([userId])
 }
