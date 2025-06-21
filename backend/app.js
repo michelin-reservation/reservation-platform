@@ -13,10 +13,10 @@ const { loggingMiddleware } = require('./utils/logger');
 const { cache } = require('./middlewares/cache');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const isAdmin = require('./middlewares/isAdmin');
+const requireRole = require('./middlewares/role');
 const errorHandler = require('./middlewares/errorHandler');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+const globalQuota = require('./middlewares/quota');
 const morgan = require('morgan');
 const logger = require('./utils/logger');
 const Sentry = require('@sentry/node');
@@ -24,6 +24,8 @@ const Tracing = require('@sentry/tracing');
 const promClient = require('prom-client');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const { authenticateToken } = require('./middlewares/auth');
+const { contextMiddleware } = require('./middlewares/contextMiddleware');
 // const users = require('./routes/users'); // 불필요, 주석 처리
 
 const app = express();
@@ -40,30 +42,42 @@ app.use(cors({
 app.use(express.json());
 app.use(morgan('combined', { stream: { write: msg => logger.info(msg.trim()) } }));
 app.use(helmet());
+app.use(globalQuota); // 전역 요청 제한 미들웨어 적용
 
-const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1분
-  max: 100, // IP당 1분에 100회
-  message: { message: '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.' }
-});
-app.use(limiter);
+// app.js -> quota.js 로 이동 후 주석 처리
+// const limiter = rateLimit({
+//   windowMs: 1 * 60 * 1000, // 1분
+//   max: 100, // IP당 1분에 100회
+//   message: { message: '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.' }
+// });
+// app.use(limiter);
 
-// 라우트 설정
+// [신규 라우트 설정 - 전역 미들웨어 적용 구조]
+// 인증이 필요 없는 라우트를 먼저 등록
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-// app.use('/api/users', users); // 불필요, 주석 처리
-app.use('/api/restaurants', require('./routes/restaurants'));
-app.use('/api/reservations', require('./routes/reservations'));
-app.use('/api/reviews', require('./routes/reviewRoutes'));
-app.use('/api/favorites', require('./routes/favoriteRoutes'));
-app.use('/api/vip-requests', require('./routes/vipRequests'));
-app.use('/api/payments', require('./routes/payments'));
-app.use('/api/admin', isAdmin, require('./routes/admin'));
-app.use('/api/business', require('./routes/businessRoutes'));
 
-// 캐시 적용 예시
-app.get('/api/restaurants', cache(300), require('./routes/restaurants')); // 5분 캐시
-app.get('/api/restaurants/:id', cache(300), require('./routes/restaurants'));
+// '/api' 경로로 들어오는 모든 요청에 대해 인증 및 컨텍스트 미들웨어 적용
+const apiRouter = express.Router();
+apiRouter.use(authenticateToken);
+apiRouter.use(contextMiddleware);
+
+// 기존 라우트들을 apiRouter에 연결
+apiRouter.use('/users', userRoutes);
+apiRouter.use('/restaurants', require('./routes/restaurants'));
+apiRouter.use('/reservations', require('./routes/reservations'));
+apiRouter.use('/reviews', require('./routes/reviewRoutes'));
+apiRouter.use('/favorites', require('./routes/favoriteRoutes'));
+apiRouter.use('/vip-requests', require('./routes/vipRequests'));
+apiRouter.use('/payments', require('./routes/payments'));
+apiRouter.use('/admin', requireRole(['관리자']), require('./routes/admin'));
+apiRouter.use('/business', require('./routes/businessRoutes'));
+
+// 메인 앱에 apiRouter 연결
+app.use('/api', apiRouter);
+
+// 캐시 적용 예시 (캐시는 개별 라우터로 이동 또는 이 구조에 맞게 재설정 필요)
+// app.get('/api/restaurants', cache(300), require('./routes/restaurants'));
+// app.get('/api/restaurants/:id', cache(300), require('./routes/restaurants'));
 
 // Swagger 설정
 setupSwagger(app);
