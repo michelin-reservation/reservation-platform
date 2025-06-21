@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { Payment, Reservation } = require('../models');
 const { authenticateToken } = require('../middlewares/auth');
+const { Payment, Reservation } = require('../models');
 
 // 결제 등록
 router.post('/', authenticateToken, async (req, res) => {
@@ -9,7 +9,7 @@ router.post('/', authenticateToken, async (req, res) => {
     const { reservation_id, service_package, additional_services, reservation_fee, payment_status, payment_method } = req.body;
     // 본인 예약에 대해서만 결제 가능
     const reservation = await Reservation.findByPk(reservation_id);
-    if (!reservation || reservation.user_id !== req.user.user_id) {
+    if (!reservation || reservation.user_id !== req.user.id) {
       return res.status(403).json({ message: '본인 예약에 대해서만 결제할 수 있습니다.' });
     }
     const payment = await Payment.create({ reservation_id, service_package, additional_services, reservation_fee, payment_status, payment_method });
@@ -21,12 +21,16 @@ router.post('/', authenticateToken, async (req, res) => {
 
 // 예약별 결제 내역 (본인 예약만 조회 가능)
 router.get('/reservation/:reservation_id', authenticateToken, async (req, res) => {
-  const reservation = await Reservation.findByPk(req.params.reservation_id);
-  if (!reservation || reservation.user_id !== req.user.user_id) {
-    return res.status(403).json({ message: '본인 예약의 결제 내역만 조회할 수 있습니다.' });
+  try {
+    const reservation = await Reservation.findByPk(req.params.reservation_id);
+    if (!reservation || reservation.user_id !== req.user.id) {
+      return res.status(403).json({ message: '본인 예약의 결제 내역만 조회할 수 있습니다.' });
+    }
+    const payments = await Payment.findAll({ where: { reservation_id: req.params.reservation_id } });
+    res.json(payments);
+  } catch (err) {
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
-  const payments = await Payment.findAll({ where: { reservation_id: req.params.reservation_id } });
-  res.json(payments);
 });
 
 module.exports = router;

@@ -1,24 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middlewares/auth');
+const { requireRole } = require('../middlewares/role');
 const restaurantController = require('../controllers/restaurantController');
 const { Restaurant } = require('../models');
+const { cache } = require('../middlewares/cache');
 
 // 공개 라우트
 router.get('/search', restaurantController.searchRestaurants);
-router.get('/:id', async (req, res) => {
-  const restaurant = await Restaurant.findByPk(req.params.id);
-  if (!restaurant) return res.status(404).json({ message: '식당을 찾을 수 없습니다.' });
-  res.json(restaurant);
-});
+router.get('/:id', cache(300), restaurantController.getRestaurantDetails);
 router.get('/', async (req, res) => {
   const restaurants = await Restaurant.findAll();
   res.json(restaurants);
 });
 
 // 인증이 필요한 라우트
-router.post('/', authenticateToken, restaurantController.createRestaurant);
-router.put('/:id', authenticateToken, restaurantController.updateRestaurant);
-router.delete('/:id', authenticateToken, restaurantController.deleteRestaurant);
+// 레스토랑 생성 (관리자)
+router.post('/', authenticateToken, requireRole(['관리자']), restaurantController.createRestaurant);
+// 레스토랑 수정 (관리자)
+router.put('/:id', authenticateToken, requireRole(['관리자']), restaurantController.updateRestaurant);
+// 레스토랑 삭제 (관리자)
+router.delete('/:id', authenticateToken, requireRole(['관리자']), restaurantController.deleteRestaurant);
 
 module.exports = router;
