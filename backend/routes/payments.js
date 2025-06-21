@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middlewares/auth');
 const { Payment, Reservation } = require('../models');
+const { apiLimiter } = require('../middlewares/rateLimiter');
 
 // 결제 등록
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, apiLimiter, async (req, res) => {
   try {
     const { reservation_id, service_package, additional_services, reservation_fee, payment_status, payment_method } = req.body;
     // 본인 예약에 대해서만 결제 가능

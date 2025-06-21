@@ -1,6 +1,7 @@
 const { Restaurant, Review, Reservation } = require('../models');
 const { Op } = require('sequelize');
 const { PrismaClient } = require('@prisma/client');
+const { sendSuccess, sendError, commonErrors, RESPONSE_CODES } = require('../utils/responseHelper');
 const prisma = new PrismaClient();
 
 // 모든 레스토랑 조회
@@ -9,9 +10,15 @@ const getAllRestaurants = async (req, res) => {
     const restaurants = await Restaurant.findAll({
       attributes: { exclude: ['reviews', 'reservations'] }
     });
-    res.json(restaurants);
+    sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.RESTAURANT_LIST_GET,
+      'Restaurant list retrieved successfully',
+      '레스토랑 목록을 성공적으로 조회했습니다',
+      restaurants);
   } catch (error) {
-    res.status(500).json({ message: '레스토랑 목록을 불러오는데 실패했습니다.', error: error.message });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to retrieve restaurant list',
+      '레스토랑 목록을 불러오는데 실패했습니다',
+      error.message);
   }
 };
 
@@ -49,14 +56,20 @@ const searchRestaurants = async (req, res) => {
       limit: parseInt(limit)
     });
 
-    res.json({
-      restaurants,
-      currentPage: parseInt(page),
-      totalPages: Math.ceil(count / limit),
-      total: count
-    });
+    sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.RESTAURANT_LIST_GET,
+      'Restaurant search completed successfully',
+      '레스토랑 검색이 완료되었습니다',
+      {
+        restaurants,
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(count / limit),
+        total: count
+      });
   } catch (error) {
-    res.status(500).json({ message: '레스토랑 검색에 실패했습니다.', error: error.message });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to search restaurants',
+      '레스토랑 검색에 실패했습니다',
+      error.message);
   }
 };
 
@@ -64,9 +77,15 @@ const searchRestaurants = async (req, res) => {
 const createRestaurant = async (req, res) => {
   try {
     const restaurant = await Restaurant.create(req.body);
-    res.status(201).json(restaurant);
+    sendSuccess(res, 201, RESPONSE_CODES.SUCCESS.RESTAURANT_CREATED,
+      'Restaurant created successfully',
+      '레스토랑이 성공적으로 생성되었습니다',
+      restaurant);
   } catch (error) {
-    res.status(400).json({ message: '레스토랑 생성에 실패했습니다.', error: error.message });
+    sendError(res, 400, RESPONSE_CODES.ERROR.VALIDATION_FAILED,
+      'Failed to create restaurant',
+      '레스토랑 생성에 실패했습니다',
+      error.message);
   }
 };
 
@@ -79,13 +98,19 @@ const updateRestaurant = async (req, res) => {
     });
 
     if (!updated) {
-      return res.status(404).json({ message: '레스토랑을 찾을 수 없습니다.' });
+      return commonErrors.notFound(res, 'Restaurant not found', '레스토랑을 찾을 수 없습니다');
     }
 
     const restaurant = await Restaurant.findByPk(req.params.id);
-    res.json(restaurant);
+    sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.RESTAURANT_UPDATED,
+      'Restaurant updated successfully',
+      '레스토랑이 성공적으로 수정되었습니다',
+      restaurant);
   } catch (error) {
-    res.status(400).json({ message: '레스토랑 수정에 실패했습니다.', error: error.message });
+    sendError(res, 400, RESPONSE_CODES.ERROR.VALIDATION_FAILED,
+      'Failed to update restaurant',
+      '레스토랑 수정에 실패했습니다',
+      error.message);
   }
 };
 
@@ -97,12 +122,17 @@ const deleteRestaurant = async (req, res) => {
     });
 
     if (!deleted) {
-      return res.status(404).json({ message: '레스토랑을 찾을 수 없습니다.' });
+      return commonErrors.notFound(res, 'Restaurant not found', '레스토랑을 찾을 수 없습니다');
     }
 
-    res.json({ message: '레스토랑이 성공적으로 삭제되었습니다.' });
+    sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.RESTAURANT_DELETED,
+      'Restaurant deleted successfully',
+      '레스토랑이 성공적으로 삭제되었습니다');
   } catch (error) {
-    res.status(500).json({ message: '레스토랑 삭제에 실패했습니다.', error: error.message });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to delete restaurant',
+      '레스토랑 삭제에 실패했습니다',
+      error.message);
   }
 };
 
@@ -117,12 +147,18 @@ const getRestaurantDetails = async (req, res) => {
     });
 
     if (!restaurant) {
-      return res.status(404).json({ message: '레스토랑을 찾을 수 없습니다.' });
+      return commonErrors.notFound(res, 'Restaurant not found', '레스토랑을 찾을 수 없습니다');
     }
 
-    res.json(restaurant);
+    sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.RESTAURANT_DETAIL_GET,
+      'Restaurant details retrieved successfully',
+      '레스토랑 상세 정보를 성공적으로 조회했습니다',
+      restaurant);
   } catch (error) {
-    res.status(500).json({ message: '레스토랑 정보를 불러오는데 실패했습니다.', error: error.message });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to retrieve restaurant details',
+      '레스토랑 정보를 불러오는데 실패했습니다',
+      error.message);
   }
 };
 
@@ -148,12 +184,18 @@ const getRestaurantDetailsPrisma = async (req, res) => {
     });
 
     if (!restaurant) {
-      return res.status(404).json({ message: '레스토랑을 찾을 수 없습니다.' });
+      return commonErrors.notFound(res, 'Restaurant not found', '레스토랑을 찾을 수 없습니다');
     }
 
-    res.json(restaurant);
+    sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.RESTAURANT_DETAIL_GET,
+      'Restaurant details retrieved successfully',
+      '레스토랑 상세 정보를 성공적으로 조회했습니다',
+      restaurant);
   } catch (error) {
-    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to retrieve restaurant details',
+      '서버 오류가 발생했습니다',
+      error.message);
   }
 };
 
@@ -172,9 +214,15 @@ const getRestaurantReviews = async (req, res) => {
         }
       }
     });
-    res.json(reviews);
+    sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.REVIEW_LIST_GET,
+      'Restaurant reviews retrieved successfully',
+      '레스토랑 리뷰를 성공적으로 조회했습니다',
+      reviews);
   } catch (error) {
-    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to retrieve restaurant reviews',
+      '서버 오류가 발생했습니다',
+      error.message);
   }
 };
 
@@ -184,9 +232,15 @@ const getRestaurantMenu = async (req, res) => {
     const menus = await prisma.menu.findMany({
       where: { restaurantId: req.params.id }
     });
-    res.json(menus);
+    sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.DATA_RETRIEVED,
+      'Restaurant menu retrieved successfully',
+      '레스토랑 메뉴를 성공적으로 조회했습니다',
+      menus);
   } catch (error) {
-    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to retrieve restaurant menu',
+      '서버 오류가 발생했습니다',
+      error.message);
   }
 };
 
@@ -229,9 +283,15 @@ const getReservationAvailability = async (req, res) => {
 
     // 예약 가능 시간 계산 로직
     const availableTimes = calculateAvailableTimes(reservations);
-    res.json(availableTimes);
+    sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.DATA_RETRIEVED,
+      'Reservation availability retrieved successfully',
+      '예약 가능 시간을 성공적으로 조회했습니다',
+      availableTimes);
   } catch (error) {
-    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to retrieve reservation availability',
+      '서버 오류가 발생했습니다',
+      error.message);
   }
 };
 
@@ -239,6 +299,9 @@ const getReservationAvailability = async (req, res) => {
 const createRestaurantReview = async (req, res) => {
   try {
     const { userId, rating, content } = req.body;
+    if (!userId || !rating || !content) {
+      return commonErrors.validationError(res, 'Missing required fields', 'userId, rating, content는 필수입니다');
+    }
     const review = await prisma.review.create({
       data: {
         restaurantId: req.params.id,
@@ -247,9 +310,15 @@ const createRestaurantReview = async (req, res) => {
         content
       }
     });
-    res.json(review);
+    sendSuccess(res, 201, RESPONSE_CODES.SUCCESS.REVIEW_CREATED,
+      'Restaurant review created successfully',
+      '레스토랑 리뷰가 성공적으로 작성되었습니다',
+      review);
   } catch (error) {
-    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to create restaurant review',
+      '서버 오류가 발생했습니다',
+      error.message);
   }
 };
 
@@ -260,7 +329,10 @@ const getMetrics = async (req, res) => {
     res.set('Content-Type', prometheus.register.contentType);
     res.end(await prometheus.register.metrics());
   } catch (error) {
-    res.status(500).json({ message: '메트릭 조회에 실패했습니다.' });
+    sendError(res, 500, RESPONSE_CODES.ERROR.INTERNAL_SERVER_ERROR,
+      'Failed to retrieve metrics',
+      '메트릭 조회에 실패했습니다',
+      error.message);
   }
 };
 

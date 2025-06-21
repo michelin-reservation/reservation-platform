@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { sendSuccess, sendError, commonErrors, RESPONSE_CODES } = require('../utils/responseHelper');
 
 exports.getNaverAuthUrl = (req, res) => {
   const state = process.env.NAVER_STATE || 'RANDOM_STATE';
@@ -36,9 +37,15 @@ exports.naverCallback = async (req, res) => {
     const naverUser = profileRes.data.response;
     // ...여기서 회원가입/로그인 처리
 
-    res.json({ success: true, naverUser });
+    sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.USER_LOGIN,
+      'Naver authentication successful',
+      '네이버 인증이 성공했습니다',
+      { naverUser });
   } catch (err) {
-    res.status(500).json({ message: '네이버 인증 실패', error: err.message });
+    sendError(res, 500, RESPONSE_CODES.ERROR.EXTERNAL_SERVICE_ERROR,
+      'Naver authentication failed',
+      '네이버 인증에 실패했습니다',
+      err.message);
   }
 };
 

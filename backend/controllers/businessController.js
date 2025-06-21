@@ -1,5 +1,6 @@
 const { Business, User, Restaurant, Reservation, Review, sequelize } = require('../models');
 const { Op } = require('sequelize');
+const { sendSuccess, sendError, commonErrors, RESPONSE_CODES } = require('../utils/responseHelper');
 
 /**
  * @summary 사업자 등록 신청
@@ -10,13 +11,15 @@ exports.applyBusiness = async (req, res) => {
     const { name, businessHours, seats, notifications } = req.body;
 
     if (!name) {
-        return res.status(400).json({ success: false, message: '사업자명은 필수입니다.' });
+        return commonErrors.validationError(res, 'Business name is required', '사업자명은 필수입니다');
     }
 
     try {
         const existingBusiness = await Business.findOne({ where: { user_id } });
         if (existingBusiness) {
-            return res.status(409).json({ success: false, message: '이미 사업자 신청 내역이 존재합니다.' });
+            return sendError(res, 409, RESPONSE_CODES.ERROR.RESOURCE_CONFLICT,
+                'Business application already exists',
+                '이미 사업자 신청 내역이 존재합니다');
         }
 
         const newBusiness = await Business.create({
@@ -28,14 +31,16 @@ exports.applyBusiness = async (req, res) => {
             status: '대기중', // '대기중', '승인', '거절'
         });
 
-        res.status(201).json({
-            success: true,
-            message: '사업자 신청이 성공적으로 접수되었습니다.',
-            data: newBusiness,
-        });
+        sendSuccess(res, 201, RESPONSE_CODES.SUCCESS.BUSINESS_APPLIED,
+            'Business application submitted successfully',
+            '사업자 신청이 성공적으로 접수되었습니다',
+            newBusiness);
     } catch (error) {
         console.error('사업자 신청 처리 중 오류 발생:', error);
-        res.status(500).json({ success: false, message: '서버 처리 중 오류가 발생했습니다.', error: error.message });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to submit business application',
+            '서버 처리 중 오류가 발생했습니다',
+            error.message);
     }
 };
 
@@ -47,12 +52,18 @@ exports.getMyBusinessStatus = async (req, res) => {
     try {
         const business = await Business.findOne({ where: { user_id: req.user.id, status: '승인' } });
         if (!business) {
-            return res.status(404).json({ success: false, message: '신청 내역이 없습니다.' });
+            return commonErrors.notFound(res, 'Business application not found', '신청 내역이 없습니다');
         }
-        res.json({ success: true, data: business });
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.BUSINESS_STATUS_GET,
+            'Business status retrieved successfully',
+            '사업자 신청 상태를 성공적으로 조회했습니다',
+            business);
     } catch (error) {
         console.error('신청 상태 조회 중 오류 발생:', error);
-        res.status(500).json({ success: false, message: '서버 처리 중 오류가 발생했습니다.', error: error.message });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to retrieve business status',
+            '서버 처리 중 오류가 발생했습니다',
+            error.message);
     }
 };
 
@@ -64,19 +75,22 @@ exports.getBusinessSettings = async (req, res) => {
     try {
         const business = await Business.findOne({ where: { user_id: req.user.id, status: '승인' } });
         if (!business) {
-            return res.status(404).json({ success: false, message: '승인된 사업자 정보를 찾을 수 없습니다.' });
+            return commonErrors.notFound(res, 'Approved business not found', '승인된 사업자 정보를 찾을 수 없습니다');
         }
-        res.json({
-            success: true,
-            data: {
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.BUSINESS_SETTINGS_GET,
+            'Business settings retrieved successfully',
+            '사업자 설정을 성공적으로 조회했습니다',
+            {
                 businessHours: business.business_hours,
                 seats: business.seats,
                 notifications: business.notifications,
-            },
-        });
+            });
     } catch (error) {
         console.error('사업자 설정 조회 중 오류 발생:', error);
-        res.status(500).json({ success: false, message: '서버 처리 중 오류가 발생했습니다.', error: error.message });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to retrieve business settings',
+            '서버 처리 중 오류가 발생했습니다',
+            error.message);
     }
 };
 
@@ -89,7 +103,7 @@ exports.updateBusinessSettings = async (req, res) => {
     try {
         const business = await Business.findOne({ where: { user_id: req.user.id, status: '승인' } });
         if (!business) {
-            return res.status(404).json({ success: false, message: '승인된 사업자 정보를 찾을 수 없습니다.' });
+            return commonErrors.notFound(res, 'Approved business not found', '승인된 사업자 정보를 찾을 수 없습니다');
         }
 
         business.business_hours = businessHours ?? business.business_hours;
@@ -97,10 +111,16 @@ exports.updateBusinessSettings = async (req, res) => {
         business.notifications = notifications ?? business.notifications;
 
         await business.save();
-        res.json({ success: true, message: '사업자 설정이 성공적으로 업데이트되었습니다.', data: business });
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.BUSINESS_SETTINGS_UPDATED,
+            'Business settings updated successfully',
+            '사업자 설정이 성공적으로 업데이트되었습니다',
+            business);
     } catch (error) {
         console.error('사업자 설정 수정 중 오류 발생:', error);
-        res.status(500).json({ success: false, message: '서버 처리 중 오류가 발생했습니다.', error: error.message });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to update business settings',
+            '서버 처리 중 오류가 발생했습니다',
+            error.message);
     }
 };
 
@@ -116,7 +136,7 @@ exports.getBusinessStatistics = async (req, res) => {
         });
 
         if (!business || !business.restaurants) {
-            return res.status(404).json({ success: false, message: '승인된 사업자 또는 연결된 레스토랑 정보를 찾을 수 없습니다.' });
+            return commonErrors.notFound(res, 'Approved business or connected restaurants not found', '승인된 사업자 또는 연결된 레스토랑 정보를 찾을 수 없습니다');
         }
 
         const restaurantIds = business.restaurants.map(r => r.restaurant_id);
@@ -134,19 +154,22 @@ exports.getBusinessStatistics = async (req, res) => {
             raw: true
         });
 
-        res.json({
-            success: true,
-            data: {
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.DATA_RETRIEVED,
+            'Business statistics retrieved successfully',
+            '사업자 통계를 성공적으로 조회했습니다',
+            {
                 totalRestaurants: restaurantIds.length,
                 totalReservations,
                 totalReviews,
                 recentReservations,
                 averageRating: avgRating ? parseFloat(avgRating).toFixed(2) : '0.00',
-            },
-        });
+            });
     } catch (error) {
         console.error('사업자 통계 조회 중 오류 발생:', error);
-        res.status(500).json({ success: false, message: '서버 처리 중 오류가 발생했습니다.', error: error.message });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to retrieve business statistics',
+            '서버 처리 중 오류가 발생했습니다',
+            error.message);
     }
 };
 
@@ -175,20 +198,23 @@ exports.getAllBusinessApplications = async (req, res) => {
             order: [['created_at', 'DESC']],
         });
 
-        res.json({
-            success: true,
-            data: {
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.DATA_RETRIEVED,
+            'Business applications retrieved successfully',
+            '사업자 신청 목록을 성공적으로 조회했습니다',
+            {
                 applications,
                 pagination: {
                     currentPage: parseInt(page),
                     totalPages: Math.ceil(count / limit),
                     totalItems: count,
                 },
-            },
-        });
+            });
     } catch (error) {
         console.error('전체 신청 목록 조회 중 오류 발생:', error);
-        res.status(500).json({ success: false, message: '서버 처리 중 오류가 발생했습니다.', error: error.message });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to retrieve business applications',
+            '서버 처리 중 오류가 발생했습니다',
+            error.message);
     }
 };
 
@@ -201,7 +227,7 @@ exports.updateBusinessStatus = async (req, res) => {
     const { status, reason } = req.body; // status: '승인' or '거절'
 
     if (!['승인', '거절'].includes(status)) {
-        return res.status(400).json({ success: false, message: "상태 값은 '승인' 또는 '거절'이어야 합니다." });
+        return commonErrors.validationError(res, 'Invalid status value', "상태 값은 '승인' 또는 '거절'이어야 합니다");
     }
 
     const t = await sequelize.transaction();
@@ -209,7 +235,7 @@ exports.updateBusinessStatus = async (req, res) => {
         const business = await Business.findByPk(id, { transaction: t });
         if (!business) {
             await t.rollback();
-            return res.status(404).json({ success: false, message: '해당 신청을 찾을 수 없습니다.' });
+            return commonErrors.notFound(res, 'Business application not found', '해당 신청을 찾을 수 없습니다');
         }
 
         business.status = status;
@@ -223,10 +249,18 @@ exports.updateBusinessStatus = async (req, res) => {
         }
 
         await t.commit();
-        res.json({ success: true, message: `사업자 신청이 ${status} 처리되었습니다.`, data: business });
+
+        const responseCode = status === '승인' ? RESPONSE_CODES.SUCCESS.ADMIN_BUSINESS_APPROVED : RESPONSE_CODES.SUCCESS.ADMIN_BUSINESS_REJECTED;
+        const devMessage = status === '승인' ? 'Business application approved successfully' : 'Business application rejected successfully';
+        const userMessage = status === '승인' ? '사업자 신청이 승인 처리되었습니다' : '사업자 신청이 거절 처리되었습니다';
+
+        sendSuccess(res, 200, responseCode, devMessage, userMessage, business);
     } catch (error) {
         await t.rollback();
         console.error('상태 업데이트 중 오류 발생:', error);
-        res.status(500).json({ success: false, message: '서버 처리 중 오류가 발생했습니다.', error: error.message });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to update business status',
+            '서버 처리 중 오류가 발생했습니다',
+            error.message);
     }
 };
