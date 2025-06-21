@@ -1,11 +1,15 @@
 const { Reservation, Restaurant, User } = require('../models');
 const { Op } = require('sequelize');
 const prometheus = require('../config/prometheus');
+const { sendSuccess, sendError, commonErrors, RESPONSE_CODES } = require('../utils/responseHelper');
 
 // 예약 생성 (reservations.js 버전)
 exports.createReservation = async (req, res) => {
   try {
-    const { restaurant_id, reservation_time, guest_count, special_request, name } = req.body;
+    const { restaurant_id, reservation_time, guest_count, name } = req.body;
+    if (!restaurant_id || !reservation_time || !guest_count || !name) {
+      return commonErrors.validationError(res, 'Missing required fields', 'restaurant_id, reservation_time, guest_count, name은 필수입니다');
+    }
     const user_id = req.user.id; // JWT에서 추출
 
     // 예약 중복 확인 (같은 시간에 같은 식당에 예약이 있는지 확인)
@@ -18,10 +22,9 @@ exports.createReservation = async (req, res) => {
     });
 
     if (existingReservation) {
-      return res.status(400).json({
-        success: false,
-        message: '해당 시간에 이미 예약이 있습니다.'
-      });
+      return sendError(res, 400, RESPONSE_CODES.ERROR.RESERVATION_CONFLICT,
+        'Reservation time conflict',
+        '해당 시간에 이미 예약이 있습니다');
     }
 
     const reservation = await Reservation.create({
@@ -29,7 +32,6 @@ exports.createReservation = async (req, res) => {
       restaurant_id,
       reservation_time,
       guest_count,
-      special_request,
       name,
       status: 'confirmed'
     });
@@ -39,10 +41,16 @@ exports.createReservation = async (req, res) => {
       prometheus.reservationSuccessTotal.inc();
     }
 
-    res.status(201).json({ success: true, reservation });
+    sendSuccess(res, 201, RESPONSE_CODES.SUCCESS.RESERVATION_CREATED,
+      'Reservation created successfully',
+      '예약이 성공적으로 생성되었습니다',
+      reservation);
   } catch (err) {
     console.error('예약 생성 실패:', err);
-    res.status(400).json({ success: false, message: err.message });
+    sendError(res, 400, RESPONSE_CODES.ERROR.VALIDATION_FAILED,
+      'Failed to create reservation',
+      '예약 생성에 실패했습니다',
+      err.message);
   }
 };
 
@@ -51,7 +59,7 @@ exports.getUserReservations = async (req, res) => {
   try {
     // 본인만 자신의 예약 목록을 볼 수 있도록 체크
     if (parseInt(req.user.id) !== parseInt(req.params.user_id)) {
-      return res.status(403).json({ message: '본인만 예약 목록을 조회할 수 있습니다.' });
+      return commonErrors.forbidden(res, 'Can only view own reservations', '본인만 예약 목록을 조회할 수 있습니다');
     }
 
     const reservations = await Reservation.findAll({
@@ -65,13 +73,16 @@ exports.getUserReservations = async (req, res) => {
       order: [['reservation_time', 'DESC']]
     });
 
-    res.json({ success: true, data: reservations });
+    sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.RESERVATION_LIST_GET,
+      'User reservations retrieved successfully',
+      '예약 목록을 성공적으로 조회했습니다',
+      reservations);
   } catch (error) {
     console.error('예약 목록 조회 실패:', error);
-    res.status(500).json({
-      success: false,
-      message: '예약 목록 조회 중 오류가 발생했습니다.'
-    });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to retrieve user reservations',
+      '예약 목록 조회 중 오류가 발생했습니다',
+      error.message);
   }
 };
 
@@ -91,18 +102,21 @@ exports.getReservationById = async (req, res) => {
     if (reservation) {
       // 본인 예약만 조회 가능
       if (reservation.user_id !== req.user.id) {
-        return res.status(403).json({ message: '본인 예약만 조회할 수 있습니다.' });
+        return commonErrors.forbidden(res, 'Can only view own reservation', '본인 예약만 조회할 수 있습니다');
       }
-      res.json({ success: true, data: reservation });
+      sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.RESERVATION_DETAIL_GET,
+        'Reservation details retrieved successfully',
+        '예약 상세 정보를 성공적으로 조회했습니다',
+        reservation);
     } else {
-      res.status(404).json({ success: false, message: '예약을 찾을 수 없습니다.' });
+      commonErrors.notFound(res, 'Reservation not found', '예약을 찾을 수 없습니다');
     }
   } catch (error) {
     console.error('예약 상세 조회 실패:', error);
-    res.status(500).json({
-      success: false,
-      message: '예약 상세 조회 중 오류가 발생했습니다.'
-    });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to retrieve reservation details',
+      '예약 상세 조회 중 오류가 발생했습니다',
+      error.message);
   }
 };
 
@@ -114,7 +128,7 @@ exports.updateReservation = async (req, res) => {
 
     if (reservation) {
       if (reservation.user_id !== req.user.id) {
-        return res.status(403).json({ message: '본인 예약만 수정할 수 있습니다.' });
+        return commonErrors.forbidden(res, 'Can only update own reservation', '본인 예약만 수정할 수 있습니다');
       }
 
       // 예약 시간 변경 시 중복 확인
@@ -129,10 +143,9 @@ exports.updateReservation = async (req, res) => {
         });
 
         if (existingReservation) {
-          return res.status(400).json({
-            success: false,
-            message: '해당 시간에 이미 예약이 있습니다.'
-          });
+          return sendError(res, 400, RESPONSE_CODES.ERROR.RESERVATION_CONFLICT,
+            'Reservation time conflict',
+            '해당 시간에 이미 예약이 있습니다');
         }
       }
 
@@ -143,16 +156,19 @@ exports.updateReservation = async (req, res) => {
       reservation.name = name || reservation.name;
 
       await reservation.save();
-      res.json({ success: true, data: reservation });
+      sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.RESERVATION_UPDATED,
+        'Reservation updated successfully',
+        '예약이 성공적으로 수정되었습니다',
+        reservation);
     } else {
-      res.status(404).json({ success: false, message: '예약을 찾을 수 없습니다.' });
+      commonErrors.notFound(res, 'Reservation not found', '예약을 찾을 수 없습니다');
     }
   } catch (error) {
     console.error('예약 수정 실패:', error);
-    res.status(500).json({
-      success: false,
-      message: '예약 수정 중 오류가 발생했습니다.'
-    });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to update reservation',
+      '예약 수정 중 오류가 발생했습니다',
+      error.message);
   }
 };
 
@@ -163,21 +179,23 @@ exports.cancelReservation = async (req, res) => {
 
     if (reservation) {
       if (reservation.user_id !== req.user.id) {
-        return res.status(403).json({ message: '본인 예약만 취소할 수 있습니다.' });
+        return commonErrors.forbidden(res, 'Can only cancel own reservation', '본인 예약만 취소할 수 있습니다');
       }
 
       // 예약 상태를 'cancelled'로 변경 (완전 삭제 대신)
       await reservation.update({ status: 'cancelled' });
-      res.json({ success: true, message: '예약이 성공적으로 취소되었습니다.' });
+      sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.RESERVATION_CANCELLED,
+        'Reservation cancelled successfully',
+        '예약이 성공적으로 취소되었습니다');
     } else {
-      res.status(404).json({ success: false, message: '예약을 찾을 수 없습니다.' });
+      commonErrors.notFound(res, 'Reservation not found', '예약을 찾을 수 없습니다');
     }
   } catch (error) {
     console.error('예약 취소 실패:', error);
-    res.status(500).json({
-      success: false,
-      message: '예약 취소 중 오류가 발생했습니다.'
-    });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to cancel reservation',
+      '예약 취소 중 오류가 발생했습니다',
+      error.message);
   }
 };
 
@@ -188,20 +206,22 @@ exports.deleteReservation = async (req, res) => {
 
     if (reservation) {
       if (reservation.user_id !== req.user.id) {
-        return res.status(403).json({ message: '본인 예약만 삭제할 수 있습니다.' });
+        return commonErrors.forbidden(res, 'Can only delete own reservation', '본인 예약만 삭제할 수 있습니다');
       }
 
       await reservation.destroy();
-      res.json({ success: true, message: '예약이 완전히 삭제되었습니다.' });
+      sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.OPERATION_COMPLETED,
+        'Reservation deleted successfully',
+        '예약이 완전히 삭제되었습니다');
     } else {
-      res.status(404).json({ success: false, message: '예약을 찾을 수 없습니다.' });
+      commonErrors.notFound(res, 'Reservation not found', '예약을 찾을 수 없습니다');
     }
   } catch (error) {
     console.error('예약 삭제 실패:', error);
-    res.status(500).json({
-      success: false,
-      message: '예약 삭제 중 오류가 발생했습니다.'
-    });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to delete reservation',
+      '예약 삭제 중 오류가 발생했습니다',
+      error.message);
   }
 };
 
@@ -223,10 +243,9 @@ exports.createReservationLegacy = async (req, res) => {
     });
 
     if (existingReservation) {
-      return res.status(400).json({
-        success: false,
-        message: '해당 시간에 이미 예약이 있습니다.'
-      });
+      return sendError(res, 400, RESPONSE_CODES.ERROR.RESERVATION_CONFLICT,
+        'Reservation time conflict',
+        '해당 시간에 이미 예약이 있습니다');
     }
 
     const reservation = await Reservation.create({
@@ -244,16 +263,16 @@ exports.createReservationLegacy = async (req, res) => {
       prometheus.reservationSuccessTotal.inc();
     }
 
-    res.status(201).json({
-      success: true,
-      data: reservation
-    });
+    sendSuccess(res, 201, RESPONSE_CODES.SUCCESS.RESERVATION_CREATED,
+      'Reservation created successfully',
+      '예약이 성공적으로 생성되었습니다',
+      reservation);
   } catch (error) {
     console.error('예약 생성 실패:', error);
-    res.status(500).json({
-      success: false,
-      message: '예약 생성 중 오류가 발생했습니다.'
-    });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to create reservation',
+      '예약 생성 중 오류가 발생했습니다',
+      error.message);
   }
 };
 
@@ -272,16 +291,16 @@ exports.getMyReservations = async (req, res) => {
       order: [['date', 'DESC'], ['time', 'DESC']]
     });
 
-    res.json({
-      success: true,
-      data: reservations
-    });
+    sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.RESERVATION_LIST_GET,
+      'My reservations retrieved successfully',
+      '내 예약 목록을 성공적으로 조회했습니다',
+      reservations);
   } catch (error) {
     console.error('예약 목록 조회 실패:', error);
-    res.status(500).json({
-      success: false,
-      message: '예약 목록 조회 중 오류가 발생했습니다.'
-    });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to retrieve my reservations',
+      '예약 목록 조회 중 오류가 발생했습니다',
+      error.message);
   }
 };
 
@@ -299,9 +318,15 @@ exports.getUserReservationsLegacy = async (req, res) => {
       ],
       order: [['date', 'DESC'], ['time', 'DESC']]
     });
-    res.json({ success: true, data: reservations });
+    sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.RESERVATION_LIST_GET,
+      'User reservations retrieved successfully',
+      '사용자 예약 목록을 성공적으로 조회했습니다',
+      reservations);
   } catch (error) {
     console.error('특정 유저 예약 목록 조회 실패:', error);
-    res.status(500).json({ success: false, message: '특정 유저 예약 목록 조회 중 오류가 발생했습니다.' });
+    sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+      'Failed to retrieve user reservations',
+      '특정 유저 예약 목록 조회 중 오류가 발생했습니다',
+      error.message);
   }
 };
