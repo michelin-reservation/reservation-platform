@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middlewares/auth');
 const reservationController = require('../controllers/reservationController');
+const { apiLimiter } = require('../middlewares/rateLimiter');
 
 // 예약 생성
-router.post('/', authenticateToken, reservationController.createReservation);
+router.post('/', authenticateToken, apiLimiter, reservationController.createReservation);
 
 // 내 예약 목록 조회
 router.get('/user/:user_id', authenticateToken, reservationController.getUserReservations);

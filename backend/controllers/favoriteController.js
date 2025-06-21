@@ -1,4 +1,5 @@
 const { Favorite, Restaurant, User } = require('../models');
+const { sendSuccess, sendError, commonErrors, RESPONSE_CODES } = require('../utils/responseHelper');
 
 // 관심 목록 조회
 exports.getFavorites = async (req, res) => {
@@ -31,13 +32,16 @@ exports.getFavorites = async (req, res) => {
             rating: fav.restaurant?.rating
         }));
 
-        res.json({ success: true, data: result });
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.FAVORITE_LIST_GET,
+            'Favorites retrieved successfully',
+            '관심 목록을 성공적으로 조회했습니다',
+            result);
     } catch (err) {
         console.error('관심 목록 조회 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to retrieve favorites',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
 
@@ -49,19 +53,13 @@ exports.addFavorite = async (req, res) => {
 
         // 입력값 검증
         if (!restaurant_id) {
-            return res.status(400).json({
-                success: false,
-                message: '식당 ID는 필수입니다.'
-            });
+            return commonErrors.validationError(res, 'Restaurant ID is required', '식당 ID는 필수입니다');
         }
 
         // 식당 존재 여부 확인
         const restaurant = await Restaurant.findByPk(restaurant_id);
         if (!restaurant) {
-            return res.status(404).json({
-                success: false,
-                message: '존재하지 않는 식당입니다.'
-            });
+            return commonErrors.notFound(res, 'Restaurant not found', '존재하지 않는 식당입니다');
         }
 
         // 이미 관심 목록에 있는지 확인
@@ -70,25 +68,23 @@ exports.addFavorite = async (req, res) => {
         });
 
         if (existing) {
-            return res.status(409).json({
-                success: false,
-                message: '이미 관심 목록에 추가되어 있습니다.'
-            });
+            return sendError(res, 409, RESPONSE_CODES.ERROR.RESOURCE_CONFLICT,
+                'Restaurant already in favorites',
+                '이미 관심 목록에 추가되어 있습니다');
         }
 
         const favorite = await Favorite.create({ user_id, restaurant_id });
 
-        res.status(201).json({
-            success: true,
-            message: '관심 목록에 추가되었습니다.',
-            data: favorite
-        });
+        sendSuccess(res, 201, RESPONSE_CODES.SUCCESS.FAVORITE_ADDED,
+            'Restaurant added to favorites successfully',
+            '관심 목록에 추가되었습니다',
+            favorite);
     } catch (err) {
         console.error('관심 목록 추가 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to add to favorites',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
 
@@ -100,10 +96,7 @@ exports.removeFavorite = async (req, res) => {
 
         // 입력값 검증
         if (!restaurant_id) {
-            return res.status(400).json({
-                success: false,
-                message: '식당 ID는 필수입니다.'
-            });
+            return commonErrors.validationError(res, 'Restaurant ID is required', '식당 ID는 필수입니다');
         }
 
         // 관심 목록에서 제거
@@ -112,22 +105,18 @@ exports.removeFavorite = async (req, res) => {
         });
 
         if (deleted) {
-            res.json({
-                success: true,
-                message: '관심 목록에서 제거되었습니다.'
-            });
+            sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.FAVORITE_REMOVED,
+                'Restaurant removed from favorites successfully',
+                '관심 목록에서 제거되었습니다');
         } else {
-            res.status(404).json({
-                success: false,
-                message: '관심 목록에 해당 식당이 없습니다.'
-            });
+            commonErrors.notFound(res, 'Restaurant not in favorites', '관심 목록에 해당 식당이 없습니다');
         }
     } catch (err) {
         console.error('관심 목록 삭제 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to remove from favorites',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
 
@@ -141,16 +130,16 @@ exports.checkFavorite = async (req, res) => {
             where: { user_id, restaurant_id }
         });
 
-        res.json({
-            success: true,
-            isFavorite: !!favorite
-        });
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.DATA_RETRIEVED,
+            'Favorite status checked successfully',
+            '관심 목록 여부를 성공적으로 확인했습니다',
+            { isFavorite: !!favorite });
     } catch (err) {
         console.error('관심 목록 확인 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to check favorite status',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
 
@@ -163,15 +152,15 @@ exports.getFavoriteCount = async (req, res) => {
             where: { user_id }
         });
 
-        res.json({
-            success: true,
-            count: count
-        });
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.DATA_RETRIEVED,
+            'Favorite count retrieved successfully',
+            '관심 목록 개수를 성공적으로 조회했습니다',
+            { count: count });
     } catch (err) {
         console.error('관심 목록 개수 조회 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to retrieve favorite count',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
