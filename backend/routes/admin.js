@@ -315,13 +315,70 @@ router.get('/vip-requests', authenticateToken, requireRole(['관리자']), admin
  */
 router.get('/stats', authenticateToken, requireRole(['관리자']), adminController.getSystemStats);
 
-// VIP 요청 승인 (관리자용)
+/**
+ * @swagger
+ * /admin/vip-requests/{id}/approve:
+ *   put:
+ *     summary: (관리자) VIP 요청 승인
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: VIP 요청 ID
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: VIP 요청 승인 성공
+ */
 router.put('/vip-requests/:id/approve', authenticateToken, requireRole(['관리자']), vipRequestController.approveVipRequest);
 
-// VIP 요청 거절 (관리자용)
+/**
+ * @swagger
+ * /admin/vip-requests/{id}/reject:
+ *   put:
+ *     summary: (관리자) VIP 요청 거절
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: VIP 요청 ID
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               reason:
+ *                 type: string
+ *                 description: 거절 사유
+ *     responses:
+ *       200:
+ *         description: VIP 요청 거절 성공
+ */
 router.put('/vip-requests/:id/reject', authenticateToken, requireRole(['관리자']), vipRequestController.rejectVipRequest);
 
-// VIP 요청 통계 (관리자용)
+/**
+ * @swagger
+ * /admin/vip-requests/stats:
+ *   get:
+ *     summary: (관리자) VIP 요청 통계 조회
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: VIP 요청 통계 조회 성공
+ */
 router.get('/vip-requests/stats', authenticateToken, requireRole(['관리자']), vipRequestController.getVipRequestStats);
 
 module.exports = router;

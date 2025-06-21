@@ -1,5 +1,6 @@
 const { User, VipRequest, Reservation, Restaurant, Review, Payment } = require('../models');
 const { Op } = require('sequelize');
+const { sendSuccess, sendError, commonErrors, RESPONSE_CODES } = require('../utils/responseHelper');
 
 // 관리자 대시보드 데이터 조회
 exports.getAdminDashboard = async (req, res) => {
@@ -32,9 +33,10 @@ exports.getAdminDashboard = async (req, res) => {
             where: { status: '대기중' }
         });
 
-        res.json({
-            success: true,
-            data: {
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.ADMIN_STATS_GET,
+            'Admin dashboard data retrieved successfully',
+            '관리자 대시보드 데이터를 성공적으로 조회했습니다',
+            {
                 stats: {
                     totalUsers,
                     totalRestaurants,
@@ -48,14 +50,13 @@ exports.getAdminDashboard = async (req, res) => {
                     recentUsers,
                     recentReservations
                 }
-            }
-        });
+            });
     } catch (err) {
         console.error('관리자 대시보드 조회 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to retrieve admin dashboard data',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
 
@@ -84,9 +85,10 @@ exports.getAllUsers = async (req, res) => {
             order: [['created_at', 'DESC']]
         });
 
-        res.json({
-            success: true,
-            data: {
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.ADMIN_USER_LIST_GET,
+            'User list retrieved successfully',
+            '사용자 목록을 성공적으로 조회했습니다',
+            {
                 users,
                 pagination: {
                     currentPage: parseInt(page),
@@ -94,14 +96,13 @@ exports.getAllUsers = async (req, res) => {
                     total: count,
                     limit: parseInt(limit)
                 }
-            }
-        });
+            });
     } catch (err) {
         console.error('사용자 목록 조회 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to retrieve user list',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
 
@@ -128,22 +129,19 @@ exports.getUserById = async (req, res) => {
         });
 
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: '사용자를 찾을 수 없습니다.'
-            });
+            return commonErrors.notFound(res, 'User not found', '사용자를 찾을 수 없습니다');
         }
 
-        res.json({
-            success: true,
-            data: user
-        });
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.DATA_RETRIEVED,
+            'User details retrieved successfully',
+            '사용자 상세 정보를 성공적으로 조회했습니다',
+            user);
     } catch (err) {
         console.error('사용자 상세 조회 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to retrieve user details',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
 
@@ -154,37 +152,34 @@ exports.deleteUser = async (req, res) => {
 
         // 본인 계정 삭제 방지
         if (parseInt(id) === parseInt(req.user.id)) {
-            return res.status(400).json({ message: '본인 계정은 삭제할 수 없습니다.' });
+            return sendError(res, 400, RESPONSE_CODES.ERROR.INVALID_REQUEST,
+                'Cannot delete own account',
+                '본인 계정은 삭제할 수 없습니다');
         }
 
         const user = await User.findByPk(id);
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: '사용자를 찾을 수 없습니다.'
-            });
+            return commonErrors.notFound(res, 'User not found', '사용자를 찾을 수 없습니다');
         }
 
         // 관리자 계정 삭제 방지
         if (user.role === '관리자') {
-            return res.status(400).json({
-                success: false,
-                message: '관리자 계정은 삭제할 수 없습니다.'
-            });
+            return sendError(res, 400, RESPONSE_CODES.ERROR.INSUFFICIENT_PERMISSIONS,
+                'Cannot delete admin account',
+                '관리자 계정은 삭제할 수 없습니다');
         }
 
         await user.destroy();
 
-        res.json({
-            success: true,
-            message: '사용자가 성공적으로 삭제되었습니다.'
-        });
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.OPERATION_COMPLETED,
+            'User deleted successfully',
+            '사용자가 성공적으로 삭제되었습니다');
     } catch (err) {
         console.error('사용자 삭제 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to delete user',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
 
@@ -195,39 +190,34 @@ exports.updateUserRole = async (req, res) => {
         const { role } = req.body;
 
         if (!role || !['일반', 'VIP', '관리자'].includes(role)) {
-            return res.status(400).json({
-                success: false,
-                message: '유효한 역할을 지정해주세요.'
-            });
+            return commonErrors.validationError(res, 'Invalid role value', '유효한 역할을 지정해주세요');
         }
 
         const user = await User.findByPk(id);
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: '사용자를 찾을 수 없습니다.'
-            });
+            return commonErrors.notFound(res, 'User not found', '사용자를 찾을 수 없습니다');
         }
 
         // 본인 역할 변경 방지
         if (parseInt(id) === parseInt(req.user.id)) {
-            return res.status(400).json({ message: '본인의 역할은 변경할 수 없습니다.' });
+            return sendError(res, 400, RESPONSE_CODES.ERROR.INVALID_REQUEST,
+                'Cannot change own role',
+                '본인의 역할은 변경할 수 없습니다');
         }
 
         user.role = role;
         await user.save();
 
-        res.json({
-            success: true,
-            message: '사용자 역할이 변경되었습니다.',
-            data: { id: user.id, role: user.role }
-        });
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.OPERATION_COMPLETED,
+            'User role updated successfully',
+            '사용자 역할이 변경되었습니다',
+            { id: user.id, role: user.role });
     } catch (err) {
         console.error('사용자 역할 변경 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to update user role',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
 
@@ -252,9 +242,10 @@ exports.getAllReservations = async (req, res) => {
             order: [['created_at', 'DESC']]
         });
 
-        res.json({
-            success: true,
-            data: {
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.ADMIN_RESERVATION_LIST_GET,
+            'Reservation list retrieved successfully',
+            '예약 목록을 성공적으로 조회했습니다',
+            {
                 reservations,
                 pagination: {
                     currentPage: parseInt(page),
@@ -262,14 +253,13 @@ exports.getAllReservations = async (req, res) => {
                     total: count,
                     limit: parseInt(limit)
                 }
-            }
-        });
+            });
     } catch (err) {
         console.error('예약 목록 조회 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to retrieve reservation list',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
 
@@ -294,9 +284,10 @@ exports.getAllReviews = async (req, res) => {
             order: [['created_at', 'DESC']]
         });
 
-        res.json({
-            success: true,
-            data: {
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.REVIEW_LIST_GET,
+            'Review list retrieved successfully',
+            '리뷰 목록을 성공적으로 조회했습니다',
+            {
                 reviews,
                 pagination: {
                     currentPage: parseInt(page),
@@ -304,14 +295,13 @@ exports.getAllReviews = async (req, res) => {
                     total: count,
                     limit: parseInt(limit)
                 }
-            }
-        });
+            });
     } catch (err) {
         console.error('리뷰 목록 조회 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to retrieve review list',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
 
@@ -322,24 +312,20 @@ exports.deleteReview = async (req, res) => {
 
         const review = await Review.findByPk(id);
         if (!review) {
-            return res.status(404).json({
-                success: false,
-                message: '리뷰를 찾을 수 없습니다.'
-            });
+            return commonErrors.notFound(res, 'Review not found', '리뷰를 찾을 수 없습니다');
         }
 
         await review.destroy();
 
-        res.json({
-            success: true,
-            message: '리뷰가 삭제되었습니다.'
-        });
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.REVIEW_DELETED,
+            'Review deleted successfully',
+            '리뷰가 삭제되었습니다');
     } catch (err) {
         console.error('리뷰 삭제 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to delete review',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
 
@@ -362,9 +348,10 @@ exports.getAllVipRequests = async (req, res) => {
             order: [['created_at', 'DESC']]
         });
 
-        res.json({
-            success: true,
-            data: {
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.ADMIN_VIP_REQUEST_LIST_GET,
+            'VIP request list retrieved successfully',
+            'VIP 요청 목록을 성공적으로 조회했습니다',
+            {
                 vipRequests,
                 pagination: {
                     currentPage: parseInt(page),
@@ -372,14 +359,13 @@ exports.getAllVipRequests = async (req, res) => {
                     total: count,
                     limit: parseInt(limit)
                 }
-            }
-        });
+            });
     } catch (err) {
         console.error('VIP 요청 목록 조회 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to retrieve VIP request list',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };
 
@@ -406,9 +392,10 @@ exports.getSystemStats = async (req, res) => {
         const vipUsers = await User.count({ where: { role: 'VIP' } });
         const adminUsers = await User.count({ where: { role: '관리자' } });
 
-        res.json({
-            success: true,
-            data: {
+        sendSuccess(res, 200, RESPONSE_CODES.SUCCESS.ADMIN_STATS_GET,
+            'System statistics retrieved successfully',
+            '시스템 통계를 성공적으로 조회했습니다',
+            {
                 overview: {
                     totalUsers,
                     totalRestaurants,
@@ -431,13 +418,12 @@ exports.getSystemStats = async (req, res) => {
                     vip: vipUsers,
                     admin: adminUsers
                 }
-            }
-        });
+            });
     } catch (err) {
         console.error('시스템 통계 조회 실패:', err);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.'
-        });
+        sendError(res, 500, RESPONSE_CODES.ERROR.DATABASE_ERROR,
+            'Failed to retrieve system statistics',
+            '서버 오류가 발생했습니다',
+            err.message);
     }
 };

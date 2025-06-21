@@ -26,6 +26,9 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { authenticateToken } = require('./middlewares/auth');
 const { contextMiddleware } = require('./middlewares/contextMiddleware');
+const businessRoutes = require('./routes/businessRoutes');
+const restaurantsRoutes = require('./routes/restaurants');
+const { responseTimeTracker, metricsEndpoint } = require('./middlewares/monitoring');
 // const users = require('./routes/users'); // 불필요, 주석 처리
 
 const app = express();
@@ -36,13 +39,22 @@ const notificationServer = new NotificationServer(server);
 
 // 미들웨어 설정
 app.use(cors({
-  origin: [process.env.CORS_ORIGIN || 'http://localhost:3000', 'http://localhost:5173'],
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://223.130.155.88:5174',
+    'https://eieconcierge.com',
+    'https://www.eieconcierge.com'
+  ],
   credentials: true
 }));
 app.use(express.json());
 app.use(morgan('combined', { stream: { write: msg => logger.info(msg.trim()) } }));
 app.use(helmet());
 app.use(globalQuota); // 전역 요청 제한 미들웨어 적용
+
+// 모니터링 미들웨어 적용
+app.use(responseTimeTracker);
 
 // app.js -> quota.js 로 이동 후 주석 처리
 // const limiter = rateLimit({
@@ -63,14 +75,14 @@ apiRouter.use(contextMiddleware);
 
 // 기존 라우트들을 apiRouter에 연결
 apiRouter.use('/users', userRoutes);
-apiRouter.use('/restaurants', require('./routes/restaurants'));
+apiRouter.use('/api/restaurants', restaurantsRoutes);
 apiRouter.use('/reservations', require('./routes/reservations'));
 apiRouter.use('/reviews', require('./routes/reviewRoutes'));
 apiRouter.use('/favorites', require('./routes/favoriteRoutes'));
 apiRouter.use('/vip-requests', require('./routes/vipRequests'));
 apiRouter.use('/payments', require('./routes/payments'));
 apiRouter.use('/admin', requireRole(['관리자']), require('./routes/admin'));
-apiRouter.use('/business', require('./routes/businessRoutes'));
+apiRouter.use('/api/business', businessRoutes);
 
 // 메인 앱에 apiRouter 연결
 app.use('/api', apiRouter);
@@ -79,8 +91,18 @@ app.use('/api', apiRouter);
 // app.get('/api/restaurants', cache(300), require('./routes/restaurants'));
 // app.get('/api/restaurants/:id', cache(300), require('./routes/restaurants'));
 
+// Prometheus 메트릭스 엔드포인트
+app.get('/metrics', metricsEndpoint);
+
 // Swagger 설정
 setupSwagger(app);
+
+// 임시: Swagger JSON 생성용 엔드포인트
+app.get('/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  const specs = require('./swagger').specs;
+  res.send(specs);
+});
 
 // DB 동기화
 syncDatabase();
