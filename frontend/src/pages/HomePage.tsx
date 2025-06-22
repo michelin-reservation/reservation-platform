@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { List, AlignJustify, SortAsc } from 'lucide-react';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 import SearchBar from '../components/SearchBar';
 import RestaurantCard from '../components/RestaurantCard';
 import MapComponent from '../components/MapComponent';
@@ -52,13 +53,13 @@ const HomePage: React.FC = () => {
   const paginatedRestaurants = filteredRestaurants.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen font-serif bg-gray-50">
       <Header />
       
       <main className="container mx-auto px-4 py-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Restaurants</h1>
-          <p className="text-red-600 mt-1">미쉐린 가이드 2025</p>
+          <p className="text-red-600 font-bold text-base mt-1">미쉐린 가이드 2025</p>
         </div>
         
         <div className="mb-8">
@@ -102,6 +103,7 @@ const HomePage: React.FC = () => {
           />
         )}
       </main>
+      <Footer />
     </div>
   );
 };

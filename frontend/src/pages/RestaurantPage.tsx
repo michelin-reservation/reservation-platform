@@ -59,7 +59,7 @@ const RestaurantPage: React.FC = () => {
         <div className="absolute bottom-0 left-0 p-6 text-white">
           {restaurant.category === '미쉐린 빕구르망' && (
             <div className="bg-red-600 text-white text-xs px-2 py-1 rounded-full inline-block mb-3">
-              미쉐린 빌구르망
+              미쉐린 빕구르망
             </div>
           )}
           <h1 className="text-3xl md:text-4xl font-bold">{restaurant.nameKorean}</h1>
