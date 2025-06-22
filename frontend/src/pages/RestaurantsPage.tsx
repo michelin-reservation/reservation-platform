@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import RestaurantCard from '../components/RestaurantCard';
 import Pagination from '../components/Pagination';
+import MapComponent from '../components/MapComponent';
 import { restaurants } from '../data/restaurants';
 import { Restaurant } from '../types';
 
@@ -20,28 +21,28 @@ const RestaurantsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSort, setActiveSort] = useState('default');
   const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>(restaurants);
-  
+
   useEffect(() => {
     let result = [...restaurants];
-    
+
     // 검색 필터 적용
     if (searchQuery) {
-      result = result.filter(restaurant => 
+      result = result.filter(restaurant =>
         restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         restaurant.nameKorean.toLowerCase().includes(searchQuery.toLowerCase()) ||
         restaurant.address.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-    
+
     // 정렬 적용
     if (activeSort === 'a-z') {
       result.sort((a, b) => a.name.localeCompare(b.name));
     }
-    
+
     setFilteredRestaurants(result);
     setCurrentPage(1); // 필터 변경 시 첫 페이지로
   }, [searchQuery, activeSort]);
-  
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
@@ -68,11 +69,10 @@ const RestaurantsPage: React.FC = () => {
                 <button
                   key={option.id}
                   onClick={() => setActiveSort(option.id)}
-                  className={`px-3 py-2 rounded-md text-sm flex items-center ${
-                    activeSort === option.id 
-                      ? 'bg-red-600 text-white' 
+                  className={`px-3 py-2 rounded-md text-sm flex items-center ${activeSort === option.id
+                      ? 'bg-red-600 text-white'
                       : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   <span className="mr-1">{option.icon}</span>
                   {option.name}
@@ -81,13 +81,18 @@ const RestaurantsPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        <div className="mb-8">
+          <MapComponent restaurants={filteredRestaurants} />
+        </div>
+
         <div className={`grid ${activeSort === 'list' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'} gap-6`}>
           {paginatedRestaurants.map(restaurant => (
             <RestaurantCard key={restaurant.id} restaurant={restaurant} />
           ))}
         </div>
         {totalPages > 1 && (
-          <Pagination 
+          <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
@@ -98,4 +103,4 @@ const RestaurantsPage: React.FC = () => {
   );
 };
 
-export default RestaurantsPage; 
+export default RestaurantsPage;
