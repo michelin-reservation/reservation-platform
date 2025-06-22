@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middlewares/auth');
-const { requireRole } = require('../middlewares/role');
+const requireRole = require('../middlewares/role');
 const vipRequestController = require('../controllers/vipRequestController');
 
 // VIP 요청 등록
