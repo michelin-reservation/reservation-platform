@@ -26,8 +26,8 @@ const Header: React.FC = () => {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-red-700 font-bold text-2xl tracking-tight">
-          EIE
+        <Link to="/" className="text-red-700 font-serif font-bold text-2xl tracking-tight">
+          EIE Concierge
         </Link>
         
         <div className="md:hidden">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 import { X, Calendar, MapPin, Clock, Phone, Search } from 'lucide-react';
 import ReservationModal from '../components/ReservationModal';
 
@@ -649,6 +650,7 @@ const ConciergeServices: React.FC = () => {
           );
         })}
       </main>
+      <Footer />
 
       {/* Detail Modal */}
       {isDetailModalOpen && selectedPromotion && (
@@ -756,6 +758,7 @@ const ConciergeServices: React.FC = () => {
           restaurantName={restaurantName}
         />
       )}
+      
     </div>
   );
 };
