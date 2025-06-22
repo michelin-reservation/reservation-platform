@@ -1,5 +1,6 @@
 import { register, Counter, Histogram } from 'prom-client';
 import responseTime from 'response-time';
+import { Request, Response } from 'express';
 
 // API 요청 카운터
 export const requestCounter = new Counter({
@@ -17,19 +18,18 @@ export const responseTimer = new Histogram({
 });
 
 // 응답 시간을 측정하고 메트릭을 기록하는 미들웨어
-export const responseTimeTracker = responseTime((req, res, time) => {
-    if (req?.route?.path) {
-        const route = req.route.path;
-        const method = req.method;
-        const statusCode = res.statusCode;
+export const responseTimeTracker = responseTime((req: Request, res: Response, time: number) => {
+    const route = req.route?.path ?? req.originalUrl;
+    if (route && req.method) {
+        const statusCode = res.statusCode.toString();
 
-        responseTimer.labels(method, route, statusCode).observe(time / 1000); // 초 단위로 변환
-        requestCounter.labels(method, route, statusCode).inc();
+        responseTimer.labels(req.method, route, statusCode).observe(time / 1000); // 초 단위로 변환
+        requestCounter.labels(req.method, route, statusCode).inc();
     }
 });
 
 // /metrics 엔드포인트에서 메트릭을 노출
-export const metricsEndpoint = (req, res) => {
+export const metricsEndpoint = (req: Request, res: Response) => {
     res.set('Content-Type', register.contentType);
     res.end(register.metrics());
 };

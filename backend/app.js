@@ -1,5 +1,5 @@
 require('dotenv').config();
-console.log('DB_USERNAME:', process.env.DB_USERNAME);
+console.log('DB_USER:', process.env.DB_USER);
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('현재 경로:', process.cwd());
 
@@ -75,14 +75,14 @@ apiRouter.use(contextMiddleware);
 
 // 기존 라우트들을 apiRouter에 연결
 apiRouter.use('/users', userRoutes);
-apiRouter.use('/api/restaurants', restaurantsRoutes);
+apiRouter.use('/restaurants', restaurantsRoutes);
 apiRouter.use('/reservations', require('./routes/reservations'));
 apiRouter.use('/reviews', require('./routes/reviewRoutes'));
 apiRouter.use('/favorites', require('./routes/favoriteRoutes'));
 apiRouter.use('/vip-requests', require('./routes/vipRequests'));
 apiRouter.use('/payments', require('./routes/payments'));
 apiRouter.use('/admin', requireRole(['관리자']), require('./routes/admin'));
-apiRouter.use('/api/business', businessRoutes);
+apiRouter.use('/business', businessRoutes);
 
 // 메인 앱에 apiRouter 연결
 app.use('/api', apiRouter);
