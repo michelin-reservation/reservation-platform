@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middlewares/auth');
-const { requireRole } = require('../middlewares/role');
+const requireRole = require('../middlewares/role');
 const adminController = require('../controllers/adminController');
 const vipRequestController = require('../controllers/vipRequestController');
 
 /**
  * @swagger
- * /admin/dashboard:
+ * /api/admin/dashboard:
  *   get:
  *     summary: 관리자 대시보드 데이터 조회
  *     tags: [Admin]
@@ -25,7 +25,7 @@ router.get('/dashboard', authenticateToken, requireRole(['관리자']), adminCon
 
 /**
  * @swagger
- * /admin/users:
+ * /api/admin/users:
  *   get:
  *     summary: 모든 사용자 목록 조회
  *     tags: [Admin]
@@ -64,7 +64,7 @@ router.get('/users', authenticateToken, requireRole(['관리자']), adminControl
 
 /**
  * @swagger
- * /admin/users/{id}:
+ * /api/admin/users/{id}:
  *   get:
  *     summary: 특정 사용자 상세 정보 조회
  *     tags: [Admin]
@@ -91,7 +91,7 @@ router.get('/users/:id', authenticateToken, requireRole(['관리자']), adminCon
 
 /**
  * @swagger
- * /admin/users/{id}:
+ * /api/admin/users/{id}:
  *   delete:
  *     summary: 사용자 삭제
  *     tags: [Admin]
@@ -120,7 +120,7 @@ router.delete('/users/:id', authenticateToken, requireRole(['관리자']), admin
 
 /**
  * @swagger
- * /admin/users/{id}/role:
+ * /api/admin/users/{id}/role:
  *   put:
  *     summary: 사용자 역할 변경
  *     tags: [Admin]
@@ -160,7 +160,7 @@ router.put('/users/:id/role', authenticateToken, requireRole(['관리자']), adm
 
 /**
  * @swagger
- * /admin/reservations:
+ * /api/admin/reservations:
  *   get:
  *     summary: 모든 예약 목록 조회
  *     tags: [Admin]
