@@ -1,11 +1,13 @@
-# 미쉐린 예약 플랫폼 2025 Q2 (B2C+B2B)
+# 🍽️ 미쉐린 예약 플랫폼 2025 Q2
 
-## 프로젝트 개요
-- 미쉐린 레스토랑 예약, VIP/비즈니스 컨시어지, 리뷰, 관리자 기능 등을 제공하는 통합 예약 플랫폼입니다. 프론트엔드와 백엔드가 분리되어 있으며, 실전 운영을 위한 NAS DB, NCP 서버, CI/CD, Docker 등 현대적 인프라 전략을 적용합니다.
+> **B2C + B2B 통합 예약 플랫폼**
+> 미쉐린 레스토랑 예약, VIP 컨시어지, 리뷰 시스템을 제공하는 웹 애플리케이션입니다. 실전 운영을 위한
+NAS DB, NCP 서버, CI/CD, Docker 등 현대적 인프라 전략을 적용하였습니다.
 
-## 폴더 구조
-```
-시스템 아키텍처 다이어그램
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue.svg)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 사용자 (일반 / 기업 VIP)
         │
@@ -37,96 +39,31 @@
         │ (Docker, Nginx)│
         └───────────────┘
 
-디렉토리 구조
+## 🚀 빠른 시작
 
-michelin-reservation-platform-2025-Q2/
-├── frontend/           # React (Vite, TypeScript, TailwindCSS)
-│   └── src/
-│       ├── components/
-│       ├── pages/
-│       ├── data/
-│       ├── types/
-│       └── ...
-├── backend/            # Express API 서버 (Node.js, Sequelize)
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── config/
-│   ├── scripts/
-│   ├── common/
-│   ├── app.js
-│   ├── Dockerfile
-│   └── .env
-├── docs/               # ERD, API 명세, 전략, 회의록 등
-│   ├── ERD.md
-│   ├── API.md
-│   └── 배포.md
-├── .github/            # CI/CD 워크플로우 (GitHub Actions)
-│   └── workflows/
-│       └── ci.yml
-├── docker-compose.yml  # 전체 서비스 통합 관리
-├── README.md           # 프로젝트 설명 및 실행 가이드
-└── 기타 설정 파일들 ...
+### 1. 환경 설정
+```bash
+# 프로젝트 클론
+git clone <repository-url>
+cd michelin-reservation-platform-2025-Q2
+
+# 환경변수 설정
+cp docs/env.example backend/.env
+cp docs/env.example frontend/.env
 ```
-
-## 실무 환경 즉시 구축 가이드 (운영자용)
-- `npm install`만 하면 모든 의존성 자동 설치
-- `.env` 파일(backend, frontend 각각) docs/env.example 참고해 복사/수정
-- `pm2 start ecosystem.config.js`로 서버 무중단 자동 실행
-- `pm2 logs/monit/list`로 실시간 모니터링 및 관리
-- 운영/개발 환경, Sentry, Prometheus, Grafana, Slack 등 모두 README/docs에 가이드 반영
-- 운영자는 위 사용법만 따르면 실무 환경을 바로 구축 가능
-
-## 주요 운영/개발 스크립트 매핑 표 (실무 표준)
-
-| 명령어                       | 실제 동작/설명                                                                                 | 용도/비고                       |
-|------------------------------|-----------------------------------------------------------------------------------------------|---------------------------------|
-| **npm start**                | `NODE_ENV=production node app.js`                                                             | 운영 환경 서버 실행(기본)        |
-| **npm run start:pm2**        | `NODE_ENV=production pm2 start app.js --name michelin-backend`                                | 운영 환경 무중단(PM2) 실행       |
-| **npm run dev**              | `NODE_ENV=development nodemon app.js`                                                         | 개발 환경 서버 실행(핫리로드)    |
-| **npm test**                 | `NODE_ENV=test jest --detectOpenHandles`                                                      | 테스트 코드 실행                |
-| **npm run test:watch**       | `jest --watch`                                                                                | 테스트 코드 변경 감지 자동 실행  |
-| **npm run lint**             | `eslint .`                                                                                    | 코드 린트(문법/스타일 검사)      |
-| **npm run lint:fix**         | `eslint . --fix`                                                                              | 코드 린트 자동 수정             |
-| **npm run prettier**         | `prettier --check .`                                                                          | 코드 포맷 검사                  |
-| **npm run prettier:fix**     | `prettier --write .`                                                                          | 코드 포맷 자동 정리             |
-| **npm run db:migrate**       | `sequelize-cli db:migrate`                                                                    | DB 마이그레이션(스키마 적용)     |
-| **npm run db:seed**          | `sequelize-cli db:seed:all`                                                                   | DB 시드 데이터 삽입             |
-| **npm run db:reset**         | `sequelize-cli db:migrate:undo:all && sequelize-cli db:migrate && sequelize-cli db:seed:all`  | DB 전체 리셋 및 시드            |
-| **npm run db:status**        | `sequelize-cli db:migrate:status`                                                             | DB 마이그레이션 상태 확인        |
-| **npm run validate:env**     | `node scripts/validate-env.js`                                                                | 필수 환경변수 체크              |
-| **npm run security:check**   | `npm audit`                                                                                   | 보안 취약점 검사                |
-| **npm run security:fix**     | `npm audit fix`                                                                               | 보안 취약점 자동 수정           |
-| **npm run seed**             | `node seeders/restaurantSeeder.js`                                                            | 레스토랑 시드 데이터 삽입        |
-
-> 위 명령어들은 운영/개발/테스트/품질/DB/보안 등 실무에 필요한 모든 작업을 명확하게 분리하여 관리할 수 있도록 설계되어 있습니다.
-> 운영자는 이 표를 참고하여 환경에 맞는 명령어만 실행하면 됩니다.
-
-## 실무 표준 8단계 업그레이드 로드맵
-1. 관리자 인증 미들웨어 도입 (isAdmin, /api/admin 보호)
-2. 에러 핸들러 및 에러 표준화 (errorHandler, 일관된 에러 응답)
-3. Swagger 문서 자동화 (swagger.yaml, Swagger UI 연동)
-4. Controller-Service 분리 (user, 알림, 예약, 리뷰 등)
-5. 테스트 커버리지 확장 (user/notification/reservation/review 등, 정상/실패 케이스)
-6. 보안 미들웨어 추가 (helmet, express-rate-limit)
-7. RESTful 라우팅 개선 (상세/수정/삭제까지 반영)
-8. 운영/모니터링 도구 연동 (winston, morgan, Sentry, Prometheus, pm2, README 가이드)
-
-## 실행 방법
-### 1. 환경변수 설정
-- `.env` 파일을 backend, frontend 각각에 생성 (예시는 docs/env.example 참고)
-- 운영환경은 `.env.production` 등 별도 파일로 분리, 민감정보는 Git에 커밋 금지
 
 ### 2. 의존성 설치
 ```bash
+# 백엔드
 cd backend && npm install
+
+# 프론트엔드
 cd ../frontend && npm install
 ```
 
-### 3. 서버 실행 (개발/운영)
+### 3. 서버 실행
 ```bash
-# 개발
+# 개발 환경
 cd backend && npm run dev
 cd ../frontend && npm run dev
 
@@ -137,13 +74,11 @@ pm2 monit
 ```
 
 ### 4. 접속
-- 프론트: http://localhost:5173
-- 백엔드: http://localhost:8000
+- **프론트엔드**: http://localhost:5173
+- **백엔드 API**: http://localhost:8000
+- **API 문서**: http://localhost:8000/api-docs
 
-## 기술스택
-- 프론트: Vite, React, TypeScript, Tailwind CSS, Naver Map API
-- 백엔드: Node.js, Express, Sequelize, MySQL, JWT, dotenv
-- 기타: Docker, CI/CD, Github Actions(예정)
+---
 
 ## 배포
 - Docker, CI/CD, 클라우드 환경 지원 예정
@@ -153,254 +88,244 @@ pm2 monit
 2. 커밋 메시지: feat/fix/docs/chore 등 prefix 사용
 3. 코드 리뷰 및 병합
 
-## 문의
-- 담당자: juns
-- 이메일: junexi0828@gmail.com
-
-### 개발자 참고사항.
-## 문서/명세
-- [ERD/DB 구조](./docs/erd.md)
-- [API 명세서](./docs/api.md)
-- [플로우차트](./docs/flowchart1.png)
-- [환경변수 예시](./docs/env.example)
-
-## 운영/모니터링 자동화 가이드 (실무 표준)
-
-### 1. Prometheus (서버/지표 모니터링)
-- Prometheus 서버 설치(운영팀/인프라팀)
-- `scrape_configs`에 `/metrics` 엔드포인트 등록
-  예시:
-  ```yaml
-  scrape_configs:
-    - job_name: 'michelin-api'
-      static_configs:
-        - targets: ['your-api-server:3000']
-  ```
-- `/metrics` 엔드포인트는 코드에 이미 구현되어 있음
-
-### 2. pm2 (Node.js 프로세스 관리/모니터링)
-- 운영 서버에서 pm2 설치: `npm install pm2 -g`
-- 앱 실행: `pm2 start backend/app.js --name michelin-api`
-- (권장) `ecosystem.config.js`로 자동화:
-  ```js
-  module.exports = {
-    apps: [{
-      name: 'michelin-api',
-      script: './backend/app.js',
-      instances: 1,
-      autorestart: true,
-      watch: false,
-      max_memory_restart: '1G',
-      env: { NODE_ENV: 'production' }
-    }]
-  }
-  ```
-  실행: `pm2 start ecosystem.config.js`
-- 실시간 모니터링: `pm2 monit`
-- 로그 확인: `pm2 logs`
-
-### 3. Sentry (에러 추적/알림)
-- [Sentry 가입 및 프로젝트 생성](https://sentry.io/)
-- 운영/개발 환경별로 Sentry 프로젝트를 분리하여 DSN을 각각 발급받아 .env에 등록
-  - 예시:
-    - SENTRY_DSN_PROD=운영용_DSN
-    - SENTRY_DSN_DEV=개발용_DSN
-- 코드에서 NODE_ENV 값에 따라 자동으로 DSN이 분기 적용됨
-- 에러 발생 시 환경별 Sentry 대시보드에 각각 저장
-- Sentry 대시보드에서 Slack 워크스페이스/채널 연동 가능
-- Sentry에서 에러 발생 시 Slack 채널로 실시간 알림 전송
-- 운영/개발 환경 모두 실시간 장애 감지 및 대응 가능
-
-### 4. 로그 (winston + morgan)
-- 모든 로그는 `logs/error.log`, `logs/combined.log`에 저장
-- 운영환경에서는 파일, 개발환경에서는 콘솔 컬러 출력
-- 로그 파일은 주기적으로 확인/백업/모니터링
-
-### 5. Prometheus & Grafana 설치/실행 자동화 가이드
-- macOS/Homebrew 기준:
-```bash
-brew install prometheus
-grafana
-```
-- prometheus.yml 예시:
-```yaml
-global:
-  scrape_interval: 15s
-scrape_configs:
-  - job_name: 'michelin-backend'
-    static_configs:
-      - targets: ['localhost:8000']
-```
-- Prometheus 실행: `prometheus --config.file=./prometheus.yml`
-- Grafana 실행: `brew services start grafana`
-- Grafana에서 Prometheus 데이터소스 등록, 대시보드 생성
-
----
-## 실무 운영 배포 체크리스트
-- 운영/개발 환경변수 분리: `.env`, `.env.production`
-- CORS: 운영 프론트 도메인만 허용
-- HTTPS: 운영 서버는 반드시 HTTPS 적용
-- 보안: .env, .env.production 등은 Git에 커밋하지 않기
-- 빌드/배포: 프론트는 정적 파일, 백엔드는 pm2/Docker로 배포
-- 자동화: GitHub Actions 등으로 CI/CD 구축
-- 모니터링/로깅: winston, Sentry, Prometheus 등으로 관리
+### 기술 스택
+- **프론트엔드**: React 18, TypeScript, Vite, Tailwind CSS
+- **백엔드**: Node.js, Express, Sequelize, JWT
+- **데이터베이스**: MySQL/MariaDB
+- **인프라**: Docker, PM2, GitHub Actions
+- **모니터링**: Sentry, Prometheus, Grafana
 
 ---
 
-## 데이터 변환 및 시드 실행
+## 📁 프로젝트 구조
 
-### 1. 프론트엔드 TS → 백엔드 JSON 변환
-
-운영 데이터(레스토랑 전체 정보)는 `frontend/src/data/restaurants.ts`에 TypeScript 배열로 관리됩니다. 이 데이터를 백엔드에서 사용할 수 있도록 JSON으로 변환하는 실무 표준 스크립트가 제공됩니다.
-
-#### Babel 파서 기반 변환 스크립트
-- TypeScript/JS 문법을 안전하게 파싱하여, export/주석/타입 등 불필요 요소를 자동 제거
-- Babel 공식 파서(@babel/parser) 사용
-- 내부 데이터 변환용으로 안전하게 설계
-
-**의존성 설치(최초 1회):**
-```bash
-cd backend
-npm install @babel/parser
 ```
-
-**변환 실행:**
-```bash
-cd backend
-node scripts/convertRestaurants.js
+michelin-reservation-platform-2025-Q2/
+├── frontend/                 # React 프론트엔드
+│   ├── src/
+│   │   ├── components/       # 재사용 컴포넌트
+│   │   ├── pages/           # 페이지 컴포넌트
+│   │   ├── api/             # API 통신
+│   │   └── types/           # TypeScript 타입
+│   └── package.json
+├── backend/                  # Express 백엔드
+│   ├── controllers/         # 컨트롤러
+│   ├── models/             # 데이터 모델
+│   ├── routes/             # API 라우트
+│   ├── middleware/         # 미들웨어
+│   ├── scripts/            # 자동화 스크립트
+│   └── package.json
+├── docs/                    # 📚 기술 문서
+│   ├── DocsReadme.md       # 문서 가이드
+│   ├── system-architecture.md
+│   ├── api-specification.md
+│   ├── database-design.md
+│   └── user-operations-guide.md
+├── helm/                    # Kubernetes 배포
+├── docker-compose.yml       # Docker 구성
+└── README.md               # 이 파일
 ```
-- 변환 성공 시 `backend/data/restaurants.json` 파일이 생성됩니다.
-- 변환 스크립트는 TypeScript 파일 내 export/주석/트레일링 콤마 등도 자동 처리합니다.
-
-### 2. 시드 스크립트 실행 (환경별 데이터 파일 지정 가능)
-
-```bash
-# 개발 환경 예시
-DATA_FILE=../data/restaurants.json node seeders/restaurantSeeder.js
-
-# 운영 환경 예시 (예: prod 데이터 파일이 따로 있을 경우)
-DATA_FILE=../data/restaurants.prod.json node seeders/restaurantSeeder.js
-```
-- Prisma upsert로 중복 없이 안전하게 데이터 삽입/갱신
-- 메뉴도 자동 upsert 처리
-
-### 3. 전체 실무 표준 흐름
-1. 프론트엔드 데이터 최신화 → 변환 스크립트 실행
-2. 시드 스크립트로 DB 최신화
-3. API/프론트엔드 연동
-
-> 데이터 구조/스키마가 변경될 경우, 변환 스크립트와 시드 스크립트도 함께 점검/수정 필요
-
-## 프론트엔드 필수 의존성 설치 안내
-
-### recharts (통계/비즈니스 대시보드 시각화)
-
-통계 및 비즈니스 대시보드 페이지에서 recharts가 필수로 사용됩니다. 아래 명령어로 반드시 설치해 주세요.
-
-```bash
-cd frontend
-npm install recharts
-```
-
-(recharts는 타입스크립트 내장 타입을 제공합니다. 별도 @types 패키지 필요 없음)
-
-## scripts/ 자동화 스크립트 구조 및 사용법
-
-### 📁 scripts/ 하위 구조
-```
-backend/scripts/
-├── dev.sh                # 개발 환경 자동화
-├── deploy.sh             # 운영 배포 자동화
-├── test.sh               # 테스트 환경 자동화
-├── env.sh                # 공통 환경 변수/유틸리티
-├── validate-env.js       # 환경변수 검증
-├── convertRestaurants.js # 데이터 변환 (TS→JSON)
-├── importData.js         # 데이터 이관
-├── seedRestaurants.js    # 샘플 데이터 시드
-├── monitoring/
-│   └── monitor.sh        # 시스템/서비스 모니터링
-├── scenario/
-│   └── reservation.sh    # 예약 플로우 E2E 테스트
-└── utils/
-    └── env.sh            # Bash 공통 함수
-```
-
-### 🛠️ 주요 스크립트별 간단 설명 및 사용 예시
-
-| 스크립트                      | 설명                                 | 사용 예시 명령어                       |
-|-------------------------------|--------------------------------------|----------------------------------------|
-| dev.sh                        | 개발 환경 자동 세팅/서버 실행         | `bash scripts/dev.sh`                  |
-| deploy.sh                     | 운영 배포 자동화                     | `bash scripts/deploy.sh`               |
-| test.sh                       | 테스트 환경 자동화                   | `bash scripts/test.sh`                 |
-| validate-env.js               | .env 환경변수 필수값 검증             | `node scripts/validate-env.js`         |
-| convertRestaurants.js         | TS 데이터 → JSON 변환                | `node scripts/convertRestaurants.js`   |
-| importData.js                 | 프론트 데이터 → 백엔드 이관           | `node scripts/importData.js`           |
-| seedRestaurants.js            | 샘플 레스토랑 데이터 시드             | `node scripts/seedRestaurants.js`      |
-| monitoring/monitor.sh         | 시스템/서비스 상태 모니터링           | `bash scripts/monitoring/monitor.sh`   |
-| scenario/reservation.sh       | 예약 플로우 E2E API 테스트            | `bash scripts/scenario/reservation.sh` |
-| utils/env.sh                  | Bash 공통 함수 (source로만 사용)      | (다른 .sh에서 source로 불러옴)         |
-
-### 💡 참고
-- 각 스크립트는 실행 전 `.env` 등 환경변수, DB, 의존성 등이 올바르게 세팅되어 있어야 합니다.
-- 상세 옵션/에러 발생 시 각 스크립트 내 주석 및 로그를 참고하세요.
-- scripts/ 구조는 실무 SaaS/DevOps 자동화 표준에 맞춰 설계되어 있습니다.
-
-## 환경 변수 및 설정 관리 정책
-
-### 1. 기본: .env 기반 단일화 (실무 표준)
-- 모든 환경 변수는 `.env` 파일(및 `.env.development`, `.env.production` 등)로 관리합니다.
-- 배포/운영/테스트 환경별로 별도의 .env 파일을 사용하세요.
-- secrets, DB 정보, API 키 등은 반드시 .env에만 작성하고, git에는 올리지 않습니다.
-
-#### 실행 예시
-```bash
-bash scripts/dev.sh
-# 또는
-NODE_ENV=production bash scripts/dev.sh
-```
-
-### 2. 혼합 구조(확장): config.json 병행 (대규모/특수 정책)
-- 대규모/복잡한 정책이 필요할 때만 사용합니다.
-- `config/config.$NODE_ENV.json` 파일을 추가하고, 아래처럼 실행합니다.
-
-#### 실행 예시
-```bash
-ENABLE_CONFIG_JSON=1 bash scripts/dev.sh
-```
-- 이 경우 .env와 config.json이 모두 로드됩니다.
-- config 파일이 없으면 경고만 출력되고 .env만 사용됩니다.
-
-### 3. .env.example 관리
-- `.env.example` 파일을 참고하여 실제 `.env` 파일을 생성하세요.
-- secrets, 민감정보는 반드시 실제 .env에만 작성하세요.
-
-### 4. .gitignore 정책
-- `.env`, `.env.*` 파일은 반드시 gitignore에 포함되어야 합니다.
-- `.env.example`만 git에 포함하여 템플릿으로 사용하세요.
-
-### 5. 실무 권장 구조
-```
-project-root/
-├── .env                # 실제 환경 변수 (gitignore)
-├── .env.development    # 개발용 (gitignore)
-├── .env.production     # 운영용 (gitignore)
-├── backend/
-│   ├── config/
-│   │   └── config.production.json (선택, 혼합 구조 시)
-│   └── scripts/
-│       └── dev.sh
-└── frontend/
-```
-
-### 6. 주요 환경 변수 예시
-- DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
-- JWT_SECRET, REDIS_URL, SENTRY_DSN_*, NAVER_CLIENT_ID 등
-- 자세한 항목은 `.env.example` 참고
 
 ---
 
-> **TIP:**
-> - 기본은 .env 기반 단일화로 운영하세요.
-> - 대규모/특수 정책 필요시 ENABLE_CONFIG_JSON=1로 혼합 구조 확장 가능합니다.
-> - 모든 팀원은 .env.example을 참고해 .env를 직접 생성해야 합니다.# Test CI/CD
-# NCP 배포 테스트
+## 🛠️ 주요 명령어
+
+### 개발
+```bash
+npm run dev          # 개발 서버 실행
+npm run build        # 프로덕션 빌드
+npm test             # 테스트 실행
+npm run lint         # 코드 린트
+```
+
+### 데이터베이스
+```bash
+npm run db:migrate   # 마이그레이션 실행
+npm run db:seed      # 시드 데이터 삽입
+npm run db:reset     # DB 초기화
+```
+
+### 운영
+```bash
+pm2 start ecosystem.config.js    # PM2로 서버 실행
+pm2 logs                         # 로그 확인
+pm2 monit                        # 모니터링
+```
+
+---
+
+## 📚 문서
+
+### 핵심 문서 (5개)
+- **[📊 시스템 아키텍처](docs/system-architecture.md)** - 전체 시스템 구조
+- **[📋 API 명세서](docs/api-specification.md)** - REST API 상세 명세
+- **[🗄️ 데이터베이스 설계서](docs/database-design.md)** - DB 스키마 및 관계
+- **[🚀 운영 가이드](docs/user-operations-guide.md)** - 배포 및 운영 매뉴얼
+- **[📖 기술 백서](docs/technical-whitepaper.md)** - 기술적 구현 상세
+
+### 참고 문서
+- [ERD 다이어그램](docs/erd.md)
+- [CI/CD 설정](docs/ci-cd-setup.md)
+- [배포 가이드](docs/deployment-guide.md)
+- [백업/복구 가이드](docs/backup-restore-guide.md)
+
+---
+
+## 🎯 주요 기능
+
+### 🍽️ 레스토랑 관리
+- 미쉐린 레스토랑 정보 조회
+- 메뉴 및 가격 정보
+- 위치 기반 검색 (네이버 지도 API)
+
+### 📅 예약 시스템
+- 실시간 예약 가능 시간 확인
+- 예약 생성/수정/취소
+- 예약 알림 및 리마인더
+
+### ⭐ 리뷰 시스템
+- 사용자 리뷰 작성/조회
+- 별점 및 태그 기반 평가
+- 사진 업로드 지원
+
+### 💼 VIP 컨시어지
+- 기업 VIP 전용 서비스
+- 맞춤형 일정 관리
+- 전담 컨시어지 지원
+
+### 🔧 관리자 기능
+- 레스토랑 정보 관리
+- 예약 현황 모니터링
+- 사용자 관리 및 통계
+
+---
+
+## 🔧 개발 환경 설정
+
+### 필수 요구사항
+- Node.js 18+
+- MySQL 8.0+
+- Redis (선택사항)
+
+### 환경변수 설정
+```bash
+# backend/.env
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=michelin
+DB_USER=your_username
+DB_PASSWORD=your_password
+JWT_SECRET=your_jwt_secret
+```
+
+### 데이터베이스 설정
+```bash
+# MySQL 접속
+mysql -u root -p
+
+# 데이터베이스 생성
+CREATE DATABASE michelin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+# 마이그레이션 실행
+cd backend && npm run db:migrate
+```
+
+---
+
+## 🚀 배포
+
+### Docker 배포
+```bash
+# 전체 서비스 실행
+docker-compose up -d
+
+# 개별 서비스 실행
+docker build -t michelin-backend ./backend
+docker run -p 8000:8000 michelin-backend
+```
+
+### PM2 배포
+```bash
+# 운영 환경 실행
+pm2 start ecosystem.config.js --env production
+
+# 모니터링
+pm2 monit
+pm2 logs
+```
+
+### Kubernetes 배포
+```bash
+# Helm 차트 배포
+helm upgrade --install backend ./helm/backend
+helm upgrade --install frontend ./helm/frontend
+```
+
+---
+
+## 📊 모니터링
+
+### 로그 확인
+```bash
+# PM2 로그
+pm2 logs
+
+# 파일 로그
+tail -f logs/combined.log
+tail -f logs/error.log
+```
+
+### 메트릭 확인
+- **Prometheus**: http://localhost:8000/metrics
+- **Grafana**: http://localhost:3000
+- **Sentry**: 에러 추적 및 알림
+
+---
+
+## 🤝 기여 방법
+
+1. **이슈 등록**: 버그 리포트 또는 기능 요청
+2. **브랜치 생성**: `git checkout -b feature/your-feature`
+3. **코드 작성**: 기능 구현 및 테스트
+4. **PR 생성**: 코드 리뷰 요청
+5. **병합**: 리뷰 승인 후 병합
+
+### 커밋 컨벤션
+```
+feat: 새로운 기능 추가
+fix: 버그 수정
+docs: 문서 수정
+style: 코드 포맷팅
+refactor: 코드 리팩토링
+test: 테스트 추가/수정
+chore: 빌드 프로세스 또는 보조 도구 변경
+```
+
+---
+
+## 📞 문의 및 지원
+
+### 담당자
+- **개발팀**: juns (junexi0828@gmail.com)
+- **운영팀**: EIEContect@gmail.com
+
+### 문서 관련
+- 📚 [전체 문서 보기](docs/DocsReadme.md)
+- 🐛 [이슈 등록](https://github.com/your-repo/issues)
+- 📖 [API 문서](http://localhost:8000/api-docs)
+
+---
+
+## 📄 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
+
+---
+
+<div align="center">
+
+**🍽️ 미쉐린 예약 플랫폼으로 특별한 식사 경험을 만들어보세요!**
+
+[시작하기](#-빠른-시작) • [문서 보기](docs/DocsReadme.md) • [이슈 등록](https://github.com/your-repo/issues)
+
+</div>
