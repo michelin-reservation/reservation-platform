@@ -523,3 +523,23 @@ curl -X POST https://api.michelin-reservation.com/v1/reservations \
 바로 실행해보시고, 궁금한 점이나 에러가 있으면 말씀해 주세요!
 
 *이 API 명세서는 개발팀과 클라이언트 개발자들이 API를 정확히 이해하고 구현할 수 있도록 작성되었습니다.*
+
+## 📊 🎨 관련 다이어그램 & 시각 자료
+
+<div align="center">
+
+### 🔗 **API 관련 Draw.io 다이어그램**
+
+| 📋 문서명/설명            | 🔗 파일명/경로                             | 👁️ 미리보기/설명 |
+|:------------------------:|:-----------------------------------------:|:---------------:|
+| 🔗 **API 흐름도**         | `docs/drawio/api-flow.drawio`             | ![api-flow](docs/drawio/api-flow.jpg) |
+| 🏗️ **시스템 아키텍처**     | `docs/drawio/system-architecture.drawio`  | ![system-architecture](docs/drawio/system-architecturedrawio.png) |
+| 🗄️ **ERD(데이터베이스 설계)** | `docs/drawio/erd.drawio`                  | ![erd](docs/drawio/erd-ERD.jpg) |
+
+> 💡 **💻 편집 방법**: 각 `.drawio` 파일을 [draw.io](https://app.diagrams.net/)에서 열어서 수정 가능합니다.
+
+</div>
+
+---
+
+*이 API 명세서는 개발팀과 클라이언트 개발자들이 API를 정확히 이해하고 구현할 수 있도록 작성되었습니다.*

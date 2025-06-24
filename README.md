@@ -419,8 +419,14 @@ chore: 빌드 프로세스 또는 보조 도구 변경
 ## 📞 문의 및 지원
 
 ### 담당자
-- **개발팀**: juns (junexi0828@gmail.com)
+- **개발팀**: juns [junexi0828@gmail.com]
 - **운영팀**: EIEContect@gmail.com
+- 기술 지원: juns [junexi0828@gmail.com]
+- 운영 지원: pwh[pkwon1216@gmail.com]
+- 모니터링: bbk[sigsig256@gmail.com]
+- 경영 지원: YJ[molmol1150@naver.com]\
+- 재무 관련: JH[1212131@naver.com]
+
 
 ### 문서 관련
 - 📚 [전체 문서 보기](docs/DocsReadme.md)
