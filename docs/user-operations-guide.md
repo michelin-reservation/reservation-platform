@@ -380,9 +380,9 @@ exit 1
 
 | 📋 문서명/설명            | 🔗 파일명/경로                             | 👁️ 미리보기/설명 |
 |:------------------------:|:-----------------------------------------:|:---------------:|
-| 🏗️ **시스템 아키텍처**     | `docs/drawio/system-architecture.drawio`  | ![system-architecture](docs/drawio/system-architecturedrawio.png) |
-| 🗄️ **ERD(데이터베이스 설계)** | `docs/drawio/erd.drawio`                  | ![erd](docs/drawio/erd-ERD.jpg) |
-| 🔗 **API 흐름도**         | `docs/drawio/api-flow.drawio`             | ![api-flow](docs/drawio/api-flow.jpg) |
+| 🏗️ **시스템 아키텍처**     | `docs/drawio/system-architecture.drawio`  | ![system-architecture](drawio/system-architecturedrawio.png) |
+| 🗄️ **ERD(데이터베이스 설계)** | `docs/drawio/erd.drawio`                  | ![erd](drawio/erd-ERD.jpg) |
+| 🔗 **API 흐름도**         | `docs/drawio/api-flow.drawio`             | ![api-flow](drawio/api-flow.jpg) |
 
 > 💡 **💻 편집 방법**: 각 `.drawio` 파일을 [draw.io](https://app.diagrams.net/)에서 열어서 수정 가능합니다.
 

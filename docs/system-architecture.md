@@ -329,7 +329,7 @@ Rollback (if needed)
 
 | 📋 파일명/경로                                 | 👁️ 미리보기/설명 |
 |:---------------------------------------------:|:---------------:|
-| `docs/drawio/system-architecture.drawio`      | ![system-architecture](docs/drawio/system-architecturedrawio.png) |
+| `docs/drawio/system-architecture.drawio`      | ![system-architecture](drawio/system-architecturedrawio.png) |
 
 > 💡 **💻 편집 방법**: `.drawio` 파일을 [draw.io](https://app.diagrams.net/)에서 열어서 수정 가능합니다.
 
