@@ -424,7 +424,7 @@ chore: 빌드 프로세스 또는 보조 도구 변경
 - 기술 지원: juns [junexi0828@gmail.com]
 - 운영 지원: pwh[pkwon1216@gmail.com]
 - 모니터링: bbk[sigsig256@gmail.com]
-- 경영 지원: YJ[molmol1150@naver.com]\
+- 경영 지원: YJ[molmol1150@naver.com]
 - 재무 관련: JH[1212131@naver.com]
 
 
