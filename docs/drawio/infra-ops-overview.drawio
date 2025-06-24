@@ -1,0 +1,239 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Whale/4.30.291.11 Safari/537.36" version="27.1.6">
+  <diagram name="Infra &amp; Ops Overview" id="0">
+    <mxGraphModel dx="1854" dy="1116" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="nwbox" value="네트워크 구성도" style="swimlane;fillColor=#E3F2FD;strokeColor=#1976D2;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="40" y="40" width="600" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="vpc" value="VPC" style="rounded=1;fillColor=#BBDEFB;" parent="nwbox" vertex="1">
+          <mxGeometry x="10" y="50" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="subnet" value="Public Subnet" style="rounded=1;fillColor=#E1F5FE;" parent="nwbox" vertex="1">
+          <mxGeometry x="160" y="50" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="lb" value="Load Balancer" style="rounded=1;fillColor=#FFF9C4;" parent="nwbox" vertex="1">
+          <mxGeometry x="310" y="50" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="nginx" value="Nginx (Reverse Proxy)" style="rounded=1;fillColor=#B2EBF2;" parent="nwbox" vertex="1">
+          <mxGeometry x="460" y="50" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="fw" value="방화벽(WAF)" style="rounded=1;fillColor=#FFCDD2;" parent="nwbox" vertex="1">
+          <mxGeometry x="10" y="130" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ingress" value="K8s Ingress" style="rounded=1;fillColor=#D1C4E9;" parent="nwbox" vertex="1">
+          <mxGeometry x="160" y="130" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="backendnw" value="Backend Subnet" style="rounded=1;fillColor=#E1BEE7;" parent="nwbox" vertex="1">
+          <mxGeometry x="310" y="130" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="dbnw" value="DB Subnet" style="rounded=1;fillColor=#C8E6C9;" parent="nwbox" vertex="1">
+          <mxGeometry x="460" y="130" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="redis" value="Redis" style="rounded=1;fillColor=#E1F5FE;" parent="nwbox" vertex="1">
+          <mxGeometry x="160" y="210" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="mysql" value="MySQL" style="rounded=1;fillColor=#FFFDE7;" parent="nwbox" vertex="1">
+          <mxGeometry x="310" y="210" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="filestorage" value="File Storage" style="rounded=1;fillColor=#E0F2F1;" parent="nwbox" vertex="1">
+          <mxGeometry x="460" y="210" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="logstorage" value="Log Storage" style="rounded=1;fillColor=#F8BBD0;" parent="nwbox" vertex="1">
+          <mxGeometry x="160" y="290" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="externalapi" value="외부 API&#xa;(네이버, 결제, 이메일, SMS)" style="rounded=1;fillColor=#F3E5F5;" parent="nwbox" vertex="1">
+          <mxGeometry x="310" y="290" width="270" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="nw1" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="nwbox" source="vpc" target="subnet" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nw2" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="nwbox" source="subnet" target="lb" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nw3" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="nwbox" source="lb" target="nginx" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nw4" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="nwbox" source="nginx" target="ingress" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nw5" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="nwbox" source="ingress" target="backendnw" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nw6" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="nwbox" source="backendnw" target="dbnw" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nw7" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#D84315;dashed=1;" parent="nwbox" source="fw" target="nginx" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nw8" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;" parent="nwbox" source="dbnw" target="redis" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nw9" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;" parent="nwbox" source="dbnw" target="mysql" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nw10" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;" parent="nwbox" source="dbnw" target="filestorage" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nw11" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;" parent="nwbox" source="dbnw" target="logstorage" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nw12" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;" parent="nwbox" source="backendnw" target="externalapi" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rolebox" value="권한/역할 구조도" style="swimlane;fillColor=#FFF3E0;strokeColor=#F57C00;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="700" y="40" width="400" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="admin" value="관리자(Admin)" style="ellipse;fillColor=#FFECB3;" parent="rolebox" vertex="1">
+          <mxGeometry x="30" y="60" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="business" value="비즈니스(Business)" style="ellipse;fillColor=#FFE0B2;" parent="rolebox" vertex="1">
+          <mxGeometry x="150" y="60" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vip" value="VIP" style="ellipse;fillColor=#FFF9C4;" parent="rolebox" vertex="1">
+          <mxGeometry x="270" y="60" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="user" value="일반 사용자(User)" style="ellipse;fillColor=#E1BEE7;" parent="rolebox" vertex="1">
+          <mxGeometry x="90" y="160" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="guest" value="게스트(Guest)" style="ellipse;fillColor=#E0F7FA;" parent="rolebox" vertex="1">
+          <mxGeometry x="210" y="240" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="role1" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#F57C00;" parent="rolebox" source="admin" target="business" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="role2" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#F57C00;" parent="rolebox" source="business" target="vip" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="role3" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#F57C00;" parent="rolebox" source="vip" target="user" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="role4" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#F57C00;" parent="rolebox" source="user" target="guest" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="incidentbox" value="장애 대응 플로우" style="swimlane;fillColor=#FBE9E7;strokeColor=#D84315;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="40" y="480" width="600" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="detect" value="장애 감지&#xa;(Prometheus/Sentry)" style="rounded=1;fillColor=#FFCDD2;" parent="incidentbox" vertex="1">
+          <mxGeometry x="40" y="60" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="alert" value="알림 전송&#xa;(Slack/Email/WebSocket)" style="rounded=1;fillColor=#FFE0B2;" parent="incidentbox" vertex="1">
+          <mxGeometry x="200" y="60" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="autoheal" value="자동 복구&#xa;(K8s/PM2)" style="rounded=1;fillColor=#C8E6C9;" parent="incidentbox" vertex="1">
+          <mxGeometry x="400" y="60" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="manual1" value="수동 조치&#xa;(운영자)" style="rounded=1;fillColor=#B3E5FC;" parent="incidentbox" vertex="1">
+          <mxGeometry x="200" y="140" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="report" value="장애 보고&#xa;(Slack/Email)" style="rounded=1;fillColor=#D1C4E9;" parent="incidentbox" vertex="1">
+          <mxGeometry x="400" y="140" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="inc1" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#D84315;" parent="incidentbox" source="detect" target="alert" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="inc2" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;" parent="incidentbox" source="alert" target="autoheal" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="inc3" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;dashed=1;" parent="incidentbox" source="alert" target="manual1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="inc4" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;" parent="incidentbox" source="autoheal" target="report" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="inc5" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;dashed=1;" parent="incidentbox" source="manual1" target="report" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="monbox" value="모니터링/알림 구조도" style="swimlane;fillColor=#E1F5FE;strokeColor=#0288D1;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="700" y="480" width="400" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="prom" value="Prometheus" style="rounded=1;fillColor=#B3E5FC;" parent="monbox" vertex="1">
+          <mxGeometry x="40" y="90" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="grafana" value="Grafana" style="rounded=1;fillColor=#FFF9C4;" parent="monbox" vertex="1">
+          <mxGeometry x="160" y="90" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sentry" value="Sentry" style="rounded=1;fillColor=#F8BBD0;" parent="monbox" vertex="1">
+          <mxGeometry x="40" y="170" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="alertmanager" value="AlertManager" style="rounded=1;fillColor=#C8E6C9;" parent="monbox" vertex="1">
+          <mxGeometry x="160" y="170" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="slack" value="Slack/Email" style="rounded=1;fillColor=#FFECB3;" parent="monbox" vertex="1">
+          <mxGeometry x="280" y="130" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="mon1" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#0288D1;" parent="monbox" source="prom" target="grafana" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mon2" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#0288D1;" parent="monbox" source="prom" target="alertmanager" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mon3" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#0288D1;" parent="monbox" source="sentry" target="alertmanager" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mon4" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#0288D1;" parent="monbox" source="alertmanager" target="slack" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="releasebox" value="릴리즈/버전 관리도" style="swimlane;fillColor=#F3E5F5;strokeColor=#8E24AA;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="1160" y="40" width="700" height="840" as="geometry" />
+        </mxCell>
+        <mxCell id="main" value="main (prod)" style="rounded=1;fillColor=#D1C4E9;" parent="releasebox" vertex="1">
+          <mxGeometry x="30" y="60" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="dev" value="dev (staging)" style="rounded=1;fillColor=#B3E5FC;" parent="releasebox" vertex="1">
+          <mxGeometry x="220" y="60" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="feature" value="feature/*" style="rounded=1;fillColor=#C8E6C9;" parent="releasebox" vertex="1">
+          <mxGeometry x="30" y="160" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="hotfix" value="hotfix/*" style="rounded=1;fillColor=#FFCDD2;" parent="releasebox" vertex="1">
+          <mxGeometry x="190" y="160" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="release" value="release/*" style="rounded=1;fillColor=#FFF9C4;" parent="releasebox" vertex="1">
+          <mxGeometry x="110" y="260" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="bluegreen" value="Blue-Green 배포" style="rounded=1;fillColor=#B2EBF2;" parent="releasebox" vertex="1">
+          <mxGeometry x="370" y="60" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="canary" value="Canary 배포" style="rounded=1;fillColor=#E1F5FE;" parent="releasebox" vertex="1">
+          <mxGeometry x="370" y="160" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="auto" value="자동화 승인" style="rounded=1;fillColor=#C8E6C9;" parent="releasebox" vertex="1">
+          <mxGeometry x="551" y="60" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="manual2" value="수동 승인" style="rounded=1;fillColor=#FFECB3;" parent="releasebox" vertex="1">
+          <mxGeometry x="551" y="160" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="rel1" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;" parent="releasebox" source="feature" target="dev" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel2" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;" parent="releasebox" source="hotfix" target="main" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel3" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;" parent="releasebox" source="dev" target="release" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel4" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;" parent="releasebox" source="release" target="main" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel5" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="releasebox" source="main" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="85" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel6" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="releasebox" target="canary" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="310" y="85.11111111111109" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel7" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;" parent="releasebox" source="bluegreen" target="auto" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel8" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;dashed=1;" parent="releasebox" source="canary" target="manual2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

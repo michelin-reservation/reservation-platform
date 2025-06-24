@@ -1,0 +1,102 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Whale/4.30.291.11 Safari/537.36" version="27.1.6" pages="2">
+  <diagram name="CI/CD Pipeline" id="0">
+    <mxGraphModel dx="1236" dy="744" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="commit" value="GitHub (코드 커밋/PR)" style="swimlane;fillColor=#E3F2FD;" parent="1" vertex="1">
+          <mxGeometry x="60" y="120" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ci" value="CI (GitHub Actions)\n빌드/테스트" style="swimlane;fillColor=#FFF3E0;" parent="1" vertex="1">
+          <mxGeometry x="260" y="120" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="docker" value="Docker 이미지 생성\n(backend/frontend)" style="swimlane;fillColor=#E8F5E9;" parent="1" vertex="1">
+          <mxGeometry x="480" y="120" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="registry" value="컨테이너 레지스트리\n(GitHub/Cloud)" style="swimlane;fillColor=#FFFDE7;" parent="1" vertex="1">
+          <mxGeometry x="700" y="120" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cd" value="CD (GitHub Actions)\nKubernetes/Helm 배포" style="swimlane;fillColor=#F3E5F5;" parent="1" vertex="1">
+          <mxGeometry x="920" y="120" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="approval" value="승인/수동 배포 (옵션)" style="swimlane;fillColor=#FFEBEE;" parent="1" vertex="1">
+          <mxGeometry x="920" y="220" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="monitor" value="모니터링/알림\n(Prometheus, Grafana, Sentry)" style="swimlane;fillColor=#E1F5FE;" parent="1" vertex="1">
+          <mxGeometry x="700" y="240" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;" parent="1" source="commit" target="ci" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;" parent="1" source="ci" target="docker" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;" parent="1" source="docker" target="registry" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;" parent="1" source="registry" target="cd" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;" parent="1" source="cd" target="monitor" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;dashed=1;" parent="1" source="cd" target="approval" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;dashed=1;" parent="1" source="approval" target="cd" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="CI/CD Pipeline" id="JI3Mng1Sevol9vjHH-LC">
+    <mxGraphModel dx="496" dy="593" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="commit" value="GitHub (코드 커밋/PR)" style="swimlane;fillColor=#E3F2FD;" parent="1" vertex="1">
+          <mxGeometry x="60" y="120" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ci" value="CI (GitHub Actions)\n빌드/테스트" style="swimlane;fillColor=#FFF3E0;" parent="1" vertex="1">
+          <mxGeometry x="260" y="120" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="docker" value="Docker 이미지 생성\n(backend/frontend)" style="swimlane;fillColor=#E8F5E9;" parent="1" vertex="1">
+          <mxGeometry x="480" y="120" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="registry" value="컨테이너 레지스트리\n(GitHub/Cloud)" style="swimlane;fillColor=#FFFDE7;" parent="1" vertex="1">
+          <mxGeometry x="700" y="120" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cd" value="CD (GitHub Actions)\nKubernetes/Helm 배포" style="swimlane;fillColor=#F3E5F5;" parent="1" vertex="1">
+          <mxGeometry x="920" y="120" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="approval" value="승인/수동 배포 (옵션)" style="swimlane;fillColor=#FFEBEE;" parent="1" vertex="1">
+          <mxGeometry x="920" y="220" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="monitor" value="모니터링/알림\n(Prometheus, Grafana, Sentry)" style="swimlane;fillColor=#E1F5FE;" parent="1" vertex="1">
+          <mxGeometry x="700" y="240" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;" parent="1" source="commit" target="ci" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;" parent="1" source="ci" target="docker" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;" parent="1" source="docker" target="registry" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;" parent="1" source="registry" target="cd" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;" parent="1" source="cd" target="monitor" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;dashed=1;" parent="1" source="cd" target="approval" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;dashed=1;" parent="1" source="approval" target="cd" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
