@@ -1,0 +1,248 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Whale/4.30.291.11 Safari/537.36" version="27.1.6">
+  <diagram name="API Flow" id="0">
+    <mxGraphModel dx="1685" dy="1015" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="client" value="Client (Web/Mobile)" style="swimlane;fillColor=#E3F2FD;" parent="1" vertex="1">
+          <mxGeometry x="60" y="120" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="apigw" value="API Gateway (Nginx)" style="swimlane;fillColor=#FFF3E0;" parent="1" vertex="1">
+          <mxGeometry x="260" y="120" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="backend" value="Backend (Node.js/Express)" style="swimlane;fillColor=#E8F5E9;" parent="1" vertex="1">
+          <mxGeometry x="480" y="120" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="db" value="DB (MySQL/Redis)" style="swimlane;fillColor=#FFFDE7;" parent="1" vertex="1">
+          <mxGeometry x="720" y="60" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="external" value="External Service (Naver, Payment, Email, SMS)" style="swimlane;fillColor=#F3E5F5;" parent="1" vertex="1">
+          <mxGeometry x="720" y="200" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="auth" value="인증 요청 (로그인/회원가입)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="101" y="154" as="sourcePoint" />
+            <mxPoint x="161" y="154" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="auth2" value="API 라우팅" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="164" as="sourcePoint" />
+            <mxPoint x="480" y="164" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="auth3" value="DB 조회/저장" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="1" source="backend" target="db" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="auth4" value="토큰 발급/응답" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="150" as="sourcePoint" />
+            <mxPoint x="310" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="auth5" value="응답 반환" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="260" y="164" as="sourcePoint" />
+            <mxPoint x="200" y="164" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="reserve1" value="예약 요청" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;" parent="1" edge="1">
+          <mxGeometry x="0.0063" relative="1" as="geometry">
+            <mxPoint x="200" y="188" as="sourcePoint" />
+            <mxPoint x="260" y="188" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="reserve2" value="API 라우팅" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="196" as="sourcePoint" />
+            <mxPoint x="480" y="196" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="reserve3" value="DB 예약 저장" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;" parent="1" source="backend" target="db" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="reserve4" value="외부 알림/연동" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;" parent="1" source="backend" target="external" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="reserve5" value="예약 결과 응답" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="163" as="sourcePoint" />
+            <mxPoint x="310" y="163" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="reserve6" value="응답 반환" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="260" y="199" as="sourcePoint" />
+            <mxPoint x="200" y="199" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pay1" value="결제 요청" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#FBC02D;" parent="1" edge="1">
+          <mxGeometry x="0.0063" relative="1" as="geometry">
+            <mxPoint x="200" y="123" as="sourcePoint" />
+            <mxPoint x="260" y="123" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pay2" value="API 라우팅" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#FBC02D;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="125" as="sourcePoint" />
+            <mxPoint x="480" y="125" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pay3" value="외부 결제 연동" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#FBC02D;" parent="1" source="backend" target="external" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pay4" value="DB 결제 저장" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#FBC02D;" parent="1" source="backend" target="db" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pay5" value="결제 결과 응답" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#FBC02D;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="192" as="sourcePoint" />
+            <mxPoint x="310" y="192" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pay6" value="응답 반환" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#FBC02D;" parent="1" edge="1">
+          <mxGeometry x="0.0063" relative="1" as="geometry">
+            <mxPoint x="259" y="134" as="sourcePoint" />
+            <mxPoint x="199" y="134" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="review1" value="리뷰 작성 요청" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="100" y="167" as="sourcePoint" />
+            <mxPoint x="160" y="167" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="review2" value="API 라우팅" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="419" y="149" as="sourcePoint" />
+            <mxPoint x="479" y="149" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="review3" value="DB 리뷰 저장" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;" parent="1" source="backend" target="db" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="review4" value="리뷰 결과 응답" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="177" as="sourcePoint" />
+            <mxPoint x="310" y="177" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="review5" value="응답 반환" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="259" y="150" as="sourcePoint" />
+            <mxPoint x="199" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ws" value="WebSocket Notification Server" style="swimlane;fillColor=#B3E5FC;" parent="1" vertex="1">
+          <mxGeometry x="480" y="240" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sentry" value="Sentry (Error Monitoring)" style="swimlane;fillColor=#F8BBD0;" parent="1" vertex="1">
+          <mxGeometry x="960" y="60" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="prometheus" value="Prometheus (Metrics)" style="swimlane;fillColor=#FFF9C4;" parent="1" vertex="1">
+          <mxGeometry x="960" y="140" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="pg" value="PG사 (Payment Gateway)" style="swimlane;fillColor=#FFE0B2;" parent="1" vertex="1">
+          <mxGeometry x="960" y="220" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="naver" value="Naver API" style="swimlane;fillColor=#C8E6C9;" parent="1" vertex="1">
+          <mxGeometry x="960" y="300" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="email" value="Email Service" style="swimlane;fillColor=#E1BEE7;" parent="1" vertex="1">
+          <mxGeometry x="960" y="380" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sms" value="SMS Service" style="swimlane;fillColor=#FFCDD2;" parent="1" vertex="1">
+          <mxGeometry x="960" y="460" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ws1" value="실시간 알림" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#0288D1;dashed=1;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="526" y="200" as="sourcePoint" />
+            <mxPoint x="526" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ws2" value="실시간 알림" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#0288D1;dashed=1;" parent="1" source="ws" target="client" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sen1" value="에러 전송" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#D84315;dashed=1;" parent="1" source="backend" target="sentry" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pro1" value="메트릭 수집" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#388E3C;dashed=1;" parent="1" source="backend" target="prometheus" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pg1" value="결제 연동" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#FBC02D;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="660" y="178" as="sourcePoint" />
+            <mxPoint x="1030.0000000000002" y="238" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="naver1" value="네이버 연동" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="660" y="141" as="sourcePoint" />
+            <mxPoint x="1030.0000000000002" y="281" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="email1" value="이메일 발송" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="660" y="156" as="sourcePoint" />
+            <mxPoint x="1030.0000000000002" y="376" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sms1" value="SMS 발송" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#8E24AA;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="660" y="174" as="sourcePoint" />
+            <mxPoint x="1030.0000000000002" y="474" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vipreq1" value="VIP 요청" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;dashed=1;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="200" y="175" as="sourcePoint" />
+            <mxPoint x="260" y="175" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vipreq2" value="API 라우팅" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;dashed=1;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="177" as="sourcePoint" />
+            <mxPoint x="480" y="177" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vipreq3" value="VIP 요청 저장" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;dashed=1;" parent="1" source="backend" target="db" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vipreq4" value="관리자 승인/거절" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;dashed=1;" parent="1" source="backend" target="backend" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vipreq5" value="VIP 권한 부여" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1976D2;dashed=1;" parent="1" source="backend" target="db" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vipreq6" value="실시간 알림(VIP 승인)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#0288D1;dashed=1;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="624" y="200" as="sourcePoint" />
+            <mxPoint x="624" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vipreq7" value="실시간 알림(VIP 승인)" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#0288D1;dashed=1;" parent="1" source="ws" target="client" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="authrole" value="권한 체크" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#1976D2;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="520" y="100" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="reserverole" value="권한 체크" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#388E3C;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="551" y="160" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="payrole" value="권한 체크" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#FBC02D;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="550" y="143" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="reviewrole" value="권한 체크" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#8E24AA;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="551" y="175" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="wemzeC1H-Xg0Y0TpLF-7-4" value="" style="strokeWidth=1;html=1;shape=mxgraph.flowchart.annotation_2;align=left;labelPosition=right;pointerEvents=1;" vertex="1" parent="1">
+          <mxGeometry x="940" y="67" width="20" height="400" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

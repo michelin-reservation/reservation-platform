@@ -321,4 +321,20 @@ Rollback (if needed)
 
 ---
 
+## 📊 🎨 시스템 아키텍처 다이어그램
+
+<div align="center">
+
+### 🏗️ **시스템 구조 Draw.io 다이어그램**
+
+| 📋 파일명/경로                                 | 👁️ 미리보기/설명 |
+|:---------------------------------------------:|:---------------:|
+| `docs/drawio/system-architecture.drawio`      | ![system-architecture](docs/drawio/system-architecturedrawio.png) |
+
+> 💡 **💻 편집 방법**: `.drawio` 파일을 [draw.io](https://app.diagrams.net/)에서 열어서 수정 가능합니다.
+
+</div>
+
+---
+
 *이 문서는 프로젝트의 기술적 방향성을 정의하며, 개발팀과 이해관계자들이 시스템을 이해하고 의사결정을 내리는 데 활용됩니다.*

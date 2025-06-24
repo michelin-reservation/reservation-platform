@@ -358,14 +358,35 @@ exit 1
 ## 📞 연락처 및 지원
 
 ### 담당자
-- 기술 지원: juns (junexi0828@gmail.com)
-- 운영 지원: [운영팀 연락처]
+- 기술 지원: juns [junexi0828@gmail.com]
+- 운영 지원: pwh[pkwon1216@gmail.com]
+- 모니터링: bbk[sigsig256@gmail.com]
+- 경영 지원: YJ[molmol1150@naver.com]\
+- 재무 관련: JH[1212131@naver.com]
 - EIE팀: EIEcontect@gmail.com
 
 ### 문서
 - [API 문서](./api-specification.md)
 - [ERD 문서](./erd.md)
 - [배포 가이드](./deployment-guide.md)
+
+---
+
+## 📊 🎨 주요 다이어그램 & 시각 자료
+
+<div align="center">
+
+### 🔧 **운영 관련 Draw.io 다이어그램**
+
+| 📋 문서명/설명            | 🔗 파일명/경로                             | 👁️ 미리보기/설명 |
+|:------------------------:|:-----------------------------------------:|:---------------:|
+| 🏗️ **시스템 아키텍처**     | `docs/drawio/system-architecture.drawio`  | ![system-architecture](docs/drawio/system-architecturedrawio.png) |
+| 🗄️ **ERD(데이터베이스 설계)** | `docs/drawio/erd.drawio`                  | ![erd](docs/drawio/erd-ERD.jpg) |
+| 🔗 **API 흐름도**         | `docs/drawio/api-flow.drawio`             | ![api-flow](docs/drawio/api-flow.jpg) |
+
+> 💡 **💻 편집 방법**: 각 `.drawio` 파일을 [draw.io](https://app.diagrams.net/)에서 열어서 수정 가능합니다.
+
+</div>
 
 ---
 
