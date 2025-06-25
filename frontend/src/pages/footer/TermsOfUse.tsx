@@ -5,7 +5,7 @@ import Footer from '../../components/Footer';
 
 const TermsOfUse = () => {
   return (
-    <div className="min-h-screen font-serif bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="w-full text-center px-4 py-10 bg-stone-300">
       <h1 className="text-4xl font-bold text-center text-gray-800 mt-16 mb-16">이용약관</h1>
@@ -15,7 +15,7 @@ const TermsOfUse = () => {
         <section>
           <h2 className="text-xl font-semibold mt-16 mb-4">제1조 (목적)</h2>
           <p>
-            이 약관은 (주)EIE Concierge (이하 "EIE Concierge")가 제공하는 프리미엄 외식
+            이 약관은 (주) EIE (이하 " <span className="font-serif font-medium">EIE</span> ")가 제공하는 프리미엄 외식
             컨시어지 플랫폼(웹사이트 및 앱 포함)의 이용과 관련하여 회사와
             이용자 간의 권리, 의무 및 책임 사항을 규정함을 목적으로 합니다.
           </p>
@@ -24,7 +24,7 @@ const TermsOfUse = () => {
         <section>
           <h2 className="mt-10 text-xl font-semibold mb-4">제2조 (정의)</h2>
           <ol className="list-decimal ml-6 space-y-2">
-            <li>“EIE Concierge”란 회사가 제공하는 미슐랭 레스토랑 예약 등 고급 외식 컨시어지 서비스를 의미합니다.</li>
+            <li>“ <span className="font-serif font-medium">EIE</span> ”란 회사가 제공하는 미슐랭 레스토랑 예약 등 고급 외식 컨시어지 서비스를 의미합니다.</li>
             <li>“이용자”란 본 약관에 동의하고 회사가 제공하는 서비스를 이용하는 VIP 회원을 말합니다.</li>
             <li>“제휴 카드사”란 본 서비스를 공동으로 운영하거나 혜택을 제공하는 계약 관계의 카드사를 말합니다.</li>
           </ol>
@@ -52,7 +52,7 @@ const TermsOfUse = () => {
         <section>
           <h2 className="mt-10 text-xl font-semibold mb-4">제5조 (예약 및 변경)</h2>
           <ol className="list-decimal ml-6 space-y-2">
-            <li>모든 예약은 EIE Concierge 플랫폼 또는 제휴사 경로를 통해 신청할 수 있습니다.</li>
+            <li>모든 예약은 EIE 플랫폼 또는 제휴사 경로를 통해 신청할 수 있습니다.</li>
             <li>예약 확정은 레스토랑의 승인을 기준으로 하며, 일부 예약은 사전 심사가 필요할 수 있습니다.</li>
             <li>예약 취소 및 변경은 회사가 정한 정책에 따릅니다.</li>
           </ol>

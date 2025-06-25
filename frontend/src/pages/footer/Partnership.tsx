@@ -8,47 +8,20 @@ const Partnership = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen font-serif bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <Header />
     
-      {/* 이미지 섹션 추가 */}
-      <section
-        className="w-full relative bg-black"
-        style={{
-          backgroundImage: `url(https://png.pngtree.com/background/20231101/original/pngtree-intimate-dining-experience-a-3d-render-of-a-table-for-two-picture-image_5828638.jpg)`,
-          backgroundSize: 'contain',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          height: '320px',
-        }}
-      >
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundColor: 'rgba(0,0,0,0.7)',
-            width: '100%',
-            height: '100%',
-          }}
-        />
-        <div className="relative z-10 flex items-center justify-center h-full">
-          {/* 필요하면 여기에 텍스트나 콘텐츠 추가 */}
-          <div>
-            <h1 className="text-4xl text-center font-semibold text-[#FAFAF9] mb-4">
-              파트너십 안내
-            </h1>
-            
-          </div>
-          {/* <h2 className="text-white text-2xl font-bold">프리미엄 다이닝의 순간</h2> */}
-        </div>
-      </section>
-      <div className="w-full text-center px-4 py-10 bg-neutral-200">
-        <p className="text-lg text-gray-800 font-serif font-medium leading-10 mt-6 mb-6">
-          <span className="text-2xl text-red-700 font-bold">EIE Concierge</span> 는 고급 외식 경험을 함께 만들어갈 파트너를 기다립니다.
+      <div className="w-full text-center px-4 py-16 bg-stone-300">
+        <h1 className="text-4xl font-bold text-center text-gray-800 mt-20 mb-8">파트너십 안내</h1>
+      </div>
+      <div className="w-full text-center px-4 py-10 bg-white">
+        <p className="text-lg text-gray-800 font-medium leading-10 mt-6 mb-6">
+          <span className="text-2xl text-red-700 font-serif font-bold">EIE</span> 는 고급 외식 경험을 함께 만들어갈 파트너를 기다립니다.
         </p>
-        <p className="text-lg text-gray-800 font-serif font-medium mb-2">
+        <p className="text-lg text-gray-800 font-medium mb-2">
           우리는 누구보다 손쉽고 완벽하게 연결해주는 고급 외식 컨시어지 플랫폼입니다.
         </p>
-        <p className="text-lg text-gray-800 font-serif font-bold mb-10">
+        <p className="text-lg text-gray-800 font-bold mb-10">
           이 여정을 함께 할 파트너에게 단순한 협업을 넘어, 고객 만족과 브랜드 가치의 극대화를 함께 추구하는 전략적 연계를 약속드립니다.
         </p>
       </div>
@@ -97,7 +70,7 @@ const Partnership = () => {
 
       <section className="py-16 bg-white w-full">
         <h2 className="text-2xl font-semibold text-center mb-8">파트너 혜택</h2>
-        <div className="max-w-4xl mx-auto space-y-8 px-4">
+        <div className="max-w-4xl mx-auto text-center space-y-8 px-4">
           {[
             {
               benefit: "브랜드 공동 노출 및 마케팅 협력",
@@ -128,9 +101,9 @@ const Partnership = () => {
       </section>
 
       <section className="py-16 bg-neutral-100">
-        <div className="max-w-6xl mx-auto px-6 text-center">
+        <div className="max-w-7xl mx-auto px-6 text-center">
           <h2 className="text-2xl font-semibold mb-10">제휴 절차</h2>
-          <div className="flex flex-wrap justify-center items-center gap-6">
+          <div className="grid grid-cols-[repeat(7,_auto)] items-center gap-6">
             {[
               {
                 step: "가입",
@@ -150,48 +123,32 @@ const Partnership = () => {
               },
             ].map((item, index, array) => (
               <React.Fragment key={index}>
-                <div
-                  className="bg-gray-50 rounded-lg shadow-md px-4 py-8 flex flex-col items-center text-center"
-                >
-                  <h3 className="text-lg font-bold mb-4">
-                    {item.step}
-                  </h3>
+                <div className="bg-gray-50 rounded-lg shadow-md px-4 py-8 flex flex-col items-center text-center">
+                  <h3 className="text-lg font-bold mb-4">{item.step}</h3>
                   <p className="text-gray-600">{item.description}</p>
                 </div>
                 {index < array.length - 1 && (
-                  <ChevronRightCircle className="w-8 h-8 text-gray-500" />
+                  <ChevronRightCircle className="w-8 h-8 text-gray-500 mx-4" />
                 )}
               </React.Fragment>
             ))}
           </div>
         </div>
-      </section>;
+      </section>
 
-    
-    {/* Final CTA Section */}
-    <div className="bg-gray-300 text-gray-800 text-center py-11">
-        <blockquote className="mt-6 text-lg font-medium mb-10 leading-8 pl-4">
+
+      {/* Final CTA Section */}
+      <div className="bg-gray-300 text-gray-800 text-center py-11">
+            <blockquote className="mt-6 text-lg font-medium mb-10 leading-10 pl-4">
           우리는 믿습니다. 최고의 외식은 음식이 아닌, 그 순간을 함께하는 ‘경험’에서 시작된다는 것을.<br />
-          <b>지금 " EIE Concierge " 와 함께하세요.</b>
+          <b>지금 " <span className="text-red-700 font-serif font-bold text-2xl">EIE</span> " 와 함께하세요.</b>
         </blockquote>
         <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 mb-4">
           <button
             className="bg-white text-gray-900 font-bold text-base rounded-lg py-4 px-9 hover:bg-red-700 hover:text-white transition"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/footer/about-us/about-eie')}
           >
-           브랜드 소개
-          </button>
-          <button
-            className="bg-white text-gray-900 font-bold text-base rounded-lg py-4 px-9 hover:bg-red-700 hover:text-white transition"
-            onClick={() => navigate('/footer/customer-support/service-guide')}
-          >
-            제휴 문의 안내
-          </button>
-          <button
-            className="bg-white text-gray-900 font-bold text-base rounded-lg py-4 px-9 hover:bg-red-700 hover:text-white transition"
-            onClick={() => navigate('/footer/service-contents/membership')}
-          >
-            파트너 전용 로그인
+            EIE 소개
           </button>
           <button
             className="bg-white text-gray-900 font-bold text-base rounded-lg py-4 px-9 hover:bg-red-700 hover:text-white transition"

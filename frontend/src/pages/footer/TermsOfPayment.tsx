@@ -1,23 +1,22 @@
-import React from "react";
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
 const BookingPolicy = () => {
   return (
-    <div className="min-h-screen font-serif bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="w-full text-center px-4 py-10 bg-stone-300">
-      <h1 className="text-4xl font-bold text-center text-gray-800 mt-16 mb-16">예약 및 결제 정책</h1> 
+      <h1 className="text-4xl font-bold text-center text-gray-800 mt-20 mb-8">예약 및 결제 정책</h1> 
       </div>
       <div className="max-w-4xl mx-auto">
 
         <section className="mt-16 mb-8">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">1. 예약 대상</h2>
           <p className="text-gray-600 mb-2">
-            - EIE Concierge 는 <span className="font-medium">제휴 카드사의 VIP 회원</span>을 대상으로 한 프리미엄 외식 컨시어지 서비스입니다.
+            - <span className="font-serif text-lg font-medium">EIE</span>는 <span className="font-medium">제휴 카드사의 VIP 회원</span>을 대상으로 한 프리미엄 외식 컨시어지 서비스입니다.
           </p>
           <p className="text-gray-600">
-            - 예약은 <span className="font-medium">EIE Concierge 플랫폼(앱/웹)</span>을 통해서만 신청하실 수 있으며, 사전 등록된 회원에 한해 가능합니다.
+            - 예약은 <span className="font-medium">EIE 플랫폼</span>을 통해서만 신청하실 수 있으며, 사전 등록된 회원에 한해 가능합니다.
           </p>
         </section>
 

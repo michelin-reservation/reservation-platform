@@ -23,17 +23,17 @@ const CookiePolicy: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50 font-serif">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="w-full text-center px-4 py-10 bg-stone-300">
-      <h1 className="text-4xl font-bold text-center text-gray-800 mt-16 mb-16">쿠키 설정</h1> 
+      <h1 className="text-4xl font-bold text-center text-gray-800 mt-20 mb-8">쿠키 설정</h1> 
       </div>
       <div className="max-w-4xl mx-auto px-4 py-10">
 
         <section className="mb-8">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">1. 쿠키 사용 목적</h2>
           <p className="text-gray-600">
-            EIE Concierge는 고객의 웹사이트 이용 경험을 향상시키고, 개인 맞춤형 외식 제안을 제공하기 위해 쿠키를 사용합니다. 쿠키는 사용자의 장치에 저장되는 작은 데이터 파일로, 웹사이트의 기본 기능 및 마케팅 분석에 활용됩니다.
+          <span className="font-serif text-lg font-medium">EIE</span> 는 고객의 웹사이트 이용 경험을 향상시키고, 개인 맞춤형 외식 제안을 제공하기 위해 쿠키를 사용합니다. 쿠키는 사용자의 장치에 저장되는 작은 데이터 파일로, 웹사이트의 기본 기능 및 마케팅 분석에 활용됩니다.
           </p>
         </section>
 
@@ -72,7 +72,7 @@ const CookiePolicy: React.FC = () => {
         <section className="mb-8">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">3. 쿠키 동의 및 설정</h2>
           <p className="text-gray-600 mb-4">
-            EIE Concierge 는 사용자가 쿠키 설정을 직접 관리할 수 있도록 아래와 같은 기능을 제공합니다.
+          <span className="font-serif text-lg font-medium">EIE</span>는 사용자가 쿠키 설정을 직접 관리할 수 있도록 아래와 같은 기능을 제공합니다.
           </p>
           <ul className="list-disc list-inside text-lg text-gray-700">
             <li className="mb-3">모든 쿠키 허용</li>
@@ -81,7 +81,7 @@ const CookiePolicy: React.FC = () => {
             <li className="mb-3">쿠키 설정 상세 보기 및 편집</li>
           </ul>
           <p className="mt-4 text-gray-600">
-            쿠키 설정은 언제든지 EIE Concierge 웹사이트 하단의 [쿠키 설정 관리] 창에서 변경 가능합니다.
+            쿠키 설정은 언제든지 EIE 웹사이트 하단의 [쿠키 설정 관리] 창에서 변경 가능합니다.
           </p>
         </section>
 
@@ -95,7 +95,7 @@ const CookiePolicy: React.FC = () => {
         <section className="mb-8">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">5. 제3자 제공 관련</h2>
           <p className="text-gray-600 mb-20">
-            EIE Concierge 는 일부 제휴 마케팅 서비스(예: Google Analytics, Meta Pixel)를 통해 수집된 정보를 기반으로 광고 효율을 분석할 수 있으며, 이 경우에도 사용자의 사전 동의 없이 개인정보가 제공되거나 판매되지 않습니다.
+          <span className="font-serif text-lg font-medium">EIE</span> 는 일부 제휴 마케팅 서비스(예: Google Analytics, Meta Pixel)를 통해 수집된 정보를 기반으로 광고 효율을 분석할 수 있으며, 이 경우에도 사용자의 사전 동의 없이 개인정보가 제공되거나 판매되지 않습니다.
           </p>
         </section>
 
