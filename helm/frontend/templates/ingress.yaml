@@ -1,8 +1,21 @@
 {{- if .Values.ingress.enabled -}}
+{{- $fullName := include "frontend.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+{{- if and .Values.global.ingressClassVersion .Values.ingress.className }}
+  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
+  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
+  {{- end }}
+{{- end }}
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
-  name: {{ include "frontend.fullname" . }}
+  name: {{ $fullName }}
   labels:
     {{- include "frontend.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
@@ -10,8 +23,8 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.ingress.className }}
-  ingressClassName: {{ . }}
+  {{- if and .Values.global.ingressClassVersion (semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.ingress.className }}
   {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
@@ -30,14 +43,19 @@ spec:
         paths:
           {{- range .paths }}
           - path: {{ .path }}
-            {{- with .pathType }}
-            pathType: {{ . }}
+            {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
+            pathType: {{ .pathType }}
             {{- end }}
             backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ include "frontend.fullname" $ }}
+                name: {{ $fullName }}
                 port:
-                  number: {{ $.Values.service.port }}
+                  number: {{ $svcPort }}
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+              {{- end }}
           {{- end }}
     {{- end }}
 {{- end }}
