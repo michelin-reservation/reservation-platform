@@ -1,0 +1,26 @@
+apiVersion: v2
+name: michelin-reservation-platform
+description: 미슐랭 예약 플랫폼 Helm 차트
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: frontend
+    version: 1.0.0
+    condition: frontend.enabled
+  - name: backend
+    version: 1.0.0
+    condition: backend.enabled
+  - name: redis
+    version: 1.0.0
+    condition: redis.enabled
+  - name: mysql
+    version: 1.0.0
+    condition: mysql.enabled
+  - name: nginx
+    version: 1.0.0
+    condition: nginx.enabled
+  - name: monitoring
+    version: 1.0.0
+    condition: monitoring.enabled

@@ -1,0 +1,81 @@
+{{- if .Values.prometheus.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "monitoring.fullname" . }}-prometheus-config
+  labels:
+    {{- include "monitoring.labels" . | nindent 4 }}
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: {{ .Values.prometheus.config.global.scrape_interval }}
+      evaluation_interval: {{ .Values.prometheus.config.global.evaluation_interval }}
+
+    rule_files:
+      {{- range .Values.prometheus.config.rule_files }}
+      - {{ . | quote }}
+      {{- end }}
+
+    scrape_configs:
+      {{- range .Values.prometheus.config.scrape_configs }}
+      - job_name: {{ .job_name | quote }}
+        {{- if .kubernetes_sd_configs }}
+        kubernetes_sd_configs:
+          {{- toYaml .kubernetes_sd_configs | nindent 10 }}
+        {{- end }}
+        {{- if .static_configs }}
+        static_configs:
+          {{- toYaml .static_configs | nindent 10 }}
+        {{- end }}
+        {{- if .metrics_path }}
+        metrics_path: {{ .metrics_path | quote }}
+        {{- end }}
+        {{- if .scrape_interval }}
+        scrape_interval: {{ .scrape_interval }}
+        {{- end }}
+        {{- if .relabel_configs }}
+        relabel_configs:
+          {{- toYaml .relabel_configs | nindent 10 }}
+        {{- end }}
+      {{- end }}
+
+  rules.yml: |
+    groups:
+      - name: michelin.rules
+        rules:
+          - alert: HighCPUUsage
+            expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High CPU usage detected"
+              description: "CPU usage is above 80% for more than 5 minutes"
+
+          - alert: HighMemoryUsage
+            expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 80
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High memory usage detected"
+              description: "Memory usage is above 80% for more than 5 minutes"
+
+          - alert: HighErrorRate
+            expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) * 100 > 5
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: "High error rate detected"
+              description: "Error rate is above 5% for more than 2 minutes"
+
+          - alert: HighPendingRestaurantRatio
+            expr: restaurant_status_total{status="pending"} / ignoring(status) sum(restaurant_status_total) > 0.3
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "식당 승인 대기율이 30%를 초과"
+              description: "승인 대기 중인 식당 비율이 30%를 넘었습니다."
+{{- end }}

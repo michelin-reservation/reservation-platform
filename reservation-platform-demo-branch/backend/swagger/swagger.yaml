@@ -1,0 +1,341 @@
+openapi: 3.0.0
+info:
+  title: Michelin Reservation Platform API
+  version: 1.0.0
+  description: 미슐랭 예약 플랫폼 백엔드 API 명세
+servers:
+  - url: http://localhost:3000/api
+paths:
+  /auth/signup:
+    post:
+      summary: 회원가입
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                userName:
+                  type: string
+                userType:
+                  type: string
+                phone:
+                  type: string
+                companyName:
+                  type: string
+      responses:
+        '201':
+          description: 회원가입 성공
+        '400':
+          description: 잘못된 요청
+  /auth/login:
+    post:
+      summary: 로그인
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: 로그인 성공
+        '401':
+          description: 인증 실패
+  /users/me:
+    get:
+      summary: 내 정보 조회
+      tags: [User]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 사용자 정보 조회 성공
+        '401':
+          description: 인증 필요
+  /users/profile:
+    put:
+      summary: 내 정보 수정
+      tags: [User]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                phone:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: 정보 수정 성공
+        '400':
+          description: 잘못된 요청
+  /restaurants:
+    get:
+      summary: 식당 목록 조회
+      tags: [Restaurant]
+      responses:
+        '200':
+          description: 식당 목록 반환
+  /restaurants/{restaurant_id}:
+    get:
+      summary: 식당 상세 조회
+      tags: [Restaurant]
+      parameters:
+        - in: path
+          name: restaurant_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 식당 상세 반환
+        '404':
+          description: 식당 없음
+  /users/{user_id}/reservations:
+    get:
+      summary: 특정 유저의 예약 목록
+      tags: [Reservation]
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 예약 목록 반환
+    post:
+      summary: 특정 유저의 예약 생성
+      tags: [Reservation]
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                restaurant_id:
+                  type: integer
+                reservation_time:
+                  type: string
+                  format: date-time
+                guest_count:
+                  type: integer
+                name:
+                  type: string
+      responses:
+        '201':
+          description: 예약 생성 성공
+  /users/{user_id}/reservations/{reservation_id}:
+    get:
+      summary: 예약 상세 조회
+      tags: [Reservation]
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: reservation_id
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 예약 상세 반환
+    put:
+      summary: 예약 수정
+      tags: [Reservation]
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: reservation_id
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reservation_time:
+                  type: string
+                  format: date-time
+                guest_count:
+                  type: integer
+                name:
+                  type: string
+      responses:
+        '200':
+          description: 예약 수정 성공
+    delete:
+      summary: 예약 취소/삭제
+      tags: [Reservation]
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: reservation_id
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 예약 취소/삭제 성공
+  /restaurants/{restaurant_id}/reviews:
+    get:
+      summary: 특정 식당의 리뷰 목록
+      tags: [Review]
+      parameters:
+        - in: path
+          name: restaurant_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 리뷰 목록 반환
+    post:
+      summary: 특정 식당에 리뷰 등록
+      tags: [Review]
+      parameters:
+        - in: path
+          name: restaurant_id
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: integer
+                content:
+                  type: string
+      responses:
+        '201':
+          description: 리뷰 등록 성공
+  /restaurants/{restaurant_id}/reviews/{review_id}:
+    get:
+      summary: 리뷰 상세 조회
+      tags: [Review]
+      parameters:
+        - in: path
+          name: restaurant_id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: review_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 리뷰 상세 반환
+    put:
+      summary: 리뷰 수정
+      tags: [Review]
+      parameters:
+        - in: path
+          name: restaurant_id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: review_id
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: integer
+                content:
+                  type: string
+      responses:
+        '200':
+          description: 리뷰 수정 성공
+    delete:
+      summary: 리뷰 삭제
+      tags: [Review]
+      parameters:
+        - in: path
+          name: restaurant_id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: review_id
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 리뷰 삭제 성공
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 

@@ -1,0 +1,255 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  일반
+  VIP
+  관리자
+}
+
+enum ReservationStatus {
+  대기
+  확정
+  취소
+}
+
+enum PaymentStatus {
+  대기
+  완료
+  취소
+}
+
+enum VipRequestStatus {
+  대기
+  승인
+  거절
+}
+
+enum TenantStatus {
+  활성
+  중지
+  탈퇴
+}
+
+enum SubscriptionPlan {
+  FREE
+  BASIC
+  PREMIUM
+  ENTERPRISE
+}
+
+model Tenant {
+  id           String   @id @default(uuid())
+  name         String
+  companyName  String
+  domain       String?
+  plan         SubscriptionPlan @default(FREE)
+  status       TenantStatus @default(활성)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  // 관계
+  restaurants  Restaurant[]
+  users        User[]
+
+  @@index([plan])
+  @@index([status])
+}
+
+model User {
+  id             String        @id @default(uuid())
+  tenantId       String
+  tenant         Tenant        @relation(fields: [tenantId], references: [id])
+  email          String        @unique
+  password       String
+  name           String?
+  phone          String?
+  userType       UserType      @default(일반)
+  companyName    String?
+  vipCardNumber  String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+  notificationSetting NotificationSetting?
+
+  reviews        Review[]
+  reservations   Reservation[]
+  favorites      Favorite[]
+  payments       Payment[]     @relation("UserPayments")
+  vipRequests    VipRequest[]
+
+  @@index([tenantId])
+  @@index([userType])
+}
+
+model Restaurant {
+  id              String        @id @default(uuid())
+  tenantId        String
+  tenant          Tenant        @relation(fields: [tenantId], references: [id])
+  name            String
+  nameKorean      String?
+  category        String?
+  address         String
+  lat             Float
+  lng             Float
+  stars           Int?
+  menu            String?       @db.LongText
+  tags            Json?
+  corkage         Boolean?
+  parking         Boolean?
+  numberOfSeats   Int?
+  registrationDate DateTime?
+  commissionFee   Int?
+  ownerId         String?
+  michelinGuide   String?
+  description     String?       @db.Text
+  phone           String?
+  services        Json?
+  social          Json?
+  openingHours    Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?
+
+  reviews         Review[]
+  reservations    Reservation[]
+  favorites       Favorite[]
+  menuItems       MenuItem[]
+
+  @@index([tenantId])
+  @@index([category])
+  @@index([ownerId])
+}
+
+model MenuItem {
+  id           String     @id @default(uuid())
+  name         String
+  nameKorean   String?
+  price        String
+  description  String?    @db.Text
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+
+  @@index([restaurantId])
+}
+
+model Review {
+  id           String     @id @default(uuid())
+  rating       Int
+  content      String     @db.Text
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+
+  @@index([restaurantId])
+  @@index([userId])
+}
+
+model Reservation {
+  id           String     @id @default(uuid())
+  date         DateTime
+  time         String
+  people       Int
+  specialRequest String?
+  status       ReservationStatus @default(대기)
+  name         String?
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+
+  payment      Payment?
+
+  @@index([restaurantId, date])
+  @@index([userId])
+}
+
+model Favorite {
+  id           String     @id @default(uuid())
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId String
+  createdAt    DateTime   @default(now())
+  deletedAt    DateTime?
+
+  @@index([userId])
+  @@index([restaurantId])
+}
+
+model Payment {
+  id             String     @id @default(uuid())
+  reservation    Reservation @relation(fields: [reservationId], references: [id])
+  reservationId  String     @unique
+  user           User       @relation("UserPayments", fields: [userId], references: [id])
+  userId         String
+  paymentMethod  String?
+  amount         Int
+  status         PaymentStatus @default(대기)
+  createdAt      DateTime   @default(now())
+  deletedAt      DateTime?
+
+  @@index([reservationId])
+  @@index([userId])
+}
+
+model VipRequest {
+  id           String     @id @default(uuid())
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  companyName  String
+  vipCardNumber String
+  status       VipRequestStatus @default(대기)
+  requestDate  DateTime   @default(now())
+  createdAt    DateTime   @default(now())
+  deletedAt    DateTime?
+
+  @@index([userId])
+}
+
+model NotificationSetting {
+  id                      String    @id @default(uuid())
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                  String    @unique
+  reservationConfirmation Boolean   @default(true)
+  reservationReminder     Boolean   @default(true)
+  reviewResponse          Boolean   @default(true)
+  marketingInfo           Boolean   @default(false)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  model      String
+  operation  String
+  recordId   String
+  userId     String?
+  dataBefore Json?
+  dataAfter  Json?
+  timestamp  DateTime @default(now())
+
+  @@index([model, recordId])
+}

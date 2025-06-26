@@ -1,0 +1,116 @@
+# Global values
+global:
+  ingressClassVersion: ">=1.19-0"
+
+# Frontend configuration
+frontend:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: juns99/michelin-frontend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/rewrite-target: /
+    hosts:
+      - host: michelin.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  config:
+    naverMapClientId: "ik37jksj5y"
+
+# Backend configuration
+backend:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: juns99/michelin-backend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8000
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  config:
+    nodeEnv: "production"
+    database:
+      name: "michelin_dev"
+    naver:
+      clientId: "***REMOVED***"
+      clientSecret: "IEmSj6D_QQ"
+
+# Redis configuration
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: "7-alpine"
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# MySQL configuration
+mysql:
+  enabled: true
+  image:
+    repository: mysql
+    tag: "8.0"
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  config:
+    database: "michelin_dev"
+    username: "michelin_user"
+    password: "michelin_password"
+
+# Nginx Ingress Controller
+nginx:
+  enabled: true
+  controller:
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+# Monitoring (Prometheus + Grafana)
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    retention: "7d"
+  grafana:
+    enabled: true
+    adminPassword: "admin123"

@@ -1,0 +1,56 @@
+# 운영 환경용 values
+replicaCount: 1
+
+image:
+  repository: mysql
+  pullPolicy: IfNotPresent
+  tag: "8.0"
+
+# Init Container 설정
+initContainer:
+  enabled: true
+  image:
+    repository: mysql
+    tag: "8.0"
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+
+env:
+  MYSQL_DATABASE: michelin_prod
+  MYSQL_USER: michelin_user
+
+secrets:
+  MYSQL_ROOT_PASSWORD: "prod_secure_password_0426"
+  MYSQL_PASSWORD: "prod_secure_password_0426"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+livenessProbe:
+  tcpSocket:
+    port: 3306
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  tcpSocket:
+    port: 3306
+  initialDelaySeconds: 15
+  periodSeconds: 10
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 20Gi
+  storageClass: ""
