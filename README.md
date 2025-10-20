@@ -152,6 +152,50 @@ NAS DB, NCP 서버, CI/CD, Docker 등 현대적 인프라 전략을 적용하였
 
 ---
 
+## 📸 시연 스크린샷
+
+### 🏠 메인 페이지
+미쉐린 레스토랑 검색 및 추천 시스템
+![메인 페이지](docs/screenshots/main-page.png)
+
+### 🍽️ 레스토랑 상세 페이지
+레스토랑 정보, 메뉴, 리뷰 및 예약 시스템
+![레스토랑 상세](docs/screenshots/restaurant-detail.png)
+
+### 📋 레스토랑 리스트
+필터링 및 검색 기능이 포함된 레스토랑 목록
+![레스토랑 리스트](docs/screenshots/restaurant-list.png)
+
+### 💎 컨시어지 서비스
+VIP 고객을 위한 프리미엄 서비스 패키지
+![컨시어지 서비스](docs/screenshots/concierge-services.png)
+
+### 📅 예약 시스템
+실시간 예약 및 특별 요청사항 입력
+![예약 모달](docs/screenshots/reservation-modal.png)
+
+### 🔐 로그인 시스템
+간편 로그인 및 사용자 타입별 접근 제어
+![로그인 모달](docs/screenshots/login-modal.png)
+
+### 📊 비즈니스 대시보드
+레스토랑 사업자를 위한 통계 및 예약 관리
+![비즈니스 대시보드](docs/screenshots/business-dashboard.png)
+
+### 👤 사용자 대시보드
+개인 예약 내역 및 프로필 관리
+![사용자 대시보드](docs/screenshots/user-dashboard.png)
+
+### 📄 푸터 페이지
+회사 소개, 약관, FAQ 등 완전한 정보 페이지
+![푸터 페이지](docs/screenshots/footer-pages.png)
+
+### 📱 모바일 반응형
+모든 디바이스에서 최적화된 사용자 경험
+![모바일 뷰](docs/screenshots/mobile-view.png)
+
+---
+
 ## 🚀 빠른 시작
 
 ### 1. 환경 설정
