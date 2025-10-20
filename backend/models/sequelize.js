@@ -5,7 +5,7 @@ dotenv.config();
 const sequelize = new Sequelize(
   process.env.DB_NAME || 'michelin_dev',
   process.env.DB_USERNAME || 'root',
-  process.env.DB_PASSWORD || '0426',
+  process.env.DB_PASSWORD,
   {
     host: process.env.DB_HOST || '127.0.0.1',
     port: process.env.DB_PORT || 3306,
@@ -39,7 +39,7 @@ const syncDatabase = async () => {
   try {
     await sequelize.authenticate();
     console.log('데이터베이스 연결 성공');
-    
+
     // 개발 환경에서만 테이블 자동 생성
     if (process.env.NODE_ENV === 'development') {
       await sequelize.sync({ alter: true });
@@ -59,4 +59,4 @@ module.exports = {
   Reservation,
   Review,
   Favorite
-}; 
+};

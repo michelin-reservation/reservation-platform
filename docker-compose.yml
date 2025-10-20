@@ -46,10 +46,10 @@ services:
     container_name: michelin-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: 0426
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: michelin_dev
       MYSQL_USER: michelin_user
-      MYSQL_PASSWORD: 0426
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       TZ: Asia/Seoul
     ports:
       - "3307:3306"
