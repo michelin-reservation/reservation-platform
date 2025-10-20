@@ -52,7 +52,7 @@ const RestaurantsPage: React.FC = () => {
   const paginatedRestaurants = filteredRestaurants.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
-    <div className="min-h-screen font-serif bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       <main className="container mx-auto px-4 py-6 mb-8">
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">

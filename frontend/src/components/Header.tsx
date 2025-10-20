@@ -26,8 +26,8 @@ const Header: React.FC = () => {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-red-700 font-serif font-bold text-2xl tracking-tight">
-          EIE Concierge
+        <Link to="/" className="text-red-700  font-serif font-bold text-2xl tracking-tight">
+          EIE
         </Link>
         
         <div className="md:hidden">
@@ -57,7 +57,7 @@ const Header: React.FC = () => {
               </Link>
             </li>
             <li>
-              <Link to="/faq" className="text-gray-700 hover:text-red-700 transition-colors">
+              <Link to="/footer/customer-support/faq" className="text-gray-700 hover:text-red-700 transition-colors">
                 FAQ
               </Link>
             </li>

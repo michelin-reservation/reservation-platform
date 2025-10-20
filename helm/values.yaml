@@ -57,7 +57,7 @@ backend:
     database:
       name: "michelin_dev"
     naver:
-      clientId: "***REMOVED***"
+      clientId: "F3AOhe_B_3L2444DR6Vt"
       clientSecret: "IEmSj6D_QQ"
 
 # Redis configuration

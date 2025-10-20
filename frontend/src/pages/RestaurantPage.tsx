@@ -6,31 +6,41 @@ import MapComponent from '../components/MapComponent';
 import Gallery from '../components/Gallery';
 import ReservationModal from '../components/ReservationModal';
 import { Restaurant } from '../types';
+import { restaurants } from '../data/restaurants';
 
 const RestaurantPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [activeTab, setActiveTab] = useState('info');
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
-  
+
   useEffect(() => {
     if (id) {
-      setRestaurant(null);
-      fetch(`/api/restaurants/${id}`)
-        .then(res => res.json())
-        .then(data => {
-          setRestaurant(data);
-          if (data && data.nameKorean) {
-            document.title = `${data.nameKorean} | EIE`;
-          }
-        })
-        .catch(() => setRestaurant(null));
+      // 기존 API 호출 방식 (주석 처리)
+      // setRestaurant(null);
+      // fetch(`/api/restaurants/${id}`)
+      //   .then(res => res.json())
+      //   .then(data => {
+      //     setRestaurant(data);
+      //     if (data && data.nameKorean) {
+      //       document.title = `${data.nameKorean} | EIE`;
+      //     }
+      //   })
+      //   .catch(() => setRestaurant(null));
+      // 하드코딩 데이터에서 직접 찾기
+      const found = restaurants.find(r => r.id === id);
+      setRestaurant(found || null);
+      if (found && found.nameKorean) {
+        document.title = `${found.nameKorean} | EIE`;
+      } else {
+        document.title = 'EIE';
+      }
     }
     return () => {
       document.title = 'EIE';
     };
   }, [id]);
-  
+
   if (!restaurant) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -44,15 +54,15 @@ const RestaurantPage: React.FC = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="relative h-64 md:h-80 overflow-hidden">
-        <img 
-          src={restaurant.image} 
-          alt={restaurant.name} 
+        <img
+          src={restaurant.image}
+          alt={restaurant.name}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -66,7 +76,7 @@ const RestaurantPage: React.FC = () => {
           <p className="mt-2 text-sm md:text-base opacity-90">{restaurant.address}</p>
         </div>
       </div>
-      
+
       <main className="container mx-auto px-4 py-6">
         <div className="mb-6">
           <Link to="/" className="inline-flex items-center text-gray-600 hover:text-red-600">
@@ -74,7 +84,7 @@ const RestaurantPage: React.FC = () => {
             <span>이전</span>
           </Link>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="border-b">
             <div className="flex overflow-x-auto">
@@ -87,18 +97,17 @@ const RestaurantPage: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 py-3 font-medium text-sm whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'text-red-600 border-b-2 border-red-600'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`px-4 py-3 font-medium text-sm whitespace-nowrap ${activeTab === tab.id
+                    ? 'text-red-600 border-b-2 border-red-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   {tab.label}
                 </button>
               ))}
             </div>
           </div>
-          
+
           <div className="p-6">
             {activeTab === 'info' && (
               <div>
@@ -106,7 +115,7 @@ const RestaurantPage: React.FC = () => {
                 <p className="text-gray-700 leading-relaxed mb-8">
                   {restaurant.description || '정보가 준비 중입니다.'}
                 </p>
-                
+
                 {restaurant.openingHours && (
                   <div className="mb-6">
                     <h3 className="text-lg font-medium mb-3">영업시간</h3>
@@ -124,14 +133,14 @@ const RestaurantPage: React.FC = () => {
                     </div>
                   </div>
                 )}
-                
+
                 {restaurant.services && restaurant.services.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-lg font-medium mb-3">편의 서비스</h3>
                     <p className="text-gray-700">{restaurant.services.join(', ')}</p>
                   </div>
                 )}
-                
+
                 {restaurant.phone && (
                   <div className="mb-6">
                     <h3 className="text-lg font-medium mb-3">전화번호</h3>
@@ -143,7 +152,7 @@ const RestaurantPage: React.FC = () => {
                     </div>
                   </div>
                 )}
-                
+
                 {restaurant.social?.instagram && (
                   <div className="mb-6">
                     <h3 className="text-lg font-medium mb-3">관련 링크</h3>
@@ -153,7 +162,7 @@ const RestaurantPage: React.FC = () => {
                     </a>
                   </div>
                 )}
-                
+
                 {restaurant.ranking && (
                   <div className="mb-6">
                     <h3 className="text-lg font-medium mb-3">전년 취석 수</h3>
@@ -164,7 +173,7 @@ const RestaurantPage: React.FC = () => {
                 )}
               </div>
             )}
-            
+
             {activeTab === 'menu' && (
               <div>
                 <h2 className="text-xl font-bold mb-6">메뉴</h2>
@@ -182,7 +191,7 @@ const RestaurantPage: React.FC = () => {
                 )}
               </div>
             )}
-            
+
             {activeTab === 'photos' && (
               <div>
                 <h2 className="text-xl font-bold mb-6">갤러리</h2>
@@ -193,7 +202,7 @@ const RestaurantPage: React.FC = () => {
                 )}
               </div>
             )}
-            
+
             {activeTab === 'map' && (
               <div>
                 <h2 className="text-xl font-bold mb-6">위치</h2>
@@ -203,8 +212,8 @@ const RestaurantPage: React.FC = () => {
                     <p className="text-gray-700">{restaurant.address}</p>
                   </div>
                 </div>
-                <MapComponent 
-                  restaurants={[restaurant]} 
+                <MapComponent
+                  restaurants={[restaurant]}
                   selectedId={restaurant.id}
                   height="400px"
                 />
@@ -212,12 +221,12 @@ const RestaurantPage: React.FC = () => {
             )}
           </div>
         </div>
-        
+
         <div className="mt-10">
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold mb-4">리뷰</h2>
             <div className="flex flex-col items-center justify-center py-8">
-              <button 
+              <button
                 className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
               >
                 리뷰 작성하기
@@ -228,13 +237,13 @@ const RestaurantPage: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-10 flex justify-between">
           <Link to="/" className="inline-flex items-center text-gray-600 hover:text-red-600">
             <ArrowLeft size={16} className="mr-1" />
             <span>이전</span>
           </Link>
-          <button 
+          <button
             onClick={() => setIsReservationModalOpen(true)}
             className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors"
           >

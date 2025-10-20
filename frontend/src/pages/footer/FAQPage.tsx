@@ -1,17 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SearchBar from '../../components/SearchBar';
-import { ChevronDown } from 'lucide-react';
-import { ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 
-const FAQPage = () => {
+const FAQPage: React.FC = () => {
   const navigate = useNavigate();
-
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<string>("service");
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState('');
+
 
   const serviceFAQs = [
     {
@@ -60,12 +59,12 @@ const FAQPage = () => {
     {
       question: "Q . EIE와 제휴하거나 협업하고 싶으면 어떻게 해야 하나요?",
       answer:
-        "EIE는 프리미엄 외식, 차량, 호텔, 카드사 등 다양한 분야와의 협업을 기다리고 있습니다. 제휴 제안은 [partners@eieconcierge.com](mailto:partners@eieconcierge.com)으로 이메일 주시면, 담당자가 최대 3영업일 이내에 회신 드립니다.",
+        "EIE는 프리미엄 외식, 차량, 호텔, 카드사 등 다양한 분야와의 협업을 기다리고 있습니다. 제휴 제안은 partners@eieconcierge.com 으로 이메일 주시면, 담당자가 최대 3영업일 이내에 회신 드립니다.",
     },
     {
       question: "Q . 제휴 시 어떤 혜택을 받을 수 있나요?",
       answer:
-        "제휴 파트너사에게는 다음과 같은 혜택이 제공됩니다:\n- EIE 플랫폼 내 브랜드 노출\n- 고소득 VIP 타겟 대상 공동 마케팅\n- 앱 내 예약/이용 트래픽 분석 데이터 제공",
+        "제휴 파트너사에게는 EIE 플랫폼 내 브랜드 노출, 고소득 VIP 타겟 대상 공동 마케팅, 앱 내 예약/이용 트래픽 분석 데이터와 같은 혜택이 제공됩니다. ",
     },
     {
       question: "Q . 광고 집행이나 공동 프로모션은 어떤 방식으로 진행되나요?",
@@ -75,7 +74,7 @@ const FAQPage = () => {
     {
       question: "Q . 협업 가능 분야에는 무엇이 있나요?",
       answer:
-        "다음과 같은 파트너십이 가능합니다:\n- 호텔/차량사: 프리미엄 패키지 구성 및 공동 프로모션\n- 식음료 브랜드: 미슐랭 식사 연계 와인 페어링, 디저트 제공 등\n- 카드사/보험사: 고객 혜택 연계 또는 프로모션 제휴",
+        "호텔/차량 의전의 경우는 프리미엄 패키지 구성 및 공동 프로모션, 식음료 브랜드는 미슐랭 식사 연계 와인 페어링과 디저트 제공 등의 협업이 가능합니다. 카드사의 경우 고객 혜택 연계 또는 프로모션 제휴 협업이 가능합니다. 자세한 사항은 '파트너십 안내' 페이지를 참고해 주세요.",
     },
     {
       question: "Q . 정산은 어떻게 이루어지나요?",
@@ -89,29 +88,44 @@ const FAQPage = () => {
     },
   ];
 
-  const currentFAQs =
-    activeTab === "service" ? serviceFAQs : collaborationFAQs;
-
-  const filteredFAQs = currentFAQs.filter((faq) =>
-    faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
+  // 초기 상태 설정
+  const [filteredFAQs, setFilteredFAQs] = useState(
+    activeTab === "service" ? serviceFAQs : collaborationFAQs
   );
+
+  // 탭에 따라 FAQs 업데이트
+  useEffect(() => {
+    const faqs = activeTab === "service" ? serviceFAQs : collaborationFAQs;
+    setFilteredFAQs(faqs);
+    setOpenIndex(null); // Reset open accordion
+  }, [activeTab]);
+
+
+  // 검색어에 따라 FAQs 필터링
+  useEffect(() => {
+    const filtered = filteredFAQs.filter(
+      (faq) =>
+        faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredFAQs(filtered);
+  }, [searchQuery]);
 
   const toggleAccordion = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
-  const handleSearch = () => {
-    console.log("검색어:", searchTerm); // 필요에 따라 검색어 처리
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
   };
 
   return (
-    <div className="min-h-screen font-serif bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="w-full text-center px-4 py-10 bg-stone-300">
       <h1 className="text-4xl font-bold text-center text-gray-800 mt-20 mb-8">자주 묻는 질문 (FAQ)</h1> 
       </div>
-      <div className="p-6 max-w-6xl font-serif mx-auto">
+      <div className="p-6 max-w-6xl mx-auto">
       
         <div className="max-w-lg mt-6 mb-10">
           <SearchBar onSearch={handleSearch} />
@@ -144,7 +158,7 @@ const FAQPage = () => {
             className="border rounded-sm overflow-hidden bg-white"
           >
             <button
-              className="w-full text-left px-6 py-5 flex justify-between items-center text-gray-800 font-semibold"
+              className="w-full text-left px-6 py-5 flex justify-between items-center text-gray-800 font-medium"
               onClick={() => toggleAccordion(index)}
             >
               <span>{faq.question}</span>
@@ -155,17 +169,19 @@ const FAQPage = () => {
             {openIndex === index && (
               <>
                 <div className="border-t"></div>
-                <div className="p-8 text-gray-700 font-semibold">{faq.answer}</div>
+                <div className="p-8 text-gray-700 font-medium leading-8">{faq.answer}</div>
               </>
             )}
           </div>
         ))}
       </div>
       </div>
+
       {/* Final CTA Section */}
       <div className="bg-gray-300 text-gray-800 text-center py-11">
-        <blockquote className="mt-6 text-lg font-medium mb-10 leading-4 pl-4">
-          <b>지금 " EIE Concierge " 와 함께하세요.</b>
+        <blockquote className="mt-6 text-lg font-medium mb-10 leading-10 pl-4">
+          우리는 믿습니다. 최고의 외식은 음식이 아닌, 그 순간을 함께하는 ‘경험’에서 시작된다는 것을.<br />
+          <b>지금 " <span className="text-red-700 font-serif font-bold text-2xl">EIE</span> " 와 함께하세요.</b>
         </blockquote>
         <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 mb-4">
           <button
@@ -179,18 +195,6 @@ const FAQPage = () => {
             onClick={() => navigate('/footer/customer-support/service-guide')}
           >
             서비스 이용 가이드 보기
-          </button>
-          <button
-            className="bg-white text-gray-900 font-bold text-base rounded-lg py-4 px-9 hover:bg-red-700 hover:text-white transition"
-            onClick={() => navigate('/footer/service-contents/membership')}
-          >
-            멤버십 안내 확인하기
-          </button>
-          <button
-            className="bg-white text-gray-900 font-bold text-base rounded-lg py-4 px-9 hover:bg-red-700 hover:text-white transition"
-            onClick={() => navigate('/footer/customer-support/faq')}
-          >
-            자주 묻는 질문 (FAQ)
           </button>
         </div>
       </div>

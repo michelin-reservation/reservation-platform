@@ -1,37 +1,67 @@
-version: '3.8'
+# version: '3.8'  # 시연회용 주석처리 (더 이상 사용되지 않음)
 
 services:
+  # 시연회용 간소화된 백엔드 설정
   backend:
-    image: ${DOCKERHUB_USERNAME}/michelin-backend:latest
+    # image: michelin-reservation-platform-2025-q2-backend:latest  # 시연회용 주석처리
+    build:  # 시연회용 빌드 설정
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: michelin-backend
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - JWT_SECRET=${JWT_SECRET}
-      - REDIS_URL=${REDIS_URL}
-      - SENTRY_DSN=${SENTRY_DSN}
+      # 시연회용 주석처리된 환경변수들
+      # - DB_HOST=${DB_HOST}
+      # - DB_USER=${DB_USER}
+      # - DB_PASSWORD=${DB_PASSWORD}
+      # - DB_NAME=${DB_NAME}
+      # - JWT_SECRET=${JWT_SECRET}
+      # - REDIS_URL=${REDIS_URL}
+      # - SENTRY_DSN=${SENTRY_DSN}
+      # 시연회용 하드코딩된 환경변수들
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=0426
+      - DB_NAME=michelin_dev
+      - REDIS_URL=redis://redis:6379
+      - PORT=8001  # 시연회용 포트 변경
     ports:
-      - "8000:8000"
+      - "8001:8001"  # 시연회용 포트 변경
     depends_on:
       - redis
+      - mysql  # 시연회용 MySQL 의존성 추가
     networks:
       - michelin-network
+    # 시연회용 볼륨 마운트 추가
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
 
+  # 시연회용 간소화된 프론트엔드 설정
   frontend:
-    image: ${DOCKERHUB_USERNAME}/michelin-frontend:latest
+    # image: michelin-reservation-platform-2025-q2-frontend:latest  # 시연회용 주석처리
+    build:  # 시연회용 빌드 설정
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: michelin-frontend
     restart: unless-stopped
+    environment:
+      # 시연회용 환경변수 추가
+      - VITE_API_URL=http://localhost:8001  # 시연회용 포트 변경
+      - VITE_NAVER_MAP_CLIENT_ID=ik37jksj5y
     ports:
-      - "80:80"
+      - "5173:5173"  # 시연회용 포트 변경
     depends_on:
       - backend
     networks:
       - michelin-network
+    # 시연회용 볼륨 마운트 추가
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 
+  # Redis 캐시 (기존 유지)
   redis:
     image: redis:alpine
     container_name: michelin-redis
@@ -41,25 +71,99 @@ services:
     networks:
       - michelin-network
 
+  # MySQL 데이터베이스 (포트 충돌 해결)
   mysql:
     image: mysql:8.0
     container_name: michelin-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: 0426
       MYSQL_DATABASE: michelin_dev
       MYSQL_USER: michelin_user
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_PASSWORD: 0426
       TZ: Asia/Seoul
     ports:
-      - "3307:3306"
+      - "3307:3306"  # 시연회용 포트 변경 (3306 -> 3307로 충돌 해결)
     volumes:
       - mysql-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    # healthcheck:  # 시연회용 주석처리
+    #   test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+    networks:
+      - michelin-network
+
+  # 시연회용 Nginx 리버스 프록시 추가
+  nginx:
+    image: nginx:alpine
+    container_name: michelin-nginx
+    ports:
+      - "8080:80"  # 시연회용 포트 변경 (80 -> 8080으로 충돌 방지)
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - michelin-network
+    restart: unless-stopped
+
+# 시연회용 주석처리된 고급 서비스들
+# # Prometheus 모니터링
+# prometheus:
+#   image: prom/prometheus:latest
+#   container_name: michelin-prometheus
+#   ports:
+#     - "9090:9090"
+#   volumes:
+#     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+#   networks:
+#     - michelin-network
+#   restart: unless-stopped
+
+# # Grafana 대시보드
+# grafana:
+#   image: grafana/grafana:latest
+#   container_name: michelin-grafana
+#   ports:
+#     - "3000:3000"
+#   environment:
+#     - GF_SECURITY_ADMIN_PASSWORD=admin
+#   volumes:
+#     - grafana-data:/var/lib/grafana
+#   networks:
+#     - michelin-network
+#   restart: unless-stopped
+
+# # Elasticsearch 로그 수집
+# elasticsearch:
+#   image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+#   container_name: michelin-elasticsearch
+#   environment:
+#     - discovery.type=single-node
+#     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#   ports:
+#     - "9200:9200"
+#   volumes:
+#     - elasticsearch-data:/usr/share/elasticsearch/data
+#   networks:
+#     - michelin-network
+#   restart: unless-stopped
+
+# # Kibana 로그 시각화
+# kibana:
+#   image: docker.elastic.co/kibana/kibana:7.17.0
+#   container_name: michelin-kibana
+#   ports:
+#     - "5601:5601"
+#   environment:
+#     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+#   depends_on:
+#     - elasticsearch
+#   networks:
+#     - michelin-network
+#   restart: unless-stopped
 
 networks:
   michelin-network:
@@ -68,3 +172,6 @@ networks:
 volumes:
   redis-data:
   mysql-data:
+  # 시연회용 주석처리된 볼륨들
+  # grafana-data:
+  # elasticsearch-data:

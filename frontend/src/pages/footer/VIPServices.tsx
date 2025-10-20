@@ -7,7 +7,7 @@ const VIPServices: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-50 font-serif text-gray-800">
+    <div className="min-h-screen bg-gray-50 text-gray-800">
       <Header />
       <div className="w-full text-center px-4 py-10 bg-stone-300">
       <h1 className="text-4xl font-bold text-center text-gray-800 mt-20 mb-8">VIP 전용 서비스 안내</h1> 
@@ -33,7 +33,7 @@ const VIPServices: React.FC = () => {
         </section>
 
         {/* 멤버십 주요 혜택 */}
-        <section className="mb-12">
+        <section className="mb-14">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">멤버십 주요 혜택</h2>
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white border border-gray-300">
@@ -74,18 +74,18 @@ const VIPServices: React.FC = () => {
         </section>
 
         {/* 카드 신청 방법 */}
-        <section className="mb-12">
+        <section className="mb-14">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">카드 신청 방법</h2>
           <ul className="list-disc pl-6 space-y-2">
-            <li>EIE Concierge 웹사이트 또는 EIE Concierge 앱에서 신청</li>
+            <li> <span className="font-serif text-lg font-medium">EIE</span> 웹사이트에서 신청</li>
             <li>제휴 카드사 홈페이지에서 신청 가능</li>
           </ul>
         </section>
 
         {/* 유의사항 */}
         <section>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">유의사항</h2>
-          <ul className="list-disc pl-6 space-y-2">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6">유의사항</h2>
+          <ul className="list-disc pl-6 space-y-2 mb-8">
             <li>본 멤버십은 제휴 카드사 VIP 등급 고객에 한해 발급됩니다. 일반 고객 신청은 제한됩니다.</li>
             <li>일부 혜택은 제휴 레스토랑 사정에 따라 변경 또는 조기 마감될 수 있습니다.</li>
             <li>예약 취소 및 변경 정책은 각 레스토랑 정책을 따릅니다.</li>
@@ -95,10 +95,11 @@ const VIPServices: React.FC = () => {
         </section>
       </main>
 
-      {/* Final CTA Section */}
-      <div className="bg-gray-300 text-gray-800 font-serif text-center py-11">
-        <blockquote className="mt-6 text-lg font-medium mb-10 leading-4 pl-4">
-          <b>지금 " EIE Concierge " 와 함께하세요.</b>
+    {/* Final CTA Section */}
+    <div className="bg-gray-300 text-gray-800 text-center py-11">
+            <blockquote className="mt-6 text-lg font-medium mb-10 leading-10 pl-4">
+          우리는 믿습니다. 최고의 외식은 음식이 아닌, 그 순간을 함께하는 ‘경험’에서 시작된다는 것을.<br />
+          <b>지금 " <span className="text-red-700 font-serif font-bold text-2xl">EIE</span> " 와 함께하세요.</b>
         </blockquote>
         <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 mb-4">
           <button

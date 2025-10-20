@@ -51,7 +51,7 @@ function App() {
           <Route path="/business/notices" element={<NoticeManagement />} />
           <Route path="/business/settings" element={<RestaurantSettings />} />
           <Route path="/business/help" element={<HelpSupport />} />
-          <Route path="/footer/about-us/aboutEIEConcierge" element={<AboutEIE />} />
+          <Route path="/footer/about-us/about-eie" element={<AboutEIE />} />
           <Route path="/footer/about-us/brandstory" element={<BrandStory />} />
           <Route path="/footer/about-us/partnership" element={<Partnership/>} />
           <Route path="/footer/terms-and-policy/terms-of-use" element={<TermsOfUse />} />

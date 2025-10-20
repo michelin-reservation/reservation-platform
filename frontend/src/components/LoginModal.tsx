@@ -10,13 +10,19 @@ interface LoginModalProps {
 }
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = useState('regular');
+  const [activeTab, setActiveTab] = useState<'regular' | 'vip' | 'business'>('regular');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  const dummyUsers = {
+    regular: { email: 'user1@example.com', password: 'test1234' },
+    vip: { email: 'vip1@example.com', password: 'test1234' },
+    business: { email: 'biz1@example.com', password: 'test1234' }
+  };
 
   if (!isOpen) return null;
 
@@ -29,8 +35,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    const loginEmail = dummyUsers[activeTab].email;
+    const loginPassword = dummyUsers[activeTab].password;
     try {
-      await login(email, password);
+      await login(loginEmail, loginPassword);
       onClose();
     } catch (err) {
       setError('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
@@ -49,35 +57,32 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
           <X size={20} />
         </button>
 
-        <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
+        <Tabs.Root value={activeTab} onValueChange={v => setActiveTab(v as 'regular' | 'vip' | 'business')}>
           <Tabs.List className="flex mb-6 border-b">
             <Tabs.Trigger
               value="regular"
-              className={`flex-1 py-2 text-center ${
-                activeTab === 'regular'
-                  ? 'border-b-2 border-red-600 text-red-600'
-                  : 'text-gray-600'
-              }`}
+              className={`flex-1 py-2 text-center ${activeTab === 'regular'
+                ? 'border-b-2 border-red-600 text-red-600'
+                : 'text-gray-600'
+                }`}
             >
               일반 회원
             </Tabs.Trigger>
             <Tabs.Trigger
               value="vip"
-              className={`flex-1 py-2 text-center ${
-                activeTab === 'vip'
-                  ? 'border-b-2 border-red-600 text-red-600'
-                  : 'text-gray-600'
-              }`}
+              className={`flex-1 py-2 text-center ${activeTab === 'vip'
+                ? 'border-b-2 border-red-600 text-red-600'
+                : 'text-gray-600'
+                }`}
             >
               VIP 회원
             </Tabs.Trigger>
             <Tabs.Trigger
               value="business"
-              className={`flex-1 py-2 text-center ${
-                activeTab === 'business'
-                  ? 'border-b-2 border-red-600 text-red-600'
-                  : 'text-gray-600'
-              }`}
+              className={`flex-1 py-2 text-center ${activeTab === 'business'
+                ? 'border-b-2 border-red-600 text-red-600'
+                : 'text-gray-600'
+                }`}
             >
               사업자 회원
             </Tabs.Trigger>
@@ -121,6 +126,13 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                 disabled={loading}
               >
                 {loading ? '로그인 중...' : '로그인'}
+              </button>
+              <button
+                type="button"
+                className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors"
+                onClick={() => { onClose(); navigate('/business'); }}
+              >
+                바로 입장 (테스트용)
               </button>
               <button
                 type="button"

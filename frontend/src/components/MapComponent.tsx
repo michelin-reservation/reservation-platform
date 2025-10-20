@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Restaurant } from '../types';
+import ReservationModal from '../components/ReservationModal';
 
 interface MapComponentProps {
   restaurants: Restaurant[];
@@ -68,14 +69,22 @@ declare namespace naver.maps {
   }
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ 
-  restaurants, 
+const MapComponent: React.FC<MapComponentProps> = ({
+  restaurants,
   selectedId,
   height = '300px'
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
   const markersRef = useRef<naver.maps.Marker[]>([]);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalRestaurantName, setModalRestaurantName] = useState('');
+
+  const openReservationModal = (restaurantName: string) => {
+    setModalRestaurantName(restaurantName);
+    setModalOpen(true);
+  };
 
   const initMap = () => {
     if (mapContainerRef.current && !mapRef.current) {
@@ -98,7 +107,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
       const marker = new naver.maps.Marker({
         position: new naver.maps.LatLng(restaurant.lat, restaurant.lng),
         map: mapRef.current!,
-        title: restaurant.name,
+        title: restaurant.nameKorean,
         icon: {
           url: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png',
           size: new naver.maps.Size(27, 43),
@@ -108,21 +117,39 @@ const MapComponent: React.FC<MapComponentProps> = ({
         },
       });
 
+      const infoWindowContent = `
+        <div style="
+          padding:16px;
+          font-size:16px;
+          border-radius:12px;
+          background:#fff;
+          box-shadow:0 2px 8px rgba(0,0,0,0.12);
+          min-width:180px;
+          text-align:left;
+          line-height:1.5;
+        ">
+          <strong style="font-size:18px;">${restaurant.nameKorean}</strong><br>
+          <span style="font-size:15px; color:#555;">${restaurant.address}</span><br>
+          <button id="reserve-btn-${restaurant.id}"
+            style="margin-top:10px; padding:7px 16px; background:	#4B5563; color:white; border:none; border-radius:6px; cursor:pointer; font-size:15px;">
+            예약하기
+          </button>
+        </div>
+      `;
+
       const infoWindow = new naver.maps.InfoWindow({
-        content: `
-          <div style="padding:10px; font-size:14px;">
-            <strong>${restaurant.name}</strong><br>
-            ${restaurant.address}<br>
-            <button onclick="alert('예약 페이지로 이동합니다.')" 
-              style="margin-top:5px; padding:5px 10px; background:#2DB400; color:white; border:none; border-radius:5px; cursor:pointer;">
-              예약하기
-            </button>
-          </div>
-        `,
+        content: infoWindowContent,
       });
 
       naver.maps.Event.addListener(marker, 'click', () => {
         infoWindow.open(mapRef.current!, marker);
+
+        setTimeout(() => {
+          const btn = document.getElementById(`reserve-btn-${restaurant.id}`);
+          if (btn) {
+            btn.onclick = () => openReservationModal(restaurant.nameKorean);
+          }
+        }, 0);
       });
 
       markersRef.current.push(marker);
@@ -130,63 +157,36 @@ const MapComponent: React.FC<MapComponentProps> = ({
   };
 
   useEffect(() => {
-    const naverMapClientId = import.meta.env.VITE_NAVER_MAP_CLIENT_ID;
-    if (!naverMapClientId) {
-      console.warn('VITE_NAVER_MAP_CLIENT_ID 환경변수가 설정되어 있지 않습니다.');
-      return;
-    }
-    const script = document.createElement("script");
-    script.src =
-      `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${naverMapClientId}`;
-    script.async = true;
-    script.onload = () => {
+    if ((window as any).naver && (window as any).naver.maps) {
       initMap();
       loadRestaurants();
-    };
-    document.body.appendChild(script);
-
+    } else {
+      // 스크립트가 아직 로드되지 않은 경우를 위한 fallback
+      const checkNaverMaps = () => {
+        if ((window as any).naver && (window as any).naver.maps) {
+          initMap();
+          loadRestaurants();
+        } else {
+          setTimeout(checkNaverMaps, 100);
+        }
+      };
+      checkNaverMaps();
+    }
     return () => {
-      script.remove();
       markersRef.current.forEach((marker) => marker.setMap(null));
     };
-  }, []);
+  }, [restaurants]);
 
-  return <div ref={mapContainerRef} style={{ width: '100%', height: '500px' }} />;
-
-    // For this example, we'll just create a placeholder
-  //   if (mapRef.current) {
-  //     const mapPlaceholder = document.createElement('div');
-  //     mapPlaceholder.className = 'w-full h-full bg-gray-200 flex items-center justify-center';
-      
-  //     const mapContent = document.createElement('div');
-  //     mapContent.className = 'text-center p-4';
-      
-  //     const mapTitle = document.createElement('h3');
-  //     mapTitle.className = 'text-lg font-medium text-gray-700 mb-2';
-  //     mapTitle.textContent = 'Interactive Map';
-      
-  //     const mapDescription = document.createElement('p');
-  //     mapDescription.className = 'text-sm text-gray-500';
-  //     mapDescription.textContent = `Showing ${restaurants.length} restaurants${selectedId ? ' with selected restaurant' : ''}`;
-      
-  //     mapContent.appendChild(mapTitle);
-  //     mapContent.appendChild(mapDescription);
-  //     mapPlaceholder.appendChild(mapContent);
-      
-  //     mapRef.current.innerHTML = '';
-  //     mapRef.current.appendChild(mapPlaceholder);
-  //   }
-  // }, [restaurants, selectedId]);
-
-  // return (
-  //   <div 
-  //     ref={mapRef} 
-  //     className="w-full rounded-lg overflow-hidden shadow-md" 
-  //     style={{ height }}
-  //   >
-  //     {/* Map will be rendered here */}
-  //   </div>
-  // );
+  return (
+    <>
+      <div ref={mapContainerRef} style={{ width: '100%', height: '500px' }} />
+      <ReservationModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        restaurantName={modalRestaurantName}
+      />
+    </>
+  );
 };
 
 export default MapComponent;

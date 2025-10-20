@@ -13,49 +13,10 @@ dist
 dist-ssr
 *.local
 
-# Environment variables - 보안 강화
+# Environment variables
 .env
 .env.*
 !.env.example
-.env.local
-.env.production
-.env.development
-.env.test
-*.env
-
-# Secret keys and credentials
-*secret*
-*key*
-*.pem
-*.p12
-*.pfx
-config/secrets.json
-credentials.json
-
-# Database and sensitive data
-*.db
-*.sqlite
-*.sqlite3
-*.sql
-database.json
-
-# API keys and tokens
-*token*
-*api_key*
-*secret_key*
-*private_key*
-.aws/
-.ssh/
-
-# Cloud provider credentials
-.gcp/
-.azure/
-*credentials*
-*auth*
-
-# Docker secrets
-docker-compose.override.yml
-*.override.yml
 
 # Editor directories and files
 .vscode/*
@@ -82,23 +43,9 @@ docker-compose.override.yml
 /coverage
 
 # Misc
+*.pem
 .DS_Store
-
-# Development files
-*.pid
-.backend.pid
-.frontend.pid
-*.log
-logs/
-tmp/
-temp/
-
-# Build tools
-bfg*.jar
-*.jar
-.bfg-report/
-
-# OS specific
-Thumbs.db
-.DS_Store
-*~
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

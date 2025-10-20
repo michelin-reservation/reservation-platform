@@ -4,14 +4,14 @@ import Footer from '../../components/Footer';
 
 const PrivacyPolicy = () => {
   return (
-    <div className="min-h-screen font-serif bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="w-full text-center px-4 py-10 bg-stone-300">
-      <h1 className="text-4xl font-bold text-center text-gray-800 mt-16 mb-16">개인정보 처리방침</h1> 
+      <h1 className="text-4xl font-bold text-center text-gray-800 mt-20 mb-8">개인정보 처리방침</h1> 
       </div>
       <div className="max-w-4xl mx-auto">
       <p className="text-lg text-center mt-10 mb-20">
-        (주) EIE Concierge (이하 “EIE Concierge”)는 고객님의 개인정보를 소중히 여기며, 『개인정보 보호법』 등 관련 법령을
+        (주) EIE (이하 “ <span className="font-serif font-medium">EIE</span> ”)는 고객님의 개인정보를 소중히 여기며, 『개인정보 보호법』 등 관련 법령을
         준수합니다. 회사는 개인정보 처리방침을 통해 고객님이 제공하신 개인정보가 어떠한 용도와 방식으로
         이용되고 있으며, 보호를 위해 어떤 조치를 취하고 있는지 안내 드립니다.
       </p>

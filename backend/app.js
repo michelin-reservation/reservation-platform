@@ -6,36 +6,35 @@ console.log('현재 경로:', process.cwd());
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
-const { syncDatabase } = require('./models');
-const setupSwagger = require('./swagger');
-const NotificationServer = require('./websocket/notificationServer');
-const { loggingMiddleware } = require('./utils/logger');
-const { cache } = require('./middlewares/cache');
+// const { syncDatabase } = require('./models'); // 시연회용 주석처리
+// const setupSwagger = require('./swagger'); // 시연회용 주석처리
+// const NotificationServer = require('./websocket/notificationServer'); // 시연회용 주석처리
+// const { loggingMiddleware } = require('./utils/logger'); // 시연회용 주석처리
+// const { cache } = require('./middlewares/cache'); // 시연회용 주석처리
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const requireRole = require('./middlewares/role');
-const errorHandler = require('./middlewares/errorHandler');
-const helmet = require('helmet');
-const globalQuota = require('./middlewares/quota');
+// const requireRole = require('./middlewares/role'); // 시연회용 주석처리
+// const errorHandler = require('./middlewares/errorHandler'); // 시연회용 주석처리
+// const helmet = require('helmet'); // 시연회용 주석처리
+// const globalQuota = require('./middlewares/quota'); // 시연회용 주석처리
 const morgan = require('morgan');
-const logger = require('./utils/logger');
-const Sentry = require('@sentry/node');
-const Tracing = require('@sentry/tracing');
-const promClient = require('prom-client');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-const { authenticateToken } = require('./middlewares/auth');
-const { contextMiddleware } = require('./middlewares/contextMiddleware');
-const businessRoutes = require('./routes/businessRoutes');
+// const logger = require('./utils/logger'); // 시연회용 주석처리
+// const Sentry = require('@sentry/node'); // 시연회용 주석처리
+// const Tracing = require('@sentry/tracing'); // 시연회용 주석처리
+// const promClient = require('prom-client'); // 시연회용 주석처리
+// const { PrismaClient } = require('@prisma/client'); // 시연회용 주석처리
+// const prisma = new PrismaClient(); // 시연회용 주석처리
+// const { authenticateToken } = require('./middlewares/auth'); // 시연회용 주석처리
+// const { contextMiddleware } = require('./middlewares/contextMiddleware'); // 시연회용 주석처리
+// const businessRoutes = require('./routes/businessRoutes'); // 시연회용 주석처리
 const restaurantsRoutes = require('./routes/restaurants');
-const { responseTimeTracker, metricsEndpoint } = require('./middlewares/monitoring');
-// const users = require('./routes/users'); // 불필요, 주석 처리
+// const { responseTimeTracker, metricsEndpoint } = require('./middlewares/monitoring'); // 시연회용 주석처리
 
 const app = express();
 const server = http.createServer(app);
 
-// WebSocket 서버 초기화
-const notificationServer = new NotificationServer(server);
+// WebSocket 서버 초기화 (시연회용 주석처리)
+// const notificationServer = new NotificationServer(server);
 
 // 미들웨어 설정
 app.use(cors({
@@ -49,104 +48,102 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use(morgan('combined', { stream: { write: msg => logger.info(msg.trim()) } }));
-app.use(helmet());
-app.use(globalQuota); // 전역 요청 제한 미들웨어 적용
+app.use(morgan('combined', { stream: { write: msg => console.log(msg.trim()) } })); // logger 대신 console.log 사용
+// app.use(helmet()); // 시연회용 주석처리
+// app.use(globalQuota); // 시연회용 주석처리
 
-// 모니터링 미들웨어 적용
-app.use(responseTimeTracker);
+// 모니터링 미들웨어 적용 (시연회용 주석처리)
+// app.use(responseTimeTracker);
 
-// app.js -> quota.js 로 이동 후 주석 처리
-// const limiter = rateLimit({
-//   windowMs: 1 * 60 * 1000, // 1분
-//   max: 100, // IP당 1분에 100회
-//   message: { message: '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.' }
-// });
-// app.use(limiter);
-
-// [신규 라우트 설정 - 전역 미들웨어 적용 구조]
+// [시연회용 간소화된 라우트 설정]
 // 인증이 필요 없는 라우트를 먼저 등록
 app.use('/api/auth', authRoutes);
 
-// '/api' 경로로 들어오는 모든 요청에 대해 인증 및 컨텍스트 미들웨어 적용
-const apiRouter = express.Router();
-apiRouter.use(authenticateToken);
-apiRouter.use(contextMiddleware);
+// 시연회용: 인증 없이 모든 API 접근 허용
+app.use('/api/users', userRoutes);
+app.use('/api/restaurants', restaurantsRoutes);
+app.use('/api/reservations', require('./routes/reservations'));
+app.use('/api/reviews', require('./routes/reviewRoutes'));
+app.use('/api/favorites', require('./routes/favoriteRoutes'));
+app.use('/api/vip-requests', require('./routes/vipRequests'));
+app.use('/api/payments', require('./routes/payments'));
+// app.use('/api/admin', requireRole(['관리자']), require('./routes/admin')); // 시연회용 주석처리
+// app.use('/api/business', businessRoutes); // 시연회용 주석처리
 
-// 기존 라우트들을 apiRouter에 연결
-apiRouter.use('/users', userRoutes);
-apiRouter.use('/restaurants', restaurantsRoutes);
-apiRouter.use('/reservations', require('./routes/reservations'));
-apiRouter.use('/reviews', require('./routes/reviewRoutes'));
-apiRouter.use('/favorites', require('./routes/favoriteRoutes'));
-apiRouter.use('/vip-requests', require('./routes/vipRequests'));
-apiRouter.use('/payments', require('./routes/payments'));
-apiRouter.use('/admin', requireRole(['관리자']), require('./routes/admin'));
-apiRouter.use('/business', businessRoutes);
+// Prometheus 메트릭스 엔드포인트 (시연회용 주석처리)
+// app.get('/metrics', metricsEndpoint);
 
-// 메인 앱에 apiRouter 연결
-app.use('/api', apiRouter);
+// Swagger 설정 (시연회용 주석처리)
+// setupSwagger(app);
 
-// 캐시 적용 예시 (캐시는 개별 라우터로 이동 또는 이 구조에 맞게 재설정 필요)
-// app.get('/api/restaurants', cache(300), require('./routes/restaurants'));
-// app.get('/api/restaurants/:id', cache(300), require('./routes/restaurants'));
+// 임시: Swagger JSON 생성용 엔드포인트 (시연회용 주석처리)
+// app.get('/swagger.json', (req, res) => {
+//   res.setHeader('Content-Type', 'application/json');
+//   const specs = require('./swagger').specs;
+//   res.send(specs);
+// });
 
-// Prometheus 메트릭스 엔드포인트
-app.get('/metrics', metricsEndpoint);
+// DB 동기화 (시연회용 주석처리)
+// syncDatabase();
 
-// Swagger 설정
-setupSwagger(app);
+// Sentry 연동 (에러 추적) - 시연회용 주석처리
+// let sentryDsn = process.env.SENTRY_DSN_DEV;
+// if (process.env.NODE_ENV === 'production') sentryDsn = process.env.SENTRY_DSN_PROD;
 
-// 임시: Swagger JSON 생성용 엔드포인트
-app.get('/swagger.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  const specs = require('./swagger').specs;
-  res.send(specs);
+// Sentry.init({
+//   dsn: sentryDsn,
+//   integrations: [
+//     new Sentry.Integrations.Http({ tracing: true }),
+//     new Tracing.Integrations.Express({ app })
+//   ],
+//   tracesSampleRate: 1.0
+// });
+
+// Sentry 요청 추적 미들웨어 (시연회용 주석처리)
+// app.use(Sentry.Handlers.requestHandler());
+// app.use(Sentry.Handlers.tracingHandler());
+
+// Prometheus 메트릭 수집 (시연회용 주석처리)
+// const collectDefaultMetrics = promClient.collectDefaultMetrics;
+// collectDefaultMetrics();
+// app.get('/metrics', async (req, res) => {
+//   res.set('Content-Type', promClient.register.contentType);
+//   res.end(await promClient.register.metrics());
+// });
+
+// Sentry 테스트용 라우터 (시연회용 주석처리)
+// app.get('/debug-sentry', function mainHandler(req, res) {
+//   throw new Error('My first Sentry error!');
+// });
+
+// 시연회용: 간단한 헬스체크 엔드포인트 추가
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: '미슐랭 예약 플랫폼 백엔드 서버가 정상 동작 중입니다.',
+    timestamp: new Date().toISOString()
+  });
 });
 
-// DB 동기화
-syncDatabase();
-
-// Sentry 연동 (에러 추적)
-let sentryDsn = process.env.SENTRY_DSN_DEV;
-if (process.env.NODE_ENV === 'production') sentryDsn = process.env.SENTRY_DSN_PROD;
-
-Sentry.init({
-  dsn: sentryDsn,
-  integrations: [
-    new Sentry.Integrations.Http({ tracing: true }),
-    new Tracing.Integrations.Express({ app })
-  ],
-  tracesSampleRate: 1.0
-});
-
-// Sentry 요청 추적 미들웨어
-app.use(Sentry.Handlers.requestHandler());
-app.use(Sentry.Handlers.tracingHandler());
-
-// Prometheus 메트릭 수집
-const collectDefaultMetrics = promClient.collectDefaultMetrics;
-collectDefaultMetrics();
-app.get('/metrics', async (req, res) => {
-  res.set('Content-Type', promClient.register.contentType);
-  res.end(await promClient.register.metrics());
-});
-
-// Sentry 테스트용 라우터
-app.get('/debug-sentry', function mainHandler(req, res) {
-  throw new Error('My first Sentry error!');
+// 시연회용: 간단한 메인 페이지
+app.get('/', (req, res) => {
+  res.json({
+    message: '미슐랭 예약 플랫폼 API 서버',
+    version: '1.0.0',
+    status: 'running'
+  });
 });
 
 // 서버 시작
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8001;  // 시연회용 포트 변경 (8000 -> 8001)
 server.listen(PORT, () => {
   console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
 });
 
-// WebSocket 서버를 전역적으로 사용할 수 있도록 설정
-app.set('notificationServer', notificationServer);
+// WebSocket 서버를 전역적으로 사용할 수 있도록 설정 (시연회용 주석처리)
+// app.set('notificationServer', notificationServer);
 
-app.use(errorHandler);
-app.use(Sentry.Handlers.errorHandler());
+// app.use(errorHandler); // 시연회용 주석처리
+// app.use(Sentry.Handlers.errorHandler()); // 시연회용 주석처리
 
 module.exports = { app, server };

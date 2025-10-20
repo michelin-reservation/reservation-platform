@@ -1,32 +1,32 @@
-FROM node:18-alpine as builder
+# 시연회용 간소화된 프론트엔드 Dockerfile
+FROM node:18-alpine
 
 WORKDIR /app
 
-# 의존성 파일 복사
+# 패키지 파일 복사
 COPY package*.json ./
 
-# 의존성 설치
-RUN npm ci
+# 클린업 후 의존성 설치
+RUN rm -rf node_modules package-lock.json && npm install
 
 # 소스 코드 복사
 COPY . .
 
-# 빌드
-RUN npm run build
+# 포트 노출
+EXPOSE 5173
 
-# Nginx 이미지 사용
-FROM nginx:alpine
+# 시연회용: ES 모듈 문제 해결을 위한 환경변수 설정
+ENV NODE_OPTIONS="--experimental-specifier-resolution=node"
 
-# Nginx 설정 복사
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# 시연회용: 개발 서버로 실행
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
-# 빌드된 파일 복사
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# 헬스 체크
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:80/health || exit 1
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"] 
+# 원본 설정 (주석 처리)
+# FROM node:18-alpine
+# WORKDIR /app
+# COPY package*.json ./
+# RUN npm ci --only=production
+# COPY . .
+# ENV NODE_ENV=production
+# EXPOSE 3000
+# CMD ["npm", "start"]

@@ -18,10 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "backend.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+        {{- include "backend.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -42,25 +39,57 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: 8000
               protocol: TCP
           envFrom:
             - configMapRef:
                 name: {{ include "backend.fullname" . }}-config
             - secretRef:
                 name: {{ include "backend.fullname" . }}-secret
-          {{- with .Values.livenessProbe }}
           livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.readinessProbe }}
+            httpGet:
+              path: /api/auth/login
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
           readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.resources }}
+            httpGet:
+              path: /api/auth/login
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
           resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: NODE_ENV
+              value: {{ .Values.config.nodeEnv | quote }}
+            - name: PORT
+              value: "8000"
+            - name: DB_HOST
+              value: {{ include "mysql.fullname" . | quote }}
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mysql.fullname" . }}-secret
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mysql.fullname" . }}-secret
+                  key: password
+            - name: DB_NAME
+              value: {{ .Values.config.database.name | quote }}
+            - name: REDIS_URL
+              value: "redis://{{ include "redis.fullname" . }}:6379"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "backend.fullname" . }}-secret
+                  key: jwt-secret
+            - name: NAVER_CLIENT_ID
+              value: {{ .Values.config.naver.clientId | quote }}
+            - name: NAVER_CLIENT_SECRET
+              value: {{ .Values.config.naver.clientSecret | quote }}
           {{- with .Values.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
