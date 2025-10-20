@@ -32,6 +32,31 @@ dist-ssr
 config/secrets.json
 credentials.json
 
+# Database and sensitive data
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+database.json
+
+# API keys and tokens
+*token*
+*api_key*
+*secret_key*
+*private_key*
+.aws/
+.ssh/
+
+# Cloud provider credentials
+.gcp/
+.azure/
+*credentials*
+*auth*
+
+# Docker secrets
+docker-compose.override.yml
+*.override.yml
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
